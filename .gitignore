@@ -1,6 +1,23 @@
+# ============================================================
+# TrainerForge — .gitignore
+# Spring Boot + React + Vite + TypeScript + PostgreSQL + Docker
+# ============================================================
+
 HELP.md
+
+# Compilados y bytecode
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+
+# Directorio de salida de Maven
 target/
+
+# Maven Wrapper (solo el JAR)
 .mvn/wrapper/maven-wrapper.jar
+
 !**/src/main/**/target/
 !**/src/test/**/target/
 
@@ -13,8 +30,13 @@ target/
 .springBeans
 .sts4-cache
 
+# Logs de Spring Boot / aplicación
+*.log
+logs/
+
 ### IntelliJ IDEA ###
 .idea
+.idea/
 *.iws
 *.iml
 *.ipr
@@ -31,8 +53,107 @@ build/
 
 ### VS Code ###
 .vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
 
-### MacOS System Files ###
+# ========== SISTEMA OPERATIVO ==========
+
+# macOS
 .DS_Store
 .AppleDouble
 .LSOverride
+Icon
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Dependencias
+node_modules/
+
+# Build de Vite
+frontend/dist/
+frontend/build/
+frontend/.vite/
+
+# Variables de entorno del frontend
+frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+# Cache de TypeScript y testing
+*.tsbuildinfo
+frontend/coverage/
+frontend/.nyc_output/
+
+# Configuración con secretos o credenciales reales
+application-prod.yml
+application-prod.properties
+application-local.yml
+application-local.properties
+
+# ========== ENTORNO Y SECRETOS ==========
+
+# Variables de entorno — NUNCA subir credenciales
+.env
+.env.*
+
+# Plantilla pública SIN valores reales
+!.env.example
+
+# Archivos de claves y certificados
+*.pem
+*.key
+*.p12
+*.jks
+secrets/
+
+# ========== BASE DE DATOS ==========
+
+# Volcados y backups de PostgreSQL
+*.sql.gz
+*.dump
+*.backup
+db-backup/
+postgres-data/
+
+# ========== DOCKER ==========
+
+docker-compose.override.yml
+.docker/
+
+# Eclipse / NetBeans / Vim / Emacs
+.classpath
+.project
+.settings/
+nbproject/
+*.swp
+*.swo
+*~
+
+# ========== TESTING ==========
+
+coverage/
+*.lcov
+.nyc_output/
+jacoco.exec
+jacoco/
+
+# ========== MISCELÁNEA ==========
+
+tmp/
+temp/
+*.tmp
+*.temp
+.cache/
+.parcel-cache/
+dist/
+release/
