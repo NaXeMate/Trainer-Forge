@@ -157,3 +157,5 @@ temp/
 .parcel-cache/
 dist/
 release/
+frontend/base.css
+frontend/Memory.md
