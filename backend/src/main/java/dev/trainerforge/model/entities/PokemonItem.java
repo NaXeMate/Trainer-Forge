@@ -3,6 +3,8 @@ package dev.trainerforge.model.entities;
 import dev.trainerforge.model.enumerated.ItemType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -22,6 +24,8 @@ public class PokemonItem {
     @Column(columnDefinition = "TEXT", name = "description", nullable = false)
     private String description;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private ItemType type;
 
     private Generation generationId;
