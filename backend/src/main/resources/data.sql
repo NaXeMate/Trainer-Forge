@@ -1,20 +1,20 @@
-CREATE TYPE "pokemon_class_t" AS ENUM ('COMMON', 'LEGENDARY', 'SINGULAR', 'ULTRABEAST', 'PARADOX');
+CREATE TYPE "pokemon_class_t" AS ENUM ('COMMON', 'LEGENDARY', 'MYTHICAL', 'ULTRABEAST', 'PARADOX');
 
 CREATE TABLE IF NOT EXISTS "pokedex" (
 	"id" bigserial NOT NULL UNIQUE,
 	"national_pokedex" bigint NOT NULL,
-	"name" varchar(100) NOT NULL UNIQUE,
+	"name" varchar(64) NOT NULL UNIQUE,
 	"image_url" varchar(255) NOT NULL,
 	"generation_id" bigint NOT NULL,
-	"region" bigint NOT NULL,
+	"region_id" bigint NOT NULL,
 	"class" pokemon_class_t NOT NULL DEFAULT 'COMMON',
-	"type_1" bigint NOT NULL,
-	"type_2" bigint,
-	"ability_1" bigint NOT NULL,
-	"ability_2" bigint,
-	"hidden_ability" bigint,
+	"type_1_id" bigint NOT NULL,
+	"type_2_id" bigint,
+	"ability_1_id" bigint NOT NULL,
+	"ability_2_id" bigint,
+	"hidden_ability_id" bigint,
 	"description" text(65535) NOT NULL,
-	"category" varchar(100) NOT NULL,
+	"category" varchar(64) NOT NULL,
 	"weight" decimal(5,2) NOT NULL,
 	"height" decimal(5,2) NOT NULL,
 	"hp_base" int NOT NULL,
@@ -27,23 +27,23 @@ CREATE TABLE IF NOT EXISTS "pokedex" (
 );
 
 
-CREATE TYPE "gender_t" AS ENUM ('MALE', 'FEMALE');
+CREATE TYPE "gender_t" AS ENUM ('MALE', 'FEMALE', 'GENDERLESS');
 
 CREATE TABLE IF NOT EXISTS "pokemon" (
 	"id" bigserial NOT NULL UNIQUE,
-	"species" bigint NOT NULL,
-	"nickname" varchar(32),
+	"species_id" bigint NOT NULL,
+	"nickname" varchar(64),
 	"location_found" varchar(255) NOT NULL,
 	"level" int NOT NULL,
 	"shiny" boolean NOT NULL DEFAULT 0,
 	"gender" gender_t,
-	"ability" bigint NOT NULL,
-	"move_1" bigint NOT NULL,
-	"move_2" bigint,
-	"move_3" bigint,
-	"move_4" bigint,
-	"equipped_item" bigint,
-	"nature" bigint NOT NULL,
+	"ability_id" bigint NOT NULL,
+	"move_1_id" bigint NOT NULL,
+	"move_2_id" bigint,
+	"move_3_id" bigint,
+	"move_4_id" bigint,
+	"equipped_item_id" bigint,
+	"nature_id" bigint NOT NULL,
 	"hp_ev" int NOT NULL,
 	"attack_ev" int NOT NULL,
 	"defense_ev" int NOT NULL,
@@ -59,7 +59,7 @@ CREATE TYPE "move_class_t" AS ENUM ('PHYSICAL', 'SPECIAL', 'STATUS');
 CREATE TABLE IF NOT EXISTS "moves" (
 	"id" bigserial NOT NULL UNIQUE,
 	"name" varchar(100) NOT NULL UNIQUE,
-	"type" bigint NOT NULL,
+	"type_id" bigint NOT NULL,
 	"class" move_class_t NOT NULL,
 	"power" int NOT NULL,
 	"accuracy" int NOT NULL,
@@ -89,26 +89,24 @@ CREATE TABLE IF NOT EXISTS "secondary_effects" (
 
 CREATE TABLE IF NOT EXISTS "regions" (
 	"id" bigserial NOT NULL UNIQUE,
-	"name" varchar(255) NOT NULL UNIQUE,
+	"name" varchar(100) NOT NULL UNIQUE,
 	"generation_id" bigint NOT NULL,
 	PRIMARY KEY("id")
 );
 
 
-CREATE TYPE "nature_rise_t" AS ENUM ('ATTACK', 'DEFENSE', 'SPECIAL ATTACK', 'SPECIAL DEFENSE', 'SPEED');
-
-CREATE TYPE "nature_lower_t" AS ENUM ('ATTACK', 'DEFENSE', 'SPECIAL ATTACK', 'SPECIAL DEFENSE', 'SPEED');
+CREATE TYPE "nature_rise_lower_t" AS ENUM ('ATTACK', 'DEFENSE', 'SPECIAL ATTACK', 'SPECIAL DEFENSE', 'SPEED');
 
 CREATE TABLE IF NOT EXISTS "natures" (
 	"id" bigserial NOT NULL UNIQUE,
-	"nature" varchar(100) NOT NULL UNIQUE,
-	"rise" nature_rise_t NOT NULL,
-	"lower" nature_lower_t NOT NULL,
+	"name" varchar(100) NOT NULL UNIQUE,
+	"rise" nature_rise_lower_t NOT NULL,
+	"lower" nature_rise_lower_t NOT NULL,
 	PRIMARY KEY("id")
 );
 
 
-CREATE TABLE IF NOT EXISTS "types" (
+CREATE TABLE IF NOT EXISTS "pokemon_types" (
 	"id" bigserial NOT NULL UNIQUE,
 	"name" varchar(32) NOT NULL UNIQUE,
 	"generation_id" bigint NOT NULL,
@@ -132,29 +130,24 @@ CREATE TABLE IF NOT EXISTS "abilities" (
 );
 
 
-CREATE TABLE IF NOT EXISTS "items" (
+CREATE TYPE "type_item_t" AS ENUM ('HELD_ITEM', 'BATTLE_ITEM', 'KEY_ITEM', 'EVOLUTION_ITEM', 'OTHER');
+
+CREATE TABLE IF NOT EXISTS "pokemon_items" (
 	"id" bigserial NOT NULL UNIQUE,
-	"name" varchar(100) NOT NULL UNIQUE,
+	"name" varchar(64) NOT NULL UNIQUE,
 	"description" text(65535) NOT NULL,
-	"type_id" bigint NOT NULL,
+	"type" type_item_t NOT NULL,
 	"generation_id" bigint NOT NULL,
 	PRIMARY KEY("id")
 );
 
 
-CREATE TABLE IF NOT EXISTS "item_types" (
-	"id" bigserial NOT NULL UNIQUE,
-	"type" varchar(55) NOT NULL,
-	PRIMARY KEY("id")
-);
-
-
-CREATE TYPE "team_modality_t" AS ENUM ('NORMAL', 'NUZLOCKE', 'MONOTYPE');
+CREATE TYPE "team_modality_t" AS ENUM ('NORMAL', 'NUZLOCKE', 'MONOTYPE', 'THEMED');
 
 CREATE TABLE IF NOT EXISTS "teams" (
 	"id" bigserial NOT NULL UNIQUE,
 	"trainer_id" bigint NOT NULL,
-	"game_id" bigint NOT NULL,
+	"videogame_id" bigint NOT NULL,
 	"name" varchar(100) NOT NULL,
 	"modality" team_modality_t NOT NULL DEFAULT 'NORMAL',
 	"hidden" boolean NOT NULL DEFAULT TRUE,
@@ -162,15 +155,16 @@ CREATE TABLE IF NOT EXISTS "teams" (
 );
 
 
-CREATE TYPE "trainer_class_t" AS ENUM ('NOVICE', 'CHAMPION', 'GYM LEADER', 'ELITE FOUR');
+CREATE TYPE "trainer_class_t" AS ENUM ('NOVICE', 'CHAMPION', 'ACE_TRAINER', 'GYM_LEADER', 'ELITE_FOUR', 'RIVAL', 'PROFESSOR', 'HIKER', 'BIKE_RIDER', 'SWIMMER', 'BLACK_BELT', 'BEAUTY', 'COOLTRAINER', 'LASS', 'CAMPER', 'POKEMON_BREEDER', 'POKEMON_RANGER', 'POKEMON_SCHOOL_TEACHER', 'POKEMON_FAN', 'POKEMON_COLLECTOR', 'POKEMON_RIDER', 'DRAGON_TAMER', 'FISHERMAN', 'GENTLEMAN', 'LADY', 'NINJA', 'PARASOL_LADY', 'PICNICKER', 'POLICEMAN', 'PSYCHIC', 'SAILOR', 'SCHOOL_KID', 'SENIOR', 'SWIMSUIT', 'TUBER', 'YOUNGSTER', 'WORKER', 'JUGGLER', 'KIMONO_GIRL', 'KIMONO_BOY', 'KAHUNA', 'CAPTAIN');
 
 CREATE TABLE IF NOT EXISTS "trainers" (
 	"id" bigserial NOT NULL UNIQUE,
-	"username" varchar(55) NOT NULL,
-	"email" varchar(100) NOT NULL,
+	"username" varchar(55) NOT NULL UNIQUE,
+	"email" varchar(255) NOT NULL,
+	"profile_picture_url" varchar(255),
 	"password_hash" varchar(255) NOT NULL,
-	"visible_name" varchar(55) UNIQUE,
-	"region" bigint,
+	"real_name" varchar(55) UNIQUE,
+	"region_id" bigint,
 	"favorite_game_id" bigint,
 	"favorite_pokemon_id" bigint,
 	"best_friend_id" bigint,
@@ -189,10 +183,10 @@ CREATE TABLE IF NOT EXISTS "videogames" (
 );
 
 
-CREATE TABLE IF NOT EXISTS "game_possesion" (
+CREATE TABLE IF NOT EXISTS "game_possesions" (
 	"id" bigserial NOT NULL UNIQUE,
 	"trainer_id" bigint NOT NULL,
-	"game_id" bigint NOT NULL,
+	"videogame_id" bigint NOT NULL,
 	PRIMARY KEY("id")
 );
 
@@ -205,26 +199,26 @@ CREATE TABLE IF NOT EXISTS "videogames_pokedex" (
 );
 
 
-CREATE TYPE "moves_learning_method_t" AS ENUM ('LEVEL', 'MT/MO', 'EGG', 'TUTOR', 'OTHER');
+CREATE TYPE "learning_method_t" AS ENUM ('LEVEL', 'MT/MO', 'EGG', 'TUTOR', 'OTHER');
 
 CREATE TABLE IF NOT EXISTS "moves_pokedex" (
 	"id" bigserial NOT NULL UNIQUE,
 	"pokedex_id" bigint NOT NULL,
 	"move_id" bigint NOT NULL,
 	"videogame_id" bigint NOT NULL,
-	"metodo" moves_learning_method_t NOT NULL DEFAULT 'LEVEL',
+	"learning_method" learning_method_t NOT NULL DEFAULT 'LEVEL',
 	"level" int,
 	PRIMARY KEY("id")
 );
 
 
-CREATE TYPE "tipo_relacion_t" AS ENUM ('EVOLUCION', 'MEGAPIEDRA', 'CRISTAL Z', 'ASOCIADO', 'SALVAJE');
+CREATE TYPE "item_relationship_t" AS ENUM ('EVOLUTION', 'MEGASTONE', 'Z CRISTAL', 'ASSOCIATED', 'WILD_HELD', 'OTHER');
 
 CREATE TABLE IF NOT EXISTS "pokedex_items" (
 	"id" bigserial NOT NULL UNIQUE,
 	"pokedex_id" bigint NOT NULL,
 	"item_id" bigint NOT NULL,
-	"tipo_relacion" tipo_relacion_t NOT NULL,
+	"item_relationship" item_relationship_t NOT NULL,
 	PRIMARY KEY("id")
 );
 
@@ -247,10 +241,10 @@ CREATE TABLE IF NOT EXISTS "trainer_achievements" (
 );
 
 
-CREATE TABLE IF NOT EXISTS "types_effectiveness" (
+CREATE TABLE IF NOT EXISTS "type_effectiveness" (
 	"id" bigserial NOT NULL UNIQUE,
-	"attacker_id" bigint NOT NULL,
-	"defender_id" bigint NOT NULL,
+	"attacking_type_id" bigint NOT NULL,
+	"defending_type_id" bigint NOT NULL,
 	"multiplier" decimal(3,2) NOT NULL,
 	PRIMARY KEY("id")
 );
@@ -265,68 +259,20 @@ CREATE TABLE IF NOT EXISTS "pokemon_teams" (
 );
 
 
-ALTER TABLE "items"
-ADD FOREIGN KEY("type_id") REFERENCES "item_types"("id")
-ON UPDATE NO ACTION ON DELETE NO ACTION;
-ALTER TABLE "items"
-ADD FOREIGN KEY("generation_id") REFERENCES "generations"("id")
-ON UPDATE NO ACTION ON DELETE NO ACTION;
-ALTER TABLE "pokemon"
-ADD FOREIGN KEY("species") REFERENCES "pokedex"("national_pokedex")
-ON UPDATE NO ACTION ON DELETE NO ACTION;
-ALTER TABLE "pokedex"
-ADD FOREIGN KEY("type_1") REFERENCES "types"("id")
-ON UPDATE NO ACTION ON DELETE NO ACTION;
-ALTER TABLE "pokedex"
-ADD FOREIGN KEY("type_2") REFERENCES "types"("id")
-ON UPDATE NO ACTION ON DELETE NO ACTION;
-ALTER TABLE "pokedex"
-ADD FOREIGN KEY("region") REFERENCES "regions"("id")
-ON UPDATE NO ACTION ON DELETE NO ACTION;
-ALTER TABLE "abilities"
-ADD FOREIGN KEY("id") REFERENCES "pokemon"("ability")
-ON UPDATE NO ACTION ON DELETE NO ACTION;
-ALTER TABLE "abilities"
+ALTER TABLE "pokemon_items"
 ADD FOREIGN KEY("generation_id") REFERENCES "generations"("id")
 ON UPDATE NO ACTION ON DELETE NO ACTION;
 ALTER TABLE "abilities"
-ADD FOREIGN KEY("id") REFERENCES "pokedex"("ability_1")
-ON UPDATE NO ACTION ON DELETE NO ACTION;
-ALTER TABLE "abilities"
-ADD FOREIGN KEY("id") REFERENCES "pokedex"("ability_2")
-ON UPDATE NO ACTION ON DELETE NO ACTION;
-ALTER TABLE "abilities"
-ADD FOREIGN KEY("id") REFERENCES "pokedex"("hidden_ability")
-ON UPDATE NO ACTION ON DELETE NO ACTION;
-ALTER TABLE "pokemon"
-ADD FOREIGN KEY("nature") REFERENCES "natures"("id")
-ON UPDATE NO ACTION ON DELETE NO ACTION;
-ALTER TABLE "teams"
-ADD FOREIGN KEY("trainer_id") REFERENCES "trainers"("id")
-ON UPDATE NO ACTION ON DELETE NO ACTION;
-ALTER TABLE "teams"
-ADD FOREIGN KEY("game_id") REFERENCES "videogames"("id")
-ON UPDATE NO ACTION ON DELETE NO ACTION;
-ALTER TABLE "pokemon"
-ADD FOREIGN KEY("move_1") REFERENCES "moves"("id")
-ON UPDATE NO ACTION ON DELETE NO ACTION;
-ALTER TABLE "pokemon"
-ADD FOREIGN KEY("move_2") REFERENCES "moves"("id")
-ON UPDATE NO ACTION ON DELETE NO ACTION;
-ALTER TABLE "pokemon"
-ADD FOREIGN KEY("move_3") REFERENCES "moves"("id")
-ON UPDATE NO ACTION ON DELETE NO ACTION;
-ALTER TABLE "pokemon"
-ADD FOREIGN KEY("move_4") REFERENCES "moves"("id")
-ON UPDATE NO ACTION ON DELETE NO ACTION;
-ALTER TABLE "pokemon"
-ADD FOREIGN KEY("equipped_item") REFERENCES "items"("id")
+ADD FOREIGN KEY("generation_id") REFERENCES "generations"("id")
 ON UPDATE NO ACTION ON DELETE NO ACTION;
 ALTER TABLE "regions"
 ADD FOREIGN KEY("generation_id") REFERENCES "generations"("id")
 ON UPDATE NO ACTION ON DELETE NO ACTION;
-ALTER TABLE "types"
+ALTER TABLE "pokemon_types"
 ADD FOREIGN KEY("generation_id") REFERENCES "generations"("id")
+ON UPDATE NO ACTION ON DELETE NO ACTION;
+ALTER TABLE "moves"
+ADD FOREIGN KEY("type_id") REFERENCES "pokemon_types"("id")
 ON UPDATE NO ACTION ON DELETE NO ACTION;
 ALTER TABLE "moves"
 ADD FOREIGN KEY("target_id") REFERENCES "moves_targets"("id")
@@ -337,11 +283,59 @@ ON UPDATE NO ACTION ON DELETE NO ACTION;
 ALTER TABLE "moves"
 ADD FOREIGN KEY("generation_id") REFERENCES "generations"("id")
 ON UPDATE NO ACTION ON DELETE NO ACTION;
+ALTER TABLE "pokedex"
+ADD FOREIGN KEY("generation_id") REFERENCES "generations"("id")
+ON UPDATE NO ACTION ON DELETE NO ACTION;
+ALTER TABLE "pokedex"
+ADD FOREIGN KEY("region_id") REFERENCES "regions"("id")
+ON UPDATE NO ACTION ON DELETE NO ACTION;
+ALTER TABLE "pokedex"
+ADD FOREIGN KEY("type_1_id") REFERENCES "pokemon_types"("id")
+ON UPDATE NO ACTION ON DELETE NO ACTION;
+ALTER TABLE "pokedex"
+ADD FOREIGN KEY("type_2_id") REFERENCES "pokemon_types"("id")
+ON UPDATE NO ACTION ON DELETE NO ACTION;
+ALTER TABLE "pokedex"
+ADD FOREIGN KEY("ability_1_id") REFERENCES "abilities"("id")
+ON UPDATE NO ACTION ON DELETE NO ACTION;
+ALTER TABLE "pokedex"
+ADD FOREIGN KEY("ability_2_id") REFERENCES "abilities"("id")
+ON UPDATE NO ACTION ON DELETE NO ACTION;
+ALTER TABLE "pokedex"
+ADD FOREIGN KEY("hidden_ability_id") REFERENCES "abilities"("id")
+ON UPDATE NO ACTION ON DELETE NO ACTION;
+ALTER TABLE "pokemon"
+ADD FOREIGN KEY("species_id") REFERENCES "pokedex"("id")
+ON UPDATE NO ACTION ON DELETE NO ACTION;
+ALTER TABLE "pokemon"
+ADD FOREIGN KEY("ability_id") REFERENCES "abilities"("id")
+ON UPDATE NO ACTION ON DELETE NO ACTION;
+ALTER TABLE "pokemon"
+ADD FOREIGN KEY("nature_id") REFERENCES "natures"("id")
+ON UPDATE NO ACTION ON DELETE NO ACTION;
+ALTER TABLE "pokemon"
+ADD FOREIGN KEY("move_1_id") REFERENCES "moves"("id")
+ON UPDATE NO ACTION ON DELETE NO ACTION;
+ALTER TABLE "pokemon"
+ADD FOREIGN KEY("move_2_id") REFERENCES "moves"("id")
+ON UPDATE NO ACTION ON DELETE NO ACTION;
+ALTER TABLE "pokemon"
+ADD FOREIGN KEY("move_3_id") REFERENCES "moves"("id")
+ON UPDATE NO ACTION ON DELETE NO ACTION;
+ALTER TABLE "pokemon"
+ADD FOREIGN KEY("move_4_id") REFERENCES "moves"("id")
+ON UPDATE NO ACTION ON DELETE NO ACTION;
+ALTER TABLE "pokemon"
+ADD FOREIGN KEY("equipped_item_id") REFERENCES "pokemon_items"("id")
+ON UPDATE NO ACTION ON DELETE NO ACTION;
 ALTER TABLE "videogames"
 ADD FOREIGN KEY("generation_id") REFERENCES "generations"("id")
 ON UPDATE NO ACTION ON DELETE NO ACTION;
+ALTER TABLE "videogames"
+ADD FOREIGN KEY("region_id") REFERENCES "regions"("id")
+ON UPDATE NO ACTION ON DELETE NO ACTION;
 ALTER TABLE "trainers"
-ADD FOREIGN KEY("region") REFERENCES "regions"("id")
+ADD FOREIGN KEY("region_id") REFERENCES "regions"("id")
 ON UPDATE NO ACTION ON DELETE NO ACTION;
 ALTER TABLE "trainers"
 ADD FOREIGN KEY("best_friend_id") REFERENCES "trainers"("id")
@@ -349,17 +343,20 @@ ON UPDATE NO ACTION ON DELETE NO ACTION;
 ALTER TABLE "trainers"
 ADD FOREIGN KEY("favorite_game_id") REFERENCES "videogames"("id")
 ON UPDATE NO ACTION ON DELETE NO ACTION;
-ALTER TABLE "videogames"
-ADD FOREIGN KEY("region_id") REFERENCES "regions"("id")
+ALTER TABLE "trainers"
+ADD FOREIGN KEY("favorite_pokemon_id") REFERENCES "pokedex"("id")
 ON UPDATE NO ACTION ON DELETE NO ACTION;
-ALTER TABLE "game_possesion"
+ALTER TABLE "teams"
 ADD FOREIGN KEY("trainer_id") REFERENCES "trainers"("id")
 ON UPDATE NO ACTION ON DELETE NO ACTION;
-ALTER TABLE "game_possesion"
-ADD FOREIGN KEY("game_id") REFERENCES "videogames"("id")
+ALTER TABLE "teams"
+ADD FOREIGN KEY("videogame_id") REFERENCES "videogames"("id")
 ON UPDATE NO ACTION ON DELETE NO ACTION;
-ALTER TABLE "pokedex"
-ADD FOREIGN KEY("generation_id") REFERENCES "generations"("id")
+ALTER TABLE "game_possesions"
+ADD FOREIGN KEY("trainer_id") REFERENCES "trainers"("id")
+ON UPDATE NO ACTION ON DELETE NO ACTION;
+ALTER TABLE "game_possesions"
+ADD FOREIGN KEY("videogame_id") REFERENCES "videogames"("id")
 ON UPDATE NO ACTION ON DELETE NO ACTION;
 ALTER TABLE "videogames_pokedex"
 ADD FOREIGN KEY("pokedex_id") REFERENCES "pokedex"("id")
@@ -380,10 +377,7 @@ ALTER TABLE "pokedex_items"
 ADD FOREIGN KEY("pokedex_id") REFERENCES "pokedex"("id")
 ON UPDATE NO ACTION ON DELETE NO ACTION;
 ALTER TABLE "pokedex_items"
-ADD FOREIGN KEY("item_id") REFERENCES "items"("id")
-ON UPDATE NO ACTION ON DELETE NO ACTION;
-ALTER TABLE "trainers"
-ADD FOREIGN KEY("favorite_pokemon_id") REFERENCES "pokedex"("id")
+ADD FOREIGN KEY("item_id") REFERENCES "pokemon_items"("id")
 ON UPDATE NO ACTION ON DELETE NO ACTION;
 ALTER TABLE "trainer_achievements"
 ADD FOREIGN KEY("achievement_id") REFERENCES "achievements"("id")
@@ -391,11 +385,11 @@ ON UPDATE NO ACTION ON DELETE NO ACTION;
 ALTER TABLE "trainer_achievements"
 ADD FOREIGN KEY("trainer_id") REFERENCES "trainers"("id")
 ON UPDATE NO ACTION ON DELETE NO ACTION;
-ALTER TABLE "types_effectiveness"
-ADD FOREIGN KEY("attacker_id") REFERENCES "types"("id")
+ALTER TABLE "type_effectiveness"
+ADD FOREIGN KEY("attacking_type_id") REFERENCES "pokemon_types"("id")
 ON UPDATE NO ACTION ON DELETE NO ACTION;
-ALTER TABLE "types_effectiveness"
-ADD FOREIGN KEY("defender_id") REFERENCES "types"("id")
+ALTER TABLE "type_effectiveness"
+ADD FOREIGN KEY("defending_type_id") REFERENCES "pokemon_types"("id")
 ON UPDATE NO ACTION ON DELETE NO ACTION;
 ALTER TABLE "pokemon_teams"
 ADD FOREIGN KEY("team_id") REFERENCES "teams"("id")
