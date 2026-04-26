@@ -66,6 +66,102 @@ public class Trainer {
         this.trainerClass = trainerClass;
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getProfilePictureUrl() {
+        return profilePictureUrl;
+    }
+
+    public void setProfilePictureUrl(String profilePictureUrl) {
+        this.profilePictureUrl = profilePictureUrl;
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
+
+    public String getRealName() {
+        return realName;
+    }
+
+    public void setRealName(String realName) {
+        this.realName = realName;
+    }
+
+    public Region getRegion() {
+        return region;
+    }
+
+    public void setRegion(Region region) {
+        this.region = region;
+    }
+
+    public Videogame getFavoriteGame() {
+        return favoriteGame;
+    }
+
+    public void setFavoriteGame(Videogame favoriteGame) {
+        this.favoriteGame = favoriteGame;
+    }
+
+    public Pokedex getFavoritePokemon() {
+        return favoritePokemon;
+    }
+
+    public void setFavoritePokemon(Pokedex favoritePokemon) {
+        this.favoritePokemon = favoritePokemon;
+    }
+
+    public Trainer getBestFriend() {
+        return bestFriend;
+    }
+
+    public void setBestFriend(Trainer bestFriend) {
+        this.bestFriend = bestFriend;
+    }
+
+    public String getFriendCode() {
+        return friendCode;
+    }
+
+    public void setFriendCode(String friendCode) {
+        this.friendCode = friendCode;
+    }
+
+    public TrainerClass getTrainerClass() {
+        return trainerClass;
+    }
+
+    public void setTrainerClass(TrainerClass trainerClass) {
+        this.trainerClass = trainerClass;
+    }
+
     
 
 
