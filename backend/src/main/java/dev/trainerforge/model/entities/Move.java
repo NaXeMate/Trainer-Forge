@@ -3,11 +3,14 @@ package dev.trainerforge.model.entities;
 import dev.trainerforge.model.enumerated.MoveClass;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -21,6 +24,8 @@ public class Move {
     @Column(length = 100, nullable = false, unique = true)
     private String name;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "type_id", nullable = false)
     private PokemonType type;
 
     @Enumerated(EnumType.STRING)
@@ -36,10 +41,22 @@ public class Move {
     @Column(nullable = false)
     private boolean contact;
 
+    @Column(nullable = false)
+    private int priority;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "target_id", nullable = false)
     private MoveTarget target;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "secondary_effect_id")
     private MoveSecondaryEffect secondaryEffect;
 
+    @Column(nullable = false)
+    private int pp;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "generation_id", nullable = false)
     private Generation generationId;
 
     public Move() {}
@@ -100,6 +117,14 @@ public class Move {
         this.contact = contact;
     }
 
+    public int getPriority() {
+        return priority;
+    }
+
+    public void setPriority(int priority) {
+        this.priority = priority;
+    }
+
     public MoveTarget getTarget() {
         return target;
     }
@@ -114,6 +139,14 @@ public class Move {
 
     public void setSecondaryEffect(MoveSecondaryEffect secondaryEffect) {
         this.secondaryEffect = secondaryEffect;
+    }
+
+    public int getPp() {
+        return pp;
+    }
+
+    public void setPp(int pp) {
+        this.pp = pp;
     }
 
     public Generation getGenerationId() {

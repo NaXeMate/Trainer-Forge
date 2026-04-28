@@ -1,10 +1,16 @@
 package dev.trainerforge.model.entities;
 
 import dev.trainerforge.model.enumerated.LearningMethod;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -15,19 +21,28 @@ public class MovePokedex {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "pokedex_id", nullable = false)
     private Pokedex pokedex;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "move_id", nullable = false)
     private Move move;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "videogame_id", nullable = false)
     private Videogame videogame;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "learning_method", nullable = false)
     private LearningMethod learningMethod;
 
-    private int level;
+    @Column
+    private Integer level;
 
     public MovePokedex() {}
 
-    public MovePokedex(Pokedex pokedex, Move move, Videogame videogame, LearningMethod learningMethod, int level) {
+    public MovePokedex(Pokedex pokedex, Move move, Videogame videogame, LearningMethod learningMethod, Integer level) {
         this.pokedex = pokedex;
         this.move = move;
         this.videogame = videogame;
@@ -75,11 +90,11 @@ public class MovePokedex {
         this.learningMethod = learningMethod;
     }
 
-    public int getLevel() {
+    public Integer getLevel() {
         return level;
     }
 
-    public void setLevel(int level) {
+    public void setLevel(Integer level) {
         this.level = level;
     }
 

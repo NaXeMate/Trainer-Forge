@@ -95,7 +95,7 @@ CREATE TABLE IF NOT EXISTS "regions" (
 );
 
 
-CREATE TYPE "nature_rise_lower_t" AS ENUM ('ATTACK', 'DEFENSE', 'SPECIAL ATTACK', 'SPECIAL DEFENSE', 'SPEED');
+CREATE TYPE "nature_rise_lower_t" AS ENUM ('ATTACK', 'DEFENSE', 'SPECIAL_ATTACK', 'SPECIAL_DEFENSE', 'SPEED');
 
 CREATE TABLE IF NOT EXISTS "natures" (
 	"id" bigserial NOT NULL UNIQUE,
@@ -199,7 +199,7 @@ CREATE TABLE IF NOT EXISTS "videogames_pokedex" (
 );
 
 
-CREATE TYPE "learning_method_t" AS ENUM ('LEVEL', 'MT/MO', 'EGG', 'TUTOR', 'OTHER');
+CREATE TYPE "learning_method_t" AS ENUM ('LEVEL', 'MT_MO', 'EGG', 'TUTOR', 'OTHER');
 
 CREATE TABLE IF NOT EXISTS "moves_pokedex" (
 	"id" bigserial NOT NULL UNIQUE,
@@ -212,7 +212,7 @@ CREATE TABLE IF NOT EXISTS "moves_pokedex" (
 );
 
 
-CREATE TYPE "item_relationship_t" AS ENUM ('EVOLUTION', 'MEGASTONE', 'Z CRISTAL', 'ASSOCIATED', 'WILD_HELD', 'OTHER');
+CREATE TYPE "item_relationship_t" AS ENUM ('EVOLUTION', 'MEGASTONE', 'Z_CRISTAL', 'ASSOCIATED', 'WILD_HELD', 'OTHER');
 
 CREATE TABLE IF NOT EXISTS "pokedex_items" (
 	"id" bigserial NOT NULL UNIQUE,

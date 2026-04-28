@@ -1,13 +1,21 @@
 package dev.trainerforge.model.entities;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import dev.trainerforge.model.enumerated.TeamModality;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -18,8 +26,12 @@ public class Team {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "trainer_id", nullable = false)
     private Trainer trainer;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "videogame_id", nullable = false)
     private Videogame videogame;
 
     @Column(length = 100, nullable = false)
@@ -29,8 +41,11 @@ public class Team {
     @Column(nullable = false)
     private TeamModality modality;
 
-    @Column(nullable = false)
+    @Column(name = "hidden", nullable = false)
     private boolean isHidden;
+
+    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PokemonTeam> pokemonTeams = new ArrayList<>();
 
     public Team() {}
 
@@ -88,6 +103,14 @@ public class Team {
 
     public void setHidden(boolean isHidden) {
         this.isHidden = isHidden;
+    }
+
+    public List<PokemonTeam> getPokemonTeams() {
+        return pokemonTeams;
+    }
+
+    public void setPokemonTeams(List<PokemonTeam> pokemonTeams) {
+        this.pokemonTeams = pokemonTeams;
     }
 
     

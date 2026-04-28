@@ -3,11 +3,14 @@ package dev.trainerforge.model.entities;
 import dev.trainerforge.model.enumerated.Gender;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -18,6 +21,8 @@ public class Pokemon {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "species_id", nullable = false)
     private Pokedex species;
 
     @Column(length = 64)
@@ -33,28 +38,36 @@ public class Pokemon {
     private boolean shiny;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column
     private Gender gender;
 
-    
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "ability_id", nullable = false)
     private Ability ability;
 
     // TODO: Consider changing this to an array or list of moves.
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "move_1_id", nullable = false)
     private Move move1;
 
-    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "move_2_id")
     private Move move2;
     
-    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "move_3_id")
     private Move move3;
     
-    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "move_4_id")
     private Move move4;
 
-    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "equipped_item_id")
     private PokemonItem equippedItem;
 
-
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "nature_id", nullable = false)
     private Nature nature;
 
     // TODO: Consider changing this to an array or list of EVs.

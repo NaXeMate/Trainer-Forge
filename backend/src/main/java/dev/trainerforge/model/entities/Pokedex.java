@@ -3,11 +3,14 @@ package dev.trainerforge.model.entities;
 import dev.trainerforge.model.enumerated.PokemonClass;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -28,28 +31,42 @@ public class Pokedex {
     private String imageUrl;
 
     
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "generation_id", nullable = false)
     private Generation generationId;
 
     
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "region_id", nullable = false)
     private Region region;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "class", nullable = false)
     private PokemonClass pokemonClass;
 
     // TODO: Consider changing this to a array or list of types.
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "type_1_id", nullable = false)
     private PokemonType type1;
 
     
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "type_2_id")
     private PokemonType type2;
 
     // TODO: Consider changing this to a array or list of abilities.
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "ability_1_id", nullable = false)
     private Ability ability1;
 
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ability_2_id")
     private Ability ability2;
 
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hidden_ability_id")
     private Ability hiddenAbility;
 
 
