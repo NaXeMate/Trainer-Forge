@@ -1,4 +1,4 @@
-package dev.trainerforge.dto.Response;
+package dev.trainerforge.dto.response;
 
 import dev.trainerforge.model.enumerated.PokemonClass;
 
@@ -6,14 +6,14 @@ public record PokedexDto(
     Long nationalPokedex,
     String name,
     String imageUrl,
-    String generationName,
-    String regionName,
+    int generation,
+    String region,
     PokemonClass pokemonClass,
-    String type1Name,
-    String type2Name,
-    String ability1Name,
-    String ability2Name,
-    String hiddenAbilityName,
+    String type1,
+    String type2,
+    String ability1,
+    String ability2,
+    String hiddenAbility,
     String description,
     String category,
     Double weight,
