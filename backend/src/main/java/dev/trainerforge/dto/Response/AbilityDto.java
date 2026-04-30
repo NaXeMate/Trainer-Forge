@@ -1,7 +1,7 @@
-package dev.trainerforge.dto.Response;
+package dev.trainerforge.dto.response;
 
 public record AbilityDto(
     String name,
     String description,
-    String generationName
+    String generation
 ) {}
