@@ -1,9 +1,9 @@
-package dev.trainerforge.dto.Response;
+package dev.trainerforge.dto.response;
 
 import java.time.LocalDateTime;
 
 public record TrainerAchievementDto(
     String trainerUsername,
-    String achievementName,
+    String achievement,
     LocalDateTime dateObtained
 ) {}
