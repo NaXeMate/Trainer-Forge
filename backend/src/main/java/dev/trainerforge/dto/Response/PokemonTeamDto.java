@@ -1,7 +1,7 @@
-package dev.trainerforge.dto.Response;
+package dev.trainerforge.dto.response;
 
 public record PokemonTeamDto(
-    String teamPublicId,
-    String pokemonPublicId,
+    String teamId,
+    String pokemonId,
     int position
 ) {}
