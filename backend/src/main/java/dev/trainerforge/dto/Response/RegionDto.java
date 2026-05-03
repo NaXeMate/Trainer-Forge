@@ -1,6 +1,6 @@
-package dev.trainerforge.dto.Response;
+package dev.trainerforge.dto.response;
 
 public record RegionDto(
     String name,
-    String generationName
+    String generation
 ) {}
