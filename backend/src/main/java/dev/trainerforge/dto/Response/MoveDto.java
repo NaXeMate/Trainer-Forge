@@ -1,10 +1,10 @@
-package dev.trainerforge.dto.Response;
+package dev.trainerforge.dto.response;
 
 import dev.trainerforge.model.enumerated.MoveClass;
 
 public record MoveDto(
     String name,
-    String typeName,
+    String type,
     MoveClass moveClass,
     int power,
     int accuracy,
@@ -13,5 +13,5 @@ public record MoveDto(
     String target,
     String secondaryEffect,
     int pp,
-    String generationName
+    String generation
 ) {}
