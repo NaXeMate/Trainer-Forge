@@ -1,10 +1,10 @@
-package dev.trainerforge.dto.Response;
+package dev.trainerforge.dto.response;
 
 import dev.trainerforge.model.enumerated.ItemRelationship;
 
 public record PokedexItemDto(
-    String pokedexName,
+    String pokedex,
     Long nationalPokedex,
-    String itemName,
+    String item,
     ItemRelationship relationship
 ) {}
