@@ -1,5 +1,6 @@
 package dev.trainerforge.mapper;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.mapstruct.Mapper;
@@ -26,7 +27,7 @@ public abstract class GenerationMapper {
     public abstract void updateEntityFromDto(GenerationDto generationDto, @MappingTarget Generation generation);
 
     protected Set<Generation> mapGeneration(Long[] generationsIds) {
-        Set<Generation> generations = new java.util.HashSet<>();
+        Set<Generation> generations = new HashSet<>();
         if (generationsIds != null) {
             for (Long id : generationsIds) {
                 if (id != null) {

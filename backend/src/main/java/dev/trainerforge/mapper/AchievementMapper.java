@@ -1,5 +1,6 @@
 package dev.trainerforge.mapper;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.mapstruct.Mapper;
@@ -26,7 +27,7 @@ public abstract class AchievementMapper {
     public abstract void updateEntityFromDto(AchievementDto achievementDto, @MappingTarget Achievement achievement);
 
     protected Set<Achievement> mapAchievements(Long[] achievementsIds) {
-        Set<Achievement> achievements = new java.util.HashSet<>();
+        Set<Achievement> achievements = new HashSet<>();
         if (achievementsIds != null) {
             for (Long id : achievementsIds) {
                 if (id != null) {

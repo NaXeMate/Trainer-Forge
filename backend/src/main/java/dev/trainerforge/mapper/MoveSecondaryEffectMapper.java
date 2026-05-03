@@ -1,5 +1,6 @@
 package dev.trainerforge.mapper;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.mapstruct.Mapper;
@@ -26,7 +27,7 @@ public abstract class MoveSecondaryEffectMapper {
     public abstract void updateEntityFromDto(MoveSecondaryEffectDto secondaryEffectDto, @MappingTarget MoveSecondaryEffect secondaryEffect);
 
     protected Set<MoveSecondaryEffect> mapSecondaryEffects(Long[] secondaryEffectsIds) {
-        Set<MoveSecondaryEffect> secondaryEffects = new java.util.HashSet<>();
+        Set<MoveSecondaryEffect> secondaryEffects = new HashSet<>();
         if (secondaryEffectsIds != null) {
             for (Long id : secondaryEffectsIds) {
                 if (id != null) {

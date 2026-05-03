@@ -44,6 +44,4 @@ public abstract class PokedexMapper {
         }
         return pokedexes.stream().map(Pokedex::getId).toArray(Long[]::new);
     }
-
-
 }

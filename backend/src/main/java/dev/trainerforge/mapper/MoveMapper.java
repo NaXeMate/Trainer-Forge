@@ -1,5 +1,6 @@
 package dev.trainerforge.mapper;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.mapstruct.Mapper;
@@ -26,7 +27,7 @@ public abstract class MoveMapper {
     public abstract void updateEntityFromDto(MoveDto moveDto, @MappingTarget Move move);
 
     protected Set<Move> mapMove(Long[] movesIds) {
-        Set<Move> moves = new java.util.HashSet<>();
+        Set<Move> moves = new HashSet<>();
         if (movesIds != null) {
             for (Long id : movesIds) {
                 if (id != null) {

@@ -1,5 +1,6 @@
 package dev.trainerforge.mapper;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.mapstruct.Mapper;
@@ -26,7 +27,7 @@ public abstract class GamePossesionMapper {
     public abstract void updateEntityFromDto(GamePossesionDto gamePossesionDto, @MappingTarget GamePossesion gamePossesion);
 
     protected Set<GamePossesion> mapGamePossesions(Long[] gamePossesionsIds) {
-        Set<GamePossesion> gamePossesions = new java.util.HashSet<>();
+        Set<GamePossesion> gamePossesions = new HashSet<>();
         if (gamePossesionsIds != null) {
             for (Long id : gamePossesionsIds) {
                 if (id != null) {
