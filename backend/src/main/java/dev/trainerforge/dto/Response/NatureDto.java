@@ -1,4 +1,4 @@
-package dev.trainerforge.dto.Response;
+package dev.trainerforge.dto.response;
 
 import dev.trainerforge.model.enumerated.NatureRiseLower;
 
