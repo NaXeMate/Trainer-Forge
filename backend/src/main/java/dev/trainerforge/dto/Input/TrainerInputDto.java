@@ -1,4 +1,4 @@
-package dev.trainerforge.dto.Input;
+package dev.trainerforge.dto.input;
 
 import dev.trainerforge.model.enumerated.TrainerClass;
 
@@ -8,10 +8,9 @@ public record TrainerInputDto(
     String profilePictureUrl,
     String password,
     String realName,
-    String regionName,
-    String favoriteGameName,
-    String favoritePokemonName,
+    String region,
+    String favoriteGame,
+    String favoritePokemon,
     String bestFriendUsername,
-    String friendCode,
     TrainerClass trainerClass
 ) {}
