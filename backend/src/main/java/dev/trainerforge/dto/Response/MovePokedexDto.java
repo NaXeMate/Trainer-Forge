@@ -1,12 +1,12 @@
-package dev.trainerforge.dto.Response;
+package dev.trainerforge.dto.response;
 
 import dev.trainerforge.model.enumerated.LearningMethod;
 
 public record MovePokedexDto(
-    String pokedexName,
+    String pokedex,
     Long nationalPokedex,
-    String moveName,
-    String videogameName,
+    String move,
+    String videogame,
     LearningMethod learningMethod,
     Integer level
 ) {}
