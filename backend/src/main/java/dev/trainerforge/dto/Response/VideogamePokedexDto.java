@@ -1,7 +1,7 @@
-package dev.trainerforge.dto.Response;
+package dev.trainerforge.dto.response;
 
 public record VideogamePokedexDto(
-    String pokedexName,
+    String pokedex,
     Long nationalPokedex,
-    String videogameName
+    String videogame
 ) {}
