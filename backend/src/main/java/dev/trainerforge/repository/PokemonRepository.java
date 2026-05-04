@@ -23,16 +23,16 @@ public interface PokemonRepository extends JpaRepository<Pokemon, Long> {
     List<Pokemon> findByMove(@Param("moveId") Long moveId);
     List<Pokemon> findByEquippedItem(Long itemId);
     List<Pokemon> findByNature(Nature nature);
-    Pokemon findByHpEv(int hpEv);
+    List<Pokemon> findByHpEv(int hpEv);
     List<Pokemon> findByHpEvBetween(int minHpEv, int maxHpEv);
-    Pokemon findByAttackEv(int attackEv);
+    List<Pokemon> findByAttackEv(int attackEv);
     List<Pokemon> findByAttackEvBetween(int minAttackEv, int maxAttackEv);
-    Pokemon findByDefenseEv(int defenseEv);
+    List<Pokemon> findByDefenseEv(int defenseEv);
     List<Pokemon> findByDefenseEvBetween(int minDefenseEv, int maxDefenseEv);
-    Pokemon findBySpecialAttackEv(int specialAttackEv);
+    List<Pokemon> findBySpecialAttackEv(int specialAttackEv);
     List<Pokemon> findBySpecialAttackEvBetween(int minSpecialAttackEv, int maxSpecialAttackEv);
-    Pokemon findBySpecialDefenseEv(int specialDefenseEv);
+    List<Pokemon> findBySpecialDefenseEv(int specialDefenseEv);
     List<Pokemon> findBySpecialDefenseEvBetween(int minSpecialDefenseEv, int maxSpecialDefenseEv);
-    Pokemon findBySpeedEv(int speedEv);
+    List<Pokemon> findBySpeedEv(int speedEv);
     List<Pokemon> findBySpeedEvBetween(int minSpeedEv, int maxSpeedEv);
 }
