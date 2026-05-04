@@ -7,6 +7,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
 
+import dev.trainerforge.dto.input.TrainerInputDto;
 import dev.trainerforge.dto.response.TrainerDto;
 import dev.trainerforge.model.entities.Trainer;
 import dev.trainerforge.repository.TrainerRepository;
@@ -24,7 +25,7 @@ public abstract class TrainerMapper {
     
     public abstract TrainerDto toDto(Trainer trainer);
     
-    public abstract void updateEntityFromDto(TrainerDto trainerDto, @MappingTarget Trainer trainer);
+    public abstract void updateEntityFromDto(TrainerInputDto trainerDto, @MappingTarget Trainer trainer);
 
     protected Set<Trainer> mapTrainer(Long[] trainersIds) {
         Set<Trainer> trainers = new HashSet<>();
