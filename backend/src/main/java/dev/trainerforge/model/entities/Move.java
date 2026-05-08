@@ -52,6 +52,9 @@ public class Move {
     @JoinColumn(name = "secondary_effect_id")
     private MoveSecondaryEffect secondaryEffect;
 
+    @Column(name = "secondary_effect_chance", nullable = true)
+    private int secondaryEffectChance;
+
     @Column(nullable = false)
     private int pp;
 
@@ -60,6 +63,41 @@ public class Move {
     private Generation generationId;
 
     public Move() {}
+
+    public Move(Long id, String name, PokemonType type, MoveClass moveClass, int power, int accuracy, boolean contact,
+            int priority, MoveTarget target, MoveSecondaryEffect secondaryEffect, int secondaryEffectChance, int pp,
+            Generation generationId) {
+        this.id = id;
+        this.name = name;
+        this.type = type;
+        this.moveClass = moveClass;
+        this.power = power;
+        this.accuracy = accuracy;
+        this.contact = contact;
+        this.priority = priority;
+        this.target = target;
+        this.secondaryEffect = secondaryEffect;
+        this.secondaryEffectChance = secondaryEffectChance;
+        this.pp = pp;
+        this.generationId = generationId;
+    }
+
+    public Move(String name, PokemonType type, MoveClass moveClass, int power, int accuracy, boolean contact,
+            int priority, MoveTarget target, MoveSecondaryEffect secondaryEffect, int secondaryEffectChance, int pp,
+            Generation generationId) {
+        this.name = name;
+        this.type = type;
+        this.moveClass = moveClass;
+        this.power = power;
+        this.accuracy = accuracy;
+        this.contact = contact;
+        this.priority = priority;
+        this.target = target;
+        this.secondaryEffect = secondaryEffect;
+        this.secondaryEffectChance = secondaryEffectChance;
+        this.pp = pp;
+        this.generationId = generationId;
+    }
 
     public Long getId() {
         return id;
@@ -157,5 +195,11 @@ public class Move {
         this.generationId = generationId;
     }
 
-    
+    public int getSecondaryEffectChance() {
+        return secondaryEffectChance;
+    }
+
+    public void setSecondaryEffectChance(int secondaryEffectChance) {
+        this.secondaryEffectChance = secondaryEffectChance;
+    }
 }
