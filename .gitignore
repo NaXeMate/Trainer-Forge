@@ -129,6 +129,8 @@ postgres-data/
 
 docker-compose.override.yml
 .docker/
+trainerforge-docker.bat
+trainerforge-docker.sh
 
 # Eclipse / NetBeans / Vim / Emacs
 .classpath
@@ -147,7 +149,7 @@ coverage/
 jacoco.exec
 jacoco/
 
-# ========== MISCELÁNEA ==========
+# ========== MISC ==========
 
 tmp/
 temp/
@@ -158,4 +160,4 @@ temp/
 dist/
 release/
 frontend/base.css
-frontend/Memory.md
+Memory.md
