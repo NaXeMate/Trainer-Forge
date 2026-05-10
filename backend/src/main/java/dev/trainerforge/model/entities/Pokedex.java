@@ -30,12 +30,10 @@ public class Pokedex {
     @Column(name = "image_url", nullable = false)
     private String imageUrl;
 
-    
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "generation_id", nullable = false)
     private Generation generationId;
 
-    
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "region_id", nullable = false)
     private Region region;
@@ -49,7 +47,6 @@ public class Pokedex {
     @JoinColumn(name = "type_1_id", nullable = false)
     private PokemonType type1;
 
-    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "type_2_id")
     private PokemonType type2;
@@ -59,16 +56,13 @@ public class Pokedex {
     @JoinColumn(name = "ability_1_id", nullable = false)
     private Ability ability1;
 
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ability_2_id")
     private Ability ability2;
 
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "hidden_ability_id")
     private Ability hiddenAbility;
-
 
     @Column(columnDefinition = "TEXT", name = "description", nullable = false)
     private String description;
