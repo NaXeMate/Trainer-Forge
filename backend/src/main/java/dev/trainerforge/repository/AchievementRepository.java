@@ -8,11 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import dev.trainerforge.model.entities.Achievement;
 
 public interface AchievementRepository extends JpaRepository<Achievement, Long> {
-
     Achievement findByName(String name);
-
     List<Achievement> findByHiddenFalse();
-
-    @Query("SELECT COUNT(a) FROM Achievement a WHERE a.hidden = true")
+    @Query("SELECT COUNT(a) FROM Achievement a WHERE a.isHidden = true")
     long countHiddenAchievements();
 }

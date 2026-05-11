@@ -21,5 +21,5 @@ public interface MoveRepository extends JpaRepository<Move, Long> {
     List<Move> findBySecondaryEffect(String secondaryEffect);
     List<Move> findByPp(int pp);
     List<Move> findByPpBetween(int minPp, int maxPp);
-    List<Move> findByGeneration(String generation);
+    List<Move> findByGenerationId(Long generationId);
 }

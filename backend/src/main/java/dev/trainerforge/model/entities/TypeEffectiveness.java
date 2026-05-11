@@ -1,5 +1,7 @@
 package dev.trainerforge.model.entities;
 
+import java.math.BigDecimal;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -27,11 +29,11 @@ public class TypeEffectiveness {
     private PokemonType defendingType;
 
     @Column(precision = 3, scale = 2, nullable = false)
-    private Double multiplier;
+    private BigDecimal multiplier;
 
     public TypeEffectiveness() {}
 
-    public TypeEffectiveness(PokemonType attackingType, PokemonType defendingType, Double multiplier) {
+    public TypeEffectiveness(PokemonType attackingType, PokemonType defendingType, BigDecimal multiplier) {
         this.attackingType = attackingType;
         this.defendingType = defendingType;
         this.multiplier = multiplier;
@@ -61,11 +63,11 @@ public class TypeEffectiveness {
         this.defendingType = defendingType;
     }
 
-    public Double getMultiplier() {
+    public BigDecimal getMultiplier() {
         return multiplier;
     }
 
-    public void setMultiplier(Double multiplier) {
+    public void setMultiplier(BigDecimal multiplier) {
         this.multiplier = multiplier;
     }
 }

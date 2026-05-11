@@ -9,13 +9,15 @@ import dev.trainerforge.model.enumerated.PokemonClass;
 
 public interface PokedexRepository extends JpaRepository<Pokedex, Long> {
     
-    List<Pokedex> findByPokedexNumber(Long nationalPokedex);
+    List<Pokedex> findByNationalPokedex(Long nationalPokedex);
     Pokedex findByName(String name);
-    List<Pokedex> findByGeneration(int generation);
+    List<Pokedex> findByGenerationId(Long generationId);
     List<Pokedex> findByRegion(String region);
     List<Pokedex> findByPokemonClass(PokemonClass pokemonClass);
-    List<Pokedex> findByType(String type);
-    List<Pokedex> findByAbility(String ability);
+    List<Pokedex> findByType1(String type);
+    List<Pokedex> findByType2(String type);
+    List<Pokedex> findByAbility1(String ability);
+    List<Pokedex> findByAbility2(String ability);
     Pokedex findByCategory(String category);
     List<Pokedex> findByWeight(Double weight);
     List<Pokedex> findByHeight(Double height);

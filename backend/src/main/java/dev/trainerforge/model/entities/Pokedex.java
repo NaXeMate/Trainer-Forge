@@ -1,5 +1,7 @@
 package dev.trainerforge.model.entities;
 
+import java.math.BigDecimal;
+
 import dev.trainerforge.model.enumerated.PokemonClass;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -71,10 +73,10 @@ public class Pokedex {
     private String category;
 
     @Column (nullable = false, precision = 5, scale = 2)
-    private Double weight;
+    private BigDecimal weight;
 
     @Column (nullable = false, precision = 5, scale = 2)
-    private Double height;
+    private BigDecimal height;
 
     // TODO: Consider changing this to a array or list of base-stats.
     // TODO: Consider changing the data type of these base stats to something more appropriate, such as short or byte (max: 255).
@@ -98,6 +100,61 @@ public class Pokedex {
 
     public Pokedex() {}
 
+    public Pokedex(Long nationalPokedex, String name, String imageUrl, Generation generationId, Region region,
+            PokemonClass pokemonClass, PokemonType type1, PokemonType type2, Ability ability1, Ability ability2,
+            Ability hiddenAbility, String description, String category, BigDecimal weight, BigDecimal height,
+            int hpBase, int attackBase, int defenseBase, int specialAttackBase, int specialDefenseBase, int speedBase) {
+        this.nationalPokedex = nationalPokedex;
+        this.name = name;
+        this.imageUrl = imageUrl;
+        this.generationId = generationId;
+        this.region = region;
+        this.pokemonClass = pokemonClass;
+        this.type1 = type1;
+        this.type2 = type2;
+        this.ability1 = ability1;
+        this.ability2 = ability2;
+        this.hiddenAbility = hiddenAbility;
+        this.description = description;
+        this.category = category;
+        this.weight = weight;
+        this.height = height;
+        this.hpBase = hpBase;
+        this.attackBase = attackBase;
+        this.defenseBase = defenseBase;
+        this.specialAttackBase = specialAttackBase;
+        this.specialDefenseBase = specialDefenseBase;
+        this.speedBase = speedBase;
+    }
+
+    public Pokedex(Long id, Long nationalPokedex, String name, String imageUrl, Generation generationId, Region region,
+            PokemonClass pokemonClass, PokemonType type1, PokemonType type2, Ability ability1, Ability ability2,
+            Ability hiddenAbility, String description, String category, BigDecimal weight, BigDecimal height,
+            int hpBase, int attackBase, int defenseBase, int specialAttackBase, int specialDefenseBase, int speedBase) {
+        this.id = id;
+        this.nationalPokedex = nationalPokedex;
+        this.name = name;
+        this.imageUrl = imageUrl;
+        this.generationId = generationId;
+        this.region = region;
+        this.pokemonClass = pokemonClass;
+        this.type1 = type1;
+        this.type2 = type2;
+        this.ability1 = ability1;
+        this.ability2 = ability2;
+        this.hiddenAbility = hiddenAbility;
+        this.description = description;
+        this.category = category;
+        this.weight = weight;
+        this.height = height;
+        this.hpBase = hpBase;
+        this.attackBase = attackBase;
+        this.defenseBase = defenseBase;
+        this.specialAttackBase = specialAttackBase;
+        this.specialDefenseBase = specialDefenseBase;
+        this.speedBase = speedBase;
+    }
+    
     public Long getId() {
         return id;
     }
@@ -210,19 +267,19 @@ public class Pokedex {
         this.category = category;
     }
 
-    public Double getWeight() {
+    public BigDecimal getWeight() {
         return weight;
     }
 
-    public void setWeight(Double weight) {
+    public void setWeight(BigDecimal weight) {
         this.weight = weight;
     }
 
-    public Double getHeight() {
+    public BigDecimal getHeight() {
         return height;
     }
 
-    public void setHeight(Double height) {
+    public void setHeight(BigDecimal height) {
         this.height = height;
     }
 
