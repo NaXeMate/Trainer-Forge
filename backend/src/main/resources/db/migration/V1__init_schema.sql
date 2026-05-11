@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS "pokedex" (
 	"ability_1_id" bigint NOT NULL,
 	"ability_2_id" bigint,
 	"hidden_ability_id" bigint,
-	"description" text(65535) NOT NULL,
+	"description" text NOT NULL,
 	"category" varchar(64) NOT NULL,
 	"weight" decimal(5,2) NOT NULL,
 	"height" decimal(5,2) NOT NULL,
@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS "pokemon" (
 	"nickname" varchar(64),
 	"location_found" varchar(255) NOT NULL,
 	"level" int NOT NULL,
-	"shiny" boolean NOT NULL DEFAULT 0,
+	"shiny" boolean NOT NULL DEFAULT false,
 	"gender" gender_t,
 	"ability_id" bigint NOT NULL,
 	"move_1_id" bigint NOT NULL,
@@ -82,12 +82,13 @@ CREATE TABLE IF NOT EXISTS "moves" (
 	"name" varchar(100) NOT NULL UNIQUE,
 	"type_id" bigint NOT NULL,
 	"class" move_class_t NOT NULL,
-	"power" int NOT NULL,
-	"accuracy" int NOT NULL,
+	"power" int,
+	"accuracy" int,
 	"contact" boolean NOT NULL,
 	"priority" int NOT NULL,
 	"target_id" bigint NOT NULL,
 	"secondary_effect_id" bigint,
+	"secondary_effect_chance" int,
 	"pp" int NOT NULL,
 	"generation_id" bigint NOT NULL,
 	PRIMARY KEY("id")
@@ -96,14 +97,14 @@ CREATE TABLE IF NOT EXISTS "moves" (
 
 CREATE TABLE IF NOT EXISTS "moves_targets" (
 	"id" bigserial NOT NULL UNIQUE,
-	"target" text(65535) NOT NULL,
+	"target" text NOT NULL,
 	PRIMARY KEY("id")
 );
 
 
 CREATE TABLE IF NOT EXISTS "secondary_effects" (
 	"id" bigserial NOT NULL UNIQUE,
-	"secondary_effect" text(65535) NOT NULL,
+	"secondary_effect" text NOT NULL,
 	PRIMARY KEY("id")
 );
 
@@ -119,8 +120,8 @@ CREATE TABLE IF NOT EXISTS "regions" (
 CREATE TABLE IF NOT EXISTS "natures" (
 	"id" bigserial NOT NULL UNIQUE,
 	"name" varchar(100) NOT NULL UNIQUE,
-	"rise" nature_rise_lower_t NOT NULL,
-	"lower" nature_rise_lower_t NOT NULL,
+	"rise" nature_rise_lower_t,
+	"lower" nature_rise_lower_t,
 	PRIMARY KEY("id")
 );
 
@@ -143,7 +144,7 @@ CREATE TABLE IF NOT EXISTS "generations" (
 CREATE TABLE IF NOT EXISTS "abilities" (
 	"id" bigserial NOT NULL UNIQUE,
 	"name" varchar(100) NOT NULL UNIQUE,
-	"description" text(65535) NOT NULL,
+	"description" text NOT NULL,
 	"generation_id" bigint NOT NULL,
 	PRIMARY KEY("id")
 );
@@ -152,7 +153,7 @@ CREATE TABLE IF NOT EXISTS "abilities" (
 CREATE TABLE IF NOT EXISTS "pokemon_items" (
 	"id" bigserial NOT NULL UNIQUE,
 	"name" varchar(64) NOT NULL UNIQUE,
-	"description" text(65535) NOT NULL,
+	"description" text NOT NULL,
 	"type" type_item_t NOT NULL,
 	"generation_id" bigint NOT NULL,
 	PRIMARY KEY("id")
@@ -235,7 +236,7 @@ CREATE TABLE IF NOT EXISTS "pokedex_items" (
 CREATE TABLE IF NOT EXISTS "achievements" (
 	"id" bigserial NOT NULL UNIQUE,
 	"name" varchar(255) NOT NULL,
-	"description" text(65535) NOT NULL,
+	"description" text NOT NULL,
 	"hidden" boolean NOT NULL,
 	PRIMARY KEY("id")
 );
