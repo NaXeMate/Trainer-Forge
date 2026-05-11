@@ -108,6 +108,7 @@ application-local.properties
 
 # Plantilla pública SIN valores reales
 !.env.example
+!.env.properties.example
 
 # Archivos de claves y certificados
 *.pem
