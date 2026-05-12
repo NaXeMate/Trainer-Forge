@@ -916,7 +916,7 @@ INSERT INTO "pokemon_items" (id, name, description, type, generation_id) VALUES
 (16, 'Magnet', 'Boosts the power of the holder''s Electric-type moves by 20%.', 'HELD_ITEM', 3),
 (17, 'Rock Incense', 'Slightly boosts the power of Rock-type moves when held.', 'HELD_ITEM', 4),
 (18, 'Poison Barb', 'Boosts the power of the holder''s Poison-type moves by 20%.', 'HELD_ITEM', 3),
-(19, 'Fairy Fether', 'Boosts the power of the holder''s Fairy-type moves by 20%.', 'HELD_ITEM', 9),
+(19, 'Fairy Feather', 'Boosts the power of the holder''s Fairy-type moves by 20%.', 'HELD_ITEM', 9),
 (20, 'Odd Incense', 'Slightly boosts certain move types when held.', 'HELD_ITEM', 4),
 (21, 'X Attack', 'Boosts the power of the holder''s next damaging move by 20%.', 'BATTLE_ITEM', 1),
 (22, 'Rotom Phone', 'A enhanced smartphone which is possessed by a Rotom. It can be used to access the Pokedex and other features.', 'KEY_ITEM', 9),
