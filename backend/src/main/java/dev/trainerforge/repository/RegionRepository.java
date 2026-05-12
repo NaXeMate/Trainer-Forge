@@ -8,5 +8,5 @@ import dev.trainerforge.model.entities.Region;
 
 public interface RegionRepository extends JpaRepository<Region, Long> {
     Region findByName(String name);
-    List<Region> findByGeneration(Long generationId);
+    List<Region> findByGenerationId(Long generationId);
 }

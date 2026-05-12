@@ -23,9 +23,20 @@ public class Region {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "generation_id", nullable = false)
-    private Generation generationId;
+    private Generation generation;
 
     public Region() {}
+
+    public Region(String name, Generation generation) {
+        this.name = name;
+        this.generation = generation;
+    }
+
+    public Region(Long id, String name, Generation generation) {
+        this.id = id;
+        this.name = name;
+        this.generation = generation;
+    }
 
     public Long getId() {
         return id;
@@ -43,13 +54,11 @@ public class Region {
         this.name = name;
     }
 
-    public Generation getGenerationId() {
-        return generationId;
+    public Generation getGeneration() {
+        return generation;
     }
 
-    public void setGenerationId(Generation generationId) {
-        this.generationId = generationId;
-    }
-
-    
+    public void setGeneration(Generation generation) {
+        this.generation = generation;
+    }    
 }

@@ -8,6 +8,6 @@ import dev.trainerforge.model.entities.Videogame;
 
 public interface VideogameRepository extends JpaRepository<Videogame, Long> {
     Videogame findByName(String name);
-    List<Videogame> findByGeneration(Long generationId);
-    List<Videogame> findByRegion(Long regionId);
+    List<Videogame> findByGenerationId(Long generationId);
+    List<Videogame> findByRegionId(Long regionId);
 }

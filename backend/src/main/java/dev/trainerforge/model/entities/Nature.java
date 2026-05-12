@@ -22,11 +22,11 @@ public class Nature {
     private String name;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = true)
     private NatureRiseLower rise;
     
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = true)
     private NatureRiseLower lower;
 
     public Nature() {}

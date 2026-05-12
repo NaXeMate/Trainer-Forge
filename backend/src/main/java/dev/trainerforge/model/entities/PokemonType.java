@@ -23,13 +23,13 @@ public class PokemonType {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "generation_id", nullable = false)
-    private Generation generationId;
+    private Generation generation;
 
     public PokemonType() {}
 
-    public PokemonType(String name, Generation generationId) {
+    public PokemonType(String name, Generation generation) {
         this.name = name;
-        this.generationId = generationId;
+        this.generation = generation;
     }
 
     public Long getId() {
@@ -48,11 +48,11 @@ public class PokemonType {
         this.name = name;
     }
 
-    public Generation getGenerationId() {
-        return generationId;
+    public Generation getGeneration() {
+        return generation;
     }
 
-    public void setGenerationId(Generation generationId) {
-        this.generationId = generationId;
+    public void setGeneration(Generation generation) {
+        this.generation = generation;
     }
 }

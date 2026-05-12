@@ -32,11 +32,11 @@ public class Move {
     @Column(name = "class", nullable = false)
     private MoveClass moveClass;
 
-    @Column(nullable = false)
-    private int power;
+    @Column(nullable = true)
+    private Integer power;
 
-    @Column(nullable = false)
-    private int accuracy;
+    @Column(nullable = true)
+    private Integer accuracy;
 
     @Column(nullable = false)
     private boolean contact;
@@ -52,14 +52,52 @@ public class Move {
     @JoinColumn(name = "secondary_effect_id")
     private MoveSecondaryEffect secondaryEffect;
 
+    @Column(name = "secondary_effect_chance", nullable = true)
+    private Integer secondaryEffectChance;
+
     @Column(nullable = false)
     private int pp;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "generation_id", nullable = false)
-    private Generation generationId;
+    private Generation generation;
 
     public Move() {}
+
+    public Move(Long id, String name, PokemonType type, MoveClass moveClass, Integer power, Integer accuracy, boolean contact,
+            int priority, MoveTarget target, MoveSecondaryEffect secondaryEffect, Integer secondaryEffectChance, int pp,
+            Generation generation) {
+        this.id = id;
+        this.name = name;
+        this.type = type;
+        this.moveClass = moveClass;
+        this.power = power;
+        this.accuracy = accuracy;
+        this.contact = contact;
+        this.priority = priority;
+        this.target = target;
+        this.secondaryEffect = secondaryEffect;
+        this.secondaryEffectChance = secondaryEffectChance;
+        this.pp = pp;
+        this.generation = generation;
+    }
+
+    public Move(String name, PokemonType type, MoveClass moveClass, Integer power, Integer accuracy, boolean contact,
+            int priority, MoveTarget target, MoveSecondaryEffect secondaryEffect, Integer secondaryEffectChance, int pp,
+            Generation generation) {
+        this.name = name;
+        this.type = type;
+        this.moveClass = moveClass;
+        this.power = power;
+        this.accuracy = accuracy;
+        this.contact = contact;
+        this.priority = priority;
+        this.target = target;
+        this.secondaryEffect = secondaryEffect;
+        this.secondaryEffectChance = secondaryEffectChance;
+        this.pp = pp;
+        this.generation = generation;
+    }
 
     public Long getId() {
         return id;
@@ -93,19 +131,19 @@ public class Move {
         this.moveClass = moveClass;
     }
 
-    public int getPower() {
+    public Integer getPower() {
         return power;
     }
 
-    public void setPower(int power) {
+    public void setPower(Integer power) {
         this.power = power;
     }
 
-    public int getAccuracy() {
+    public Integer getAccuracy() {
         return accuracy;
     }
 
-    public void setAccuracy(int accuracy) {
+    public void setAccuracy(Integer accuracy) {
         this.accuracy = accuracy;
     }
 
@@ -149,13 +187,19 @@ public class Move {
         this.pp = pp;
     }
 
-    public Generation getGenerationId() {
-        return generationId;
+    public Generation getGeneration() {
+        return generation;
     }
 
-    public void setGenerationId(Generation generationId) {
-        this.generationId = generationId;
+    public void setGeneration(Generation generation) {
+        this.generation = generation;
     }
 
-    
+    public Integer getSecondaryEffectChance() {
+        return secondaryEffectChance;
+    }
+
+    public void setSecondaryEffectChance(Integer secondaryEffectChance) {
+        this.secondaryEffectChance = secondaryEffectChance;
+    }
 }

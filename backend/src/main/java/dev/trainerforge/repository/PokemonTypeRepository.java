@@ -8,5 +8,5 @@ import dev.trainerforge.model.entities.PokemonType;
 
 public interface PokemonTypeRepository extends JpaRepository<PokemonType, Long> {
     PokemonType findByName(String name);
-    List<PokemonType> findByGeneration(Long generationId);
+    List<PokemonType> findByGenerationId(Long generationId);
 }

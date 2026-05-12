@@ -23,7 +23,7 @@ public class Videogame {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "generation_id", nullable = false)
-    private Generation generationId;
+    private Generation generation;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "region_id", nullable = false)
@@ -31,9 +31,9 @@ public class Videogame {
 
     public Videogame() {}
 
-    public Videogame(String name, Generation generationId, Region region) {
+    public Videogame(String name, Generation generation, Region region) {
         this.name = name;
-        this.generationId = generationId;
+        this.generation = generation;
         this.region = region;
     }
 
@@ -53,12 +53,12 @@ public class Videogame {
         this.name = name;
     }
 
-    public Generation getGenerationId() {
-        return generationId;
+    public Generation getGeneration() {
+        return generation;
     }
 
-    public void setGenerationId(Generation generationId) {
-        this.generationId = generationId;
+    public void setGeneration(Generation generation) {
+        this.generation = generation;
     }
 
     public Region getRegion() {
