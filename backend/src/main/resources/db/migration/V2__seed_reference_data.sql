@@ -1376,3 +1376,31 @@ INSERT INTO "videogames_pokedex" (id, pokedex_id, videogame_id) VALUES
 (230, 230, 38),
 (231, 231, 38),
 (232, 232, 38);
+
+-- ========================================
+-- SEQUENCE SYNC
+-- Syncs all the sequences after inserts with hardcoded IDs
+-- ========================================
+
+SELECT setval(pg_get_serial_sequence('"pokedex"', 'id'), COALESCE((SELECT MAX(id) FROM "pokedex"), 1), true);
+SELECT setval(pg_get_serial_sequence('"pokemon"', 'id'), COALESCE((SELECT MAX(id) FROM "pokemon"), 1), true);
+SELECT setval(pg_get_serial_sequence('"moves"', 'id'), COALESCE((SELECT MAX(id) FROM "moves"), 1), true);
+SELECT setval(pg_get_serial_sequence('"moves_targets"', 'id'), COALESCE((SELECT MAX(id) FROM "moves_targets"), 1), true);
+SELECT setval(pg_get_serial_sequence('"secondary_effects"', 'id'), COALESCE((SELECT MAX(id) FROM "secondary_effects"), 1), true);
+SELECT setval(pg_get_serial_sequence('"regions"', 'id'), COALESCE((SELECT MAX(id) FROM "regions"), 1), true);
+SELECT setval(pg_get_serial_sequence('"natures"', 'id'), COALESCE((SELECT MAX(id) FROM "natures"), 1), true);
+SELECT setval(pg_get_serial_sequence('"pokemon_types"', 'id'), COALESCE((SELECT MAX(id) FROM "pokemon_types"), 1), true);
+SELECT setval(pg_get_serial_sequence('"generations"', 'id'), COALESCE((SELECT MAX(id) FROM "generations"), 1), true);
+SELECT setval(pg_get_serial_sequence('"abilities"', 'id'), COALESCE((SELECT MAX(id) FROM "abilities"), 1), true);
+SELECT setval(pg_get_serial_sequence('"pokemon_items"', 'id'), COALESCE((SELECT MAX(id) FROM "pokemon_items"), 1), true);
+SELECT setval(pg_get_serial_sequence('"teams"', 'id'), COALESCE((SELECT MAX(id) FROM "teams"), 1), true);
+SELECT setval(pg_get_serial_sequence('"trainers"', 'id'), COALESCE((SELECT MAX(id) FROM "trainers"), 1), true);
+SELECT setval(pg_get_serial_sequence('"videogames"', 'id'), COALESCE((SELECT MAX(id) FROM "videogames"), 1), true);
+SELECT setval(pg_get_serial_sequence('"game_possesions"', 'id'), COALESCE((SELECT MAX(id) FROM "game_possesions"), 1), true);
+SELECT setval(pg_get_serial_sequence('"videogames_pokedex"', 'id'), COALESCE((SELECT MAX(id) FROM "videogames_pokedex"), 1), true);
+SELECT setval(pg_get_serial_sequence('"moves_pokedex"', 'id'), COALESCE((SELECT MAX(id) FROM "moves_pokedex"), 1), true);
+SELECT setval(pg_get_serial_sequence('"pokedex_items"', 'id'), COALESCE((SELECT MAX(id) FROM "pokedex_items"), 1), true);
+SELECT setval(pg_get_serial_sequence('"achievements"', 'id'), COALESCE((SELECT MAX(id) FROM "achievements"), 1), true);
+SELECT setval(pg_get_serial_sequence('"trainer_achievements"', 'id'), COALESCE((SELECT MAX(id) FROM "trainer_achievements"), 1), true);
+SELECT setval(pg_get_serial_sequence('"type_effectiveness"', 'id'), COALESCE((SELECT MAX(id) FROM "type_effectiveness"), 1), true);
+SELECT setval(pg_get_serial_sequence('"pokemon_teams"', 'id'), COALESCE((SELECT MAX(id) FROM "pokemon_teams"), 1), true);
