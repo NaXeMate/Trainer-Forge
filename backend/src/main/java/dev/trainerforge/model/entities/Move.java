@@ -32,11 +32,11 @@ public class Move {
     @Column(name = "class", nullable = false)
     private MoveClass moveClass;
 
-    @Column(nullable = false)
-    private int power;
+    @Column(nullable = true)
+    private Integer power;
 
-    @Column(nullable = false)
-    private int accuracy;
+    @Column(nullable = true)
+    private Integer accuracy;
 
     @Column(nullable = false)
     private boolean contact;
@@ -64,7 +64,7 @@ public class Move {
 
     public Move() {}
 
-    public Move(Long id, String name, PokemonType type, MoveClass moveClass, int power, int accuracy, boolean contact,
+    public Move(Long id, String name, PokemonType type, MoveClass moveClass, Integer power, Integer accuracy, boolean contact,
             int priority, MoveTarget target, MoveSecondaryEffect secondaryEffect, Integer secondaryEffectChance, int pp,
             Generation generation) {
         this.id = id;
@@ -82,7 +82,7 @@ public class Move {
         this.generation = generation;
     }
 
-    public Move(String name, PokemonType type, MoveClass moveClass, int power, int accuracy, boolean contact,
+    public Move(String name, PokemonType type, MoveClass moveClass, Integer power, Integer accuracy, boolean contact,
             int priority, MoveTarget target, MoveSecondaryEffect secondaryEffect, Integer secondaryEffectChance, int pp,
             Generation generation) {
         this.name = name;
@@ -131,19 +131,19 @@ public class Move {
         this.moveClass = moveClass;
     }
 
-    public int getPower() {
+    public Integer getPower() {
         return power;
     }
 
-    public void setPower(int power) {
+    public void setPower(Integer power) {
         this.power = power;
     }
 
-    public int getAccuracy() {
+    public Integer getAccuracy() {
         return accuracy;
     }
 
-    public void setAccuracy(int accuracy) {
+    public void setAccuracy(Integer accuracy) {
         this.accuracy = accuracy;
     }
 
