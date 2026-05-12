@@ -60,13 +60,13 @@ public class Move {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "generation_id", nullable = false)
-    private Generation generationId;
+    private Generation generation;
 
     public Move() {}
 
     public Move(Long id, String name, PokemonType type, MoveClass moveClass, int power, int accuracy, boolean contact,
             int priority, MoveTarget target, MoveSecondaryEffect secondaryEffect, int secondaryEffectChance, int pp,
-            Generation generationId) {
+            Generation generation) {
         this.id = id;
         this.name = name;
         this.type = type;
@@ -79,12 +79,12 @@ public class Move {
         this.secondaryEffect = secondaryEffect;
         this.secondaryEffectChance = secondaryEffectChance;
         this.pp = pp;
-        this.generationId = generationId;
+        this.generation = generation;
     }
 
     public Move(String name, PokemonType type, MoveClass moveClass, int power, int accuracy, boolean contact,
             int priority, MoveTarget target, MoveSecondaryEffect secondaryEffect, int secondaryEffectChance, int pp,
-            Generation generationId) {
+            Generation generation) {
         this.name = name;
         this.type = type;
         this.moveClass = moveClass;
@@ -96,7 +96,7 @@ public class Move {
         this.secondaryEffect = secondaryEffect;
         this.secondaryEffectChance = secondaryEffectChance;
         this.pp = pp;
-        this.generationId = generationId;
+        this.generation = generation;
     }
 
     public Long getId() {
@@ -187,12 +187,12 @@ public class Move {
         this.pp = pp;
     }
 
-    public Generation getGenerationId() {
-        return generationId;
+    public Generation getGeneration() {
+        return generation;
     }
 
-    public void setGenerationId(Generation generationId) {
-        this.generationId = generationId;
+    public void setGeneration(Generation generation) {
+        this.generation = generation;
     }
 
     public int getSecondaryEffectChance() {

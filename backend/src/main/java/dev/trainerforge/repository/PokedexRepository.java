@@ -8,7 +8,6 @@ import dev.trainerforge.model.entities.Pokedex;
 import dev.trainerforge.model.enumerated.PokemonClass;
 
 public interface PokedexRepository extends JpaRepository<Pokedex, Long> {
-    
     List<Pokedex> findByNationalPokedex(Long nationalPokedex);
     Pokedex findByName(String name);
     List<Pokedex> findByGenerationId(Long generationId);

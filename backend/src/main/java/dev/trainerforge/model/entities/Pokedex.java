@@ -34,7 +34,7 @@ public class Pokedex {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "generation_id", nullable = false)
-    private Generation generationId;
+    private Generation generation;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "region_id", nullable = false)
@@ -100,14 +100,14 @@ public class Pokedex {
 
     public Pokedex() {}
 
-    public Pokedex(Long nationalPokedex, String name, String imageUrl, Generation generationId, Region region,
+    public Pokedex(Long nationalPokedex, String name, String imageUrl, Generation generation, Region region,
             PokemonClass pokemonClass, PokemonType type1, PokemonType type2, Ability ability1, Ability ability2,
             Ability hiddenAbility, String description, String category, BigDecimal weight, BigDecimal height,
             int hpBase, int attackBase, int defenseBase, int specialAttackBase, int specialDefenseBase, int speedBase) {
         this.nationalPokedex = nationalPokedex;
         this.name = name;
         this.imageUrl = imageUrl;
-        this.generationId = generationId;
+        this.generation = generation;
         this.region = region;
         this.pokemonClass = pokemonClass;
         this.type1 = type1;
@@ -127,7 +127,7 @@ public class Pokedex {
         this.speedBase = speedBase;
     }
 
-    public Pokedex(Long id, Long nationalPokedex, String name, String imageUrl, Generation generationId, Region region,
+    public Pokedex(Long id, Long nationalPokedex, String name, String imageUrl, Generation generation, Region region,
             PokemonClass pokemonClass, PokemonType type1, PokemonType type2, Ability ability1, Ability ability2,
             Ability hiddenAbility, String description, String category, BigDecimal weight, BigDecimal height,
             int hpBase, int attackBase, int defenseBase, int specialAttackBase, int specialDefenseBase, int speedBase) {
@@ -135,7 +135,7 @@ public class Pokedex {
         this.nationalPokedex = nationalPokedex;
         this.name = name;
         this.imageUrl = imageUrl;
-        this.generationId = generationId;
+        this.generation = generation;
         this.region = region;
         this.pokemonClass = pokemonClass;
         this.type1 = type1;
@@ -187,12 +187,12 @@ public class Pokedex {
         this.imageUrl = imageUrl;
     }
 
-    public Generation getGenerationId() {
-        return generationId;
+    public Generation getGeneration() {
+        return generation;
     }
 
-    public void setGenerationId(Generation generationId) {
-        this.generationId = generationId;
+    public void setGeneration(Generation generation) {
+        this.generation = generation;
     }
 
     public Region getRegion() {
