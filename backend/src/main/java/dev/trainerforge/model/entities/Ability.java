@@ -26,14 +26,14 @@ public class Ability {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "generation_id", nullable = false)
-    private Generation generationId;
+    private Generation generation;
 
     public Ability() {}
 
-    public Ability(String name, String description, Generation generationId) {
+    public Ability(String name, String description, Generation generation) {
         this.name = name;
         this.description = description;
-        this.generationId = generationId;
+        this.generation = generation;
     }
 
     public Long getId() {
@@ -60,11 +60,11 @@ public class Ability {
         this.description = description;
     }
 
-    public Generation getGenerationId() {
-        return generationId;
+    public Generation getGeneration() {
+        return generation;
     }
 
-    public void setGenerationId(Generation generationId) {
-        this.generationId = generationId;
+    public void setGeneration(Generation generation) {
+        this.generation = generation;
     }
 }

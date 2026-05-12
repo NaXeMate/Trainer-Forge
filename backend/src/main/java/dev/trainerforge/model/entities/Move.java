@@ -53,7 +53,7 @@ public class Move {
     private MoveSecondaryEffect secondaryEffect;
 
     @Column(name = "secondary_effect_chance", nullable = true)
-    private int secondaryEffectChance;
+    private Integer secondaryEffectChance;
 
     @Column(nullable = false)
     private int pp;
@@ -65,7 +65,7 @@ public class Move {
     public Move() {}
 
     public Move(Long id, String name, PokemonType type, MoveClass moveClass, int power, int accuracy, boolean contact,
-            int priority, MoveTarget target, MoveSecondaryEffect secondaryEffect, int secondaryEffectChance, int pp,
+            int priority, MoveTarget target, MoveSecondaryEffect secondaryEffect, Integer secondaryEffectChance, int pp,
             Generation generation) {
         this.id = id;
         this.name = name;
@@ -83,7 +83,7 @@ public class Move {
     }
 
     public Move(String name, PokemonType type, MoveClass moveClass, int power, int accuracy, boolean contact,
-            int priority, MoveTarget target, MoveSecondaryEffect secondaryEffect, int secondaryEffectChance, int pp,
+            int priority, MoveTarget target, MoveSecondaryEffect secondaryEffect, Integer secondaryEffectChance, int pp,
             Generation generation) {
         this.name = name;
         this.type = type;
@@ -195,11 +195,11 @@ public class Move {
         this.generation = generation;
     }
 
-    public int getSecondaryEffectChance() {
+    public Integer getSecondaryEffectChance() {
         return secondaryEffectChance;
     }
 
-    public void setSecondaryEffectChance(int secondaryEffectChance) {
+    public void setSecondaryEffectChance(Integer secondaryEffectChance) {
         this.secondaryEffectChance = secondaryEffectChance;
     }
 }

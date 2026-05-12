@@ -1,5 +1,6 @@
 package dev.trainerforge.repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,17 +12,17 @@ public interface PokedexRepository extends JpaRepository<Pokedex, Long> {
     List<Pokedex> findByNationalPokedex(Long nationalPokedex);
     Pokedex findByName(String name);
     List<Pokedex> findByGenerationId(Long generationId);
-    List<Pokedex> findByRegion(String region);
+    List<Pokedex> findByRegionId(Long regionId);
     List<Pokedex> findByPokemonClass(PokemonClass pokemonClass);
-    List<Pokedex> findByType1(String type);
-    List<Pokedex> findByType2(String type);
-    List<Pokedex> findByAbility1(String ability);
-    List<Pokedex> findByAbility2(String ability);
+    List<Pokedex> findByType1Id(Long type1Id);
+    List<Pokedex> findByType2Id(Long type2Id);
+    List<Pokedex> findByAbility1Id(Long ability1Id);
+    List<Pokedex> findByAbility2Id(Long ability2Id);
     Pokedex findByCategory(String category);
-    List<Pokedex> findByWeight(Double weight);
-    List<Pokedex> findByHeight(Double height);
-    List<Pokedex> findByWeightBetween(Double minWeight, Double maxWeight);
-    List<Pokedex> findByHeightBetween(Double minHeight, Double maxHeight);
+    List<Pokedex> findByWeight(BigDecimal weight);
+    List<Pokedex> findByHeight(BigDecimal height);
+    List<Pokedex> findByWeightBetween(BigDecimal minWeight, BigDecimal maxWeight);
+    List<Pokedex> findByHeightBetween(BigDecimal minHeight, BigDecimal maxHeight);
     List<Pokedex> findByHpBase(int hpBase);
     List<Pokedex> findByHpBaseBetween(int minHpBase, int maxHpBase);
     List<Pokedex> findByAttackBase(int attackBase);

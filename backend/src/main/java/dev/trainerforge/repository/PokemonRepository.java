@@ -11,17 +11,17 @@ import dev.trainerforge.model.entities.Pokemon;
 import dev.trainerforge.model.enumerated.Gender;
 
 public interface PokemonRepository extends JpaRepository<Pokemon, Long> {
-    List<Pokemon> findBySpecies(Long speciesId);
+    List<Pokemon> findBySpeciesId(Long speciesId);
     List<Pokemon> findByNickname(String nickname);
     List<Pokemon> findByLocationFound(String locationFound);
     List<Pokemon> findByLevel(int level);
     List<Pokemon> findByLevelBetween(int minLevel, int maxLevel);
     List<Pokemon> findByShiny(boolean shiny);
     List<Pokemon> findByGender(Gender gender);
-    List<Pokemon> findByAbility(Long abilityId);
+    List<Pokemon> findByAbilityId(Long abilityId);
     @Query("SELECT p FROM Pokemon p WHERE p.move1.id = :moveId OR p.move2.id = :moveId OR p.move3.id = :moveId OR p.move4.id = :moveId")
-    List<Pokemon> findByMove(@Param("moveId") Long moveId);
-    List<Pokemon> findByEquippedItem(Long itemId);
+    List<Pokemon> findByMoveId(@Param("moveId") Long moveId);
+    List<Pokemon> findByEquippedItemId(Long itemId);
     List<Pokemon> findByNature(Nature nature);
     List<Pokemon> findByHpEv(int hpEv);
     List<Pokemon> findByHpEvBetween(int minHpEv, int maxHpEv);

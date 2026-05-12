@@ -9,8 +9,8 @@ import dev.trainerforge.model.enumerated.TeamModality;
 
 public interface TeamRepository extends JpaRepository<Team, Long> {
     Team findByName(String name);
-    List<Team> findByTrainer(Long trainerId);
-    List<Team> findByVideogame(Long videogameId);
+    List<Team> findByTrainerId(Long trainerId);
+    List<Team> findByVideogameId(Long videogameId);
     List<Team> findByModality(TeamModality modality);
     List<Team> findByIsHidden(boolean isHidden);
 }
