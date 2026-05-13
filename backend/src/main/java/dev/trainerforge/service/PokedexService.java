@@ -110,7 +110,7 @@ public class PokedexService {
     
     public List<Pokedex> findByGenerationId(Long generationId) {
         if (generationId < 1 || generationId > GENERATION_MAX_ID) {
-            throw new InvalidFilterValueException("Generation ID must be between " + 1 + " and " + GENERATION_MAX_ID + ".");
+            throw new InvalidFilterValueException("Generation ID must be between 1 and " + GENERATION_MAX_ID + ".");
         }
 
         List<Pokedex> result = pokedexRepo.findByGenerationId(generationId);
