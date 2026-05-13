@@ -21,7 +21,7 @@ public interface PokedexRepository extends JpaRepository<Pokedex, Long> {
     List<Pokedex> findByTypeId(@Param("typeId") Long typeId);
     @Query("SELECT p FROM Pokedex p WHERE p.ability1.id = :abilityId OR p.ability2.id = :abilityId OR p.hiddenAbility.id = :abilityId")
     List<Pokedex> findByAbilityId(@Param("abilityId") Long abilityId);
-    Optional<Pokedex> findByCategory(String category);
+    List<Pokedex> findByCategory(String category);
     List<Pokedex> findByWeight(BigDecimal weight);
     List<Pokedex> findByHeight(BigDecimal height);
     List<Pokedex> findByWeightBetween(BigDecimal minWeight, BigDecimal maxWeight);
