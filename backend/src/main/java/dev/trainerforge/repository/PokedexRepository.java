@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import dev.trainerforge.model.entities.Pokedex;
 import dev.trainerforge.model.enumerated.PokemonClass;
@@ -14,10 +16,10 @@ public interface PokedexRepository extends JpaRepository<Pokedex, Long> {
     List<Pokedex> findByGenerationId(Long generationId);
     List<Pokedex> findByRegionId(Long regionId);
     List<Pokedex> findByPokemonClass(PokemonClass pokemonClass);
-    List<Pokedex> findByType1Id(Long type1Id);
-    List<Pokedex> findByType2Id(Long type2Id);
-    List<Pokedex> findByAbility1Id(Long ability1Id);
-    List<Pokedex> findByAbility2Id(Long ability2Id);
+    @Query("SELECT p FROM Pokedex p WHERE p.type1.id = :typeId OR p.type2.id = :typeId")
+    List<Pokedex> findByTypeId(@Param("typeId") Long typeId);
+    @Query("SELECT p FROM Pokedex p WHERE p.ability1.id = :abilityId OR p.ability2.id = :abilityId OR p.hiddenAbility.id = :abilityId")
+    List<Pokedex> findByAbilityId(@Param("abilityId") Long abilityId);
     Pokedex findByCategory(String category);
     List<Pokedex> findByWeight(BigDecimal weight);
     List<Pokedex> findByHeight(BigDecimal height);
