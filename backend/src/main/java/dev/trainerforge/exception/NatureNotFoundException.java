@@ -1,6 +1,6 @@
 package dev.trainerforge.exception;
 
-public class NatureNotFoundException extends RuntimeException {
+public class NatureNotFoundException extends ResourceNotFoundException {
     public NatureNotFoundException(Long id) {
         super("Nature not found with id: " + id + ".");
     }

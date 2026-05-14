@@ -1,6 +1,6 @@
 package dev.trainerforge.exception;
 
-public class ItemNotFoundException extends TrainerForgeException {
+public class ItemNotFoundException extends ResourceNotFoundException {
     public ItemNotFoundException(Long id) {
         super("Item not found with id: " + id + ".");
     }

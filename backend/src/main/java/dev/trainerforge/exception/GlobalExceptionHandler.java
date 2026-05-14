@@ -13,39 +13,9 @@ import jakarta.servlet.http.HttpServletRequest;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(PokedexNotFoundException.class)
-    public ResponseEntity<ErrorDTO> handlePokedexEntryNotFound(
-            PokedexNotFoundException ex, HttpServletRequest request) {
-
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-            new ErrorDTO(
-                HttpStatus.NOT_FOUND.value(),
-                "Not Found",
-                ex.getMessage(),
-                request.getRequestURI(),
-                LocalDateTime.now()
-            )
-        );
-    }
-
-    @ExceptionHandler(ItemNotFoundException.class)
-    public ResponseEntity<ErrorDTO> handleItemNotFound(
-            ItemNotFoundException ex, HttpServletRequest request) {
-
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-            new ErrorDTO(
-                HttpStatus.NOT_FOUND.value(),
-                "Not Found",
-                ex.getMessage(),
-                request.getRequestURI(),
-                LocalDateTime.now()
-            )
-        );
-    }
-
-    @ExceptionHandler(NatureNotFoundException.class)
-    public ResponseEntity<ErrorDTO> handleNatureNotFound(
-            NatureNotFoundException ex, HttpServletRequest request) {
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorDTO> handleResourceNotFound(
+            ResourceNotFoundException ex, HttpServletRequest request) {
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
             new ErrorDTO(

@@ -1,6 +1,6 @@
 package dev.trainerforge.exception;
 
-public class PokedexNotFoundException extends TrainerForgeException {
+public class PokedexNotFoundException extends ResourceNotFoundException {
     public PokedexNotFoundException(Long id) {
         super("Pokedex entry not found with id: " + id + ".");
     }
