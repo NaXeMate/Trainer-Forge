@@ -43,6 +43,21 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(NatureNotFoundException.class)
+    public ResponseEntity<ErrorDTO> handleNatureNotFound(
+            NatureNotFoundException ex, HttpServletRequest request) {
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+            new ErrorDTO(
+                HttpStatus.NOT_FOUND.value(),
+                "Not Found",
+                ex.getMessage(),
+                request.getRequestURI(),
+                LocalDateTime.now()
+            )
+        );
+    }
+
     @ExceptionHandler(InvalidFilterValueException.class)
     public ResponseEntity<ErrorDTO> handleInvalidFilterValue(
             InvalidFilterValueException ex, HttpServletRequest request) {
