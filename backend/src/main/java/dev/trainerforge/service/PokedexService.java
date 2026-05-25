@@ -9,14 +9,17 @@ import org.springframework.transaction.annotation.Transactional;
 import dev.trainerforge.exception.InvalidFilterValueException;
 import dev.trainerforge.exception.PokedexNotFoundException;
 import dev.trainerforge.model.entities.Pokedex;
+import dev.trainerforge.model.entities.VideogamePokedex;
 import dev.trainerforge.model.enumerated.PokemonClass;
 import dev.trainerforge.repository.PokedexRepository;
+import dev.trainerforge.repository.VideogamePokedexRepository;
 
 @Transactional(readOnly = true)
 @Service
 public class PokedexService {
 
     private final PokedexRepository pokedexRepo;
+    private final VideogamePokedexRepository videogamePokedexRepo;
     
     private static final Long MAX_NATIONAL_POKEDEX = 1025L;
     
@@ -76,8 +79,9 @@ public class PokedexService {
         }
     }
 
-    public PokedexService(PokedexRepository pokedexRepo) {
+    public PokedexService(PokedexRepository pokedexRepo, VideogamePokedexRepository videogamePokedexRepo) {
         this.pokedexRepo = pokedexRepo;
+        this.videogamePokedexRepo = videogamePokedexRepo;
     }
 
     public List<Pokedex> findAll() {
@@ -406,6 +410,16 @@ public class PokedexService {
             throw new PokedexNotFoundException("Pokedex entry found with Speed between " + minSpeedBase + " and " + maxSpeedBase + ".");
         }
 
+        return result;
+    }
+
+    public List<VideogamePokedex> findVideogamesByPokedexId(Long pokedexId) {
+        List<VideogamePokedex> result = videogamePokedexRepo.findByPokedexId(pokedexId);
+        
+        if (result.isEmpty()) {
+            throw new PokedexNotFoundException("The Pokemon with the ID: " + pokedexId + " doesn't appear in any videogames.");
+        }
+        
         return result;
     }
 }
