@@ -7,9 +7,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import dev.trainerforge.exception.InvalidFilterValueException;
 import dev.trainerforge.exception.MoveNotFoundException;
+import dev.trainerforge.exception.MoveSecondaryEffectNotFoundException;
+import dev.trainerforge.exception.MoveTargetNotFoundException;
 import dev.trainerforge.model.entities.Move;
+import dev.trainerforge.model.entities.MoveSecondaryEffect;
+import dev.trainerforge.model.entities.MoveTarget;
 import dev.trainerforge.model.enumerated.MoveClass;
 import dev.trainerforge.repository.MoveRepository;
+import dev.trainerforge.repository.MoveSecondaryEffectRepository;
+import dev.trainerforge.repository.MoveTargetRepository;
 
 @Transactional(readOnly = true)
 @Service
@@ -23,9 +29,13 @@ public class MoveService {
     private static final int MIN_PP = 5;
 
     private final MoveRepository moveRepo;
+    private final MoveTargetRepository moveTargetRepo;
+    private final MoveSecondaryEffectRepository moveSecondaryEffectRepo;
 
-    public MoveService(MoveRepository moveRepo) {
+    public MoveService(MoveRepository moveRepo, MoveTargetRepository moveTargetRepo, MoveSecondaryEffectRepository moveSecondaryEffectRepo) {
         this.moveRepo = moveRepo;
+        this.moveTargetRepo = moveTargetRepo;
+        this.moveSecondaryEffectRepo = moveSecondaryEffectRepo;
     }
 
     public List<Move> findAll() {
@@ -241,5 +251,23 @@ public class MoveService {
         }
         
         return result;
+    }
+
+    public List<MoveTarget> getMoveTargets() {
+        return moveTargetRepo.findAll();
+    }
+
+    public MoveTarget getMoveTargetById(Long id) {
+        return moveTargetRepo.findById(id)
+        .orElseThrow(() -> new MoveTargetNotFoundException(id));
+    }
+
+    public List<MoveSecondaryEffect> getMoveSecondaryEffects() {
+        return moveSecondaryEffectRepo.findAll();
+    }
+
+    public MoveSecondaryEffect getMoveSecondaryEffectById(Long id) {
+        return moveSecondaryEffectRepo.findById(id)
+                .orElseThrow(() -> new MoveSecondaryEffectNotFoundException(id));
     }
 }
