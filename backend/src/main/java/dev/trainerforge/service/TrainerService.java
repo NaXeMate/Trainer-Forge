@@ -10,11 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 import dev.trainerforge.dto.input.TrainerInputDto;
 import dev.trainerforge.exception.InvalidFilterValueException;
 import dev.trainerforge.exception.TrainerNotFoundException;
+import dev.trainerforge.mapper.TrainerMapper;
 import dev.trainerforge.model.entities.GamePossesion;
-import dev.trainerforge.model.entities.Pokedex;
-import dev.trainerforge.model.entities.Region;
 import dev.trainerforge.model.entities.Trainer;
-import dev.trainerforge.model.entities.Videogame;
 import dev.trainerforge.model.enumerated.TrainerClass;
 import dev.trainerforge.repository.GamePossesionRepository;
 import dev.trainerforge.repository.TrainerRepository;
@@ -25,9 +23,8 @@ public class TrainerService {
     
     private final TrainerRepository trainerRepo;
     private final GamePossesionRepository gamePossesionRepo;
-    private final RegionService regionService;
-    private final VideogameService videogameService;
-    private final PokedexService pokedexService;
+
+    private final TrainerMapper trainerMapper;
 
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
     private static final Pattern FRIEND_CODE_PATTERN = Pattern.compile("^TF-\\d{4}-\\d{4}$");
@@ -93,12 +90,10 @@ public class TrainerService {
         return "TF-%04d-%04d".formatted(part1, part2);
     } 
 
-    public TrainerService(TrainerRepository trainerRepo, GamePossesionRepository gamePossesionRepo, RegionService regionService, VideogameService videogameService, PokedexService pokedexService) {
+    public TrainerService(TrainerRepository trainerRepo, GamePossesionRepository gamePossesionRepo, TrainerMapper trainerMapper) {
         this.trainerRepo = trainerRepo;
         this.gamePossesionRepo = gamePossesionRepo;
-        this.regionService = regionService;
-        this.videogameService = videogameService;
-        this.pokedexService = pokedexService;
+        this.trainerMapper = trainerMapper;
     }
 
     public List<Trainer> findAll() {
@@ -114,10 +109,8 @@ public class TrainerService {
     public Trainer createTrainer(TrainerInputDto dto) {
         validateUsername(dto.username());
         validateUsernameUniqueness(dto.username());
-
         validateEmail(dto.email());
         validateEmailUniqueness(dto.email());
-
         validateRealName(dto.realName());
 
         String friendCode;
@@ -125,41 +118,19 @@ public class TrainerService {
             friendCode = generateFriendCode();
         } while (trainerRepo.findByFriendCode(friendCode).isPresent());
 
-        Trainer trainer = new Trainer();
-        trainer.setUsername(dto.username());
-        trainer.setEmail(dto.email());
-        trainer.setPasswordHash(dto.password()); // TODO: BCrypt
-        trainer.setRealName(dto.realName());
-        trainer.setProfilePictureUrl(dto.profilePictureUrl());
-        trainer.setFriendCode(friendCode);
-        trainer.setTrainerClass(dto.trainerClass());
+        Trainer newTrainer = new Trainer();
+        trainerMapper.updateEntityFromDto(dto, newTrainer);
 
-        if (dto.region() != null) {
-            Region region = regionService.findByName(dto.region());
-            trainer.setRegion(region);
-        }
+        newTrainer.setFriendCode(friendCode);
 
-        if (dto.favoriteGame() != null) {
-            Videogame favoriteGame = videogameService.findByName(dto.favoriteGame());
-            trainer.setFavoriteGame(favoriteGame);
-        }
+        // This will be used at the Spring Security implementation.
+        // newTrainer.setPasswordHash(passwordEncoder.encode(dto.password()));
 
-        if (dto.favoritePokemon() != null) {
-            Pokedex favoritePokemon = pokedexService.findByName(dto.favoritePokemon());
-            trainer.setFavoritePokemon(favoritePokemon);
-        }
-
-        if (dto.bestFriendUsername() != null) {
-            Trainer bestFriend = findByUsername(dto.bestFriendUsername());
-            trainer.setBestFriend(bestFriend);
-        }
-
-        return trainerRepo.save(trainer);
+        return trainerRepo.save(newTrainer);
     }
 
     @Transactional
     public Trainer updateTrainer(Long id, TrainerInputDto dto) {
-
         Trainer trainer = trainerRepo.findById(id)
             .orElseThrow(() -> new TrainerNotFoundException(id));
 
@@ -167,7 +138,6 @@ public class TrainerService {
         validateEmail(dto.email());
         validateRealName(dto.realName());
 
-        // Only check for uniqueness if the username or email is being changed
         if (!trainer.getUsername().equals(dto.username())) {
             validateUsernameUniqueness(dto.username());
         }
@@ -175,31 +145,7 @@ public class TrainerService {
             validateEmailUniqueness(dto.email());
         }
 
-        trainer.setUsername(dto.username());
-        trainer.setEmail(dto.email());
-        trainer.setRealName(dto.realName());
-        trainer.setProfilePictureUrl(dto.profilePictureUrl());
-        trainer.setTrainerClass(dto.trainerClass());
-
-        if (dto.region() != null) {
-            Region region = regionService.findByName(dto.region());
-            trainer.setRegion(region);
-        }
-
-        if (dto.favoriteGame() != null) {
-            Videogame favoriteGame = videogameService.findByName(dto.favoriteGame());
-            trainer.setFavoriteGame(favoriteGame);
-        }
-
-        if (dto.favoritePokemon() != null) {
-            Pokedex favoritePokemon = pokedexService.findByName(dto.favoritePokemon());
-            trainer.setFavoritePokemon(favoritePokemon);
-        }
-
-        if (dto.bestFriendUsername() != null) {
-            Trainer bestFriend = findByUsername(dto.bestFriendUsername());
-            trainer.setBestFriend(bestFriend);
-        }
+        trainerMapper.updateEntityFromDto(dto, trainer);
 
         return trainerRepo.save(trainer);
     }
