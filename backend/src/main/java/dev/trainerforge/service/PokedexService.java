@@ -397,26 +397,26 @@ public class PokedexService {
         return result;
     }
 
-    public boolean existsById(Long id) {
-        return pokedexRepo.existsById(id);
-    }
-
     public List<Pokedex> findBySpeedBaseBetween(int minSpeedBase, int maxSpeedBase) {
         validateStatRangeBetween(minSpeedBase, maxSpeedBase, "Speed");
-
+        
         if (minSpeedBase == maxSpeedBase) {
             return findBySpeedBase(minSpeedBase);
         }
-
+        
         List<Pokedex> result = pokedexRepo.findBySpeedBaseBetween(minSpeedBase, maxSpeedBase);
-
+        
         if (result.isEmpty()) {
             throw new PokedexNotFoundException("Pokedex entry found with Speed between " + minSpeedBase + " and " + maxSpeedBase + ".");
         }
-
+        
         return result;
     }
-
+    
+    public boolean existsById(Long id) {
+        return pokedexRepo.existsById(id);
+    }
+    
     public List<VideogamePokedex> findVideogamesByPokedexId(Long pokedexId) {
         List<VideogamePokedex> result = videogamePokedexRepo.findByPokedexId(pokedexId);
         

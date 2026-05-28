@@ -69,6 +69,10 @@ public class VideogameService {
         return result;
     }
 
+    public boolean existsById(Long id) {
+        return videogameRepo.existsById(id);
+    }
+
     public List<VideogamePokedex> findPokedexByVideogameId(Long videogameId) {
         List<VideogamePokedex> result = videogamePokedexRepo.findByVideogameId(videogameId);
         

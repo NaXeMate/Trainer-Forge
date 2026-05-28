@@ -451,4 +451,8 @@ public class PokemonService {
 
         return result;
     }
+
+    public boolean existsById(Long id) {
+        return pokemonRepo.existsById(id);
+    }
 }

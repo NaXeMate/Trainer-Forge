@@ -245,6 +245,10 @@ public class TrainerService {
         return result;
     }    
 
+    public boolean existsById(Long id) {
+        return trainerRepo.existsById(id);
+    }
+
     public List<GamePossesion> findGamesByTrainerId(Long trainerId) {
 
         if (!trainerRepo.existsById(trainerId)) {
