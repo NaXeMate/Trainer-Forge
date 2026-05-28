@@ -46,4 +46,8 @@ public class AchievementService {
     public long countHiddenAchievements() {
         return achievementRepo.countHiddenAchievements();
     }
+
+    public boolean existsById(Long id) {
+        return achievementRepo.existsById(id);
+    }
 }
