@@ -27,7 +27,7 @@ public class PokemonService {
     private static final int LEVEL_MAX = 100;
 
     private static final int EV_MIN = 0;
-    private static final int EV_MAX = 32; // This uses the new Pokemon Champions rules for EVs.
+    private static final int EV_MAX = 32; // This uses the new Pokemon Champions system for EVs.
 
     private void validateEvRange(int value, String statName) {
         if (value < EV_MIN || value > EV_MAX) {
