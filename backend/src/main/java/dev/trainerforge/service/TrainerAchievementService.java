@@ -30,24 +30,30 @@ public class TrainerAchievementService {
 
     @Transactional
     public TrainerAchievement unlockAchievement(TrainerAchievementDto dto) {
-        if (!trainerService.existsById(trainerService.findByUsername(dto.trainerUsername()).getId())) {
-            throw new TrainerNotFoundException(trainerService.findByUsername(dto.trainerUsername()).getId());
-        }
-        
-        if (!achievementService.existsById(Long.valueOf(dto.achievement()))) {
-            throw new AchievementNotFoundException(Long.valueOf(dto.achievement()));
+        Trainer trainer = trainerService.findByUsername(dto.trainerUsername());
+
+        final Long achievementId;
+        try {
+            achievementId = Long.valueOf(dto.achievement());
+        } catch (NumberFormatException ex) {
+            throw new InvalidFilterValueException("Achievement id must be a number.");
         }
 
-        if (trainerAchievementRepo.existsByTrainerIdAndAchievementId(trainerService.findByUsername(dto.trainerUsername()).getId(), Long.valueOf(dto.achievement()))) {
-            throw new InvalidFilterValueException("Trainer with id: " + trainerService.findByUsername(dto.trainerUsername()).getId() + " has already unlocked achievement with id: " + Long.valueOf(dto.achievement()) + ".");
+        if (!achievementService.existsById(achievementId)) {
+            throw new AchievementNotFoundException(achievementId);
+        }
+
+        if (trainerAchievementRepo.existsByTrainerIdAndAchievementId(trainer.getId(), achievementId)) {
+            throw new InvalidFilterValueException(
+                "Trainer with id: " + trainer.getId() + " has already unlocked achievement with id: " + achievementId + ".");
         }
 
         TrainerAchievement trainerAchievement = new TrainerAchievement();
-        trainerAchievement.setTrainer(trainerService.findByUsername(dto.trainerUsername()));
-        trainerAchievement.setAchievement(achievementService.findById(Long.valueOf(dto.achievement())));
+        trainerAchievement.setTrainer(trainer);
+        trainerAchievement.setAchievement(achievementService.findById(achievementId));
         trainerAchievement.setDateObtained(dto.dateObtained() != null ? dto.dateObtained() : LocalDateTime.now());
 
-        return trainerAchievement;
+        return trainerAchievementRepo.save(trainerAchievement);
     }
 
     public List<TrainerAchievement> findAll() {
