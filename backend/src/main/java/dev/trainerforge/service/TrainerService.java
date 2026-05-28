@@ -96,15 +96,6 @@ public class TrainerService {
         this.trainerMapper = trainerMapper;
     }
 
-    public List<Trainer> findAll() {
-        return trainerRepo.findAll();
-    }
-
-    public Trainer findById(Long id) {
-        return trainerRepo.findById(id)
-        .orElseThrow(() -> new TrainerNotFoundException(id));
-    }
-
     @Transactional
     public Trainer createTrainer(TrainerInputDto dto) {
         validateUsername(dto.username());
@@ -112,40 +103,56 @@ public class TrainerService {
         validateEmail(dto.email());
         validateEmailUniqueness(dto.email());
         validateRealName(dto.realName());
-
+        
         String friendCode;
         do {
             friendCode = generateFriendCode();
         } while (trainerRepo.findByFriendCode(friendCode).isPresent());
-
+        
         Trainer newTrainer = new Trainer();
         trainerMapper.updateEntityFromDto(dto, newTrainer);
-
+        
         newTrainer.setFriendCode(friendCode);
-
+        
         // This will be used at the Spring Security implementation.
         // newTrainer.setPasswordHash(passwordEncoder.encode(dto.password()));
-
+        
         return trainerRepo.save(newTrainer);
     }
-
+    
     @Transactional
     public Trainer updateTrainer(Long id, TrainerInputDto dto) {
         Trainer trainer = this.findById(id);
         validateUsername(dto.username());
         validateEmail(dto.email());
         validateRealName(dto.realName());
-
+        
         if (!trainer.getUsername().equals(dto.username())) {
             validateUsernameUniqueness(dto.username());
         }
         if (!trainer.getEmail().equals(dto.email())) {
             validateEmailUniqueness(dto.email());
         }
-
+        
         trainerMapper.updateEntityFromDto(dto, trainer);
-
+        
         return trainerRepo.save(trainer);
+    }
+
+    @Transactional
+    public void deleteTrainer(Long id) {
+        Trainer trainer = this.findById(id);
+        trainerRepo.delete(trainer);
+        System.out.println("Deleted Trainer with id: " + id);
+    }
+    
+    public List<Trainer> findAll() {
+        return trainerRepo.findAll();
+    }
+
+    public Trainer findById(Long id) {
+        return trainerRepo.findById(id)
+        .orElseThrow(() -> new TrainerNotFoundException(id));
     }
 
     public Trainer findByUsername(String username) {
