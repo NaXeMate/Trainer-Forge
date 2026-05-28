@@ -1,4 +1,6 @@
-package dev.trainerforge.exception;
+package dev.trainerforge.exception.notfound;
+
+import dev.trainerforge.exception.TrainerForgeException;
 
 public class VideogamePokedexNotFoundException extends TrainerForgeException {
     public VideogamePokedexNotFoundException(Long id) {

@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import dev.trainerforge.exception.AbilityNotFoundException;
+import dev.trainerforge.exception.notfound.AbilityNotFoundException;
 import dev.trainerforge.model.entities.Ability;
 import dev.trainerforge.repository.AbilityRepository;
 

@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import dev.trainerforge.exception.MovePokedexNotFoundException;
+import dev.trainerforge.exception.notfound.MovePokedexNotFoundException;
 import dev.trainerforge.model.entities.MovePokedex;
 import dev.trainerforge.model.enumerated.LearningMethod;
 import dev.trainerforge.repository.MovePokedexRepository;

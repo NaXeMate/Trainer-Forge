@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import dev.trainerforge.exception.InvalidFilterValueException;
-import dev.trainerforge.exception.ItemNotFoundException;
+import dev.trainerforge.exception.notfound.ItemNotFoundException;
 import dev.trainerforge.model.entities.PokemonItem;
 import dev.trainerforge.model.enumerated.ItemType;
 import dev.trainerforge.repository.PokemonItemRepository;

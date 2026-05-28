@@ -6,9 +6,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import dev.trainerforge.exception.InvalidFilterValueException;
-import dev.trainerforge.exception.MoveNotFoundException;
-import dev.trainerforge.exception.MoveSecondaryEffectNotFoundException;
-import dev.trainerforge.exception.MoveTargetNotFoundException;
+import dev.trainerforge.exception.notfound.MoveNotFoundException;
+import dev.trainerforge.exception.notfound.MoveSecondaryEffectNotFoundException;
+import dev.trainerforge.exception.notfound.MoveTargetNotFoundException;
 import dev.trainerforge.model.entities.Move;
 import dev.trainerforge.model.entities.MoveSecondaryEffect;
 import dev.trainerforge.model.entities.MoveTarget;

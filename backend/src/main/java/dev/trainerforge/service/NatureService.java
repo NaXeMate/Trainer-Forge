@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import dev.trainerforge.exception.NatureNotFoundException;
+import dev.trainerforge.exception.notfound.NatureNotFoundException;
 import dev.trainerforge.model.entities.Nature;
 import dev.trainerforge.model.enumerated.NatureRiseLower;
 import dev.trainerforge.repository.NatureRepository;

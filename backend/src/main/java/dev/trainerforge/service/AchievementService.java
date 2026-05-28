@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import dev.trainerforge.exception.AchievementNotFoundException;
+import dev.trainerforge.exception.notfound.AchievementNotFoundException;
 import dev.trainerforge.model.entities.Achievement;
 import dev.trainerforge.repository.AchievementRepository;
 

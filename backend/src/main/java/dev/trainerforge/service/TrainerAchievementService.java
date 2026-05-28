@@ -7,10 +7,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import dev.trainerforge.dto.response.TrainerAchievementDto;
-import dev.trainerforge.exception.AchievementNotFoundException;
+import dev.trainerforge.exception.notfound.AchievementNotFoundException;
 import dev.trainerforge.exception.InvalidFilterValueException;
-import dev.trainerforge.exception.TrainerAchievementNotFoundException;
-import dev.trainerforge.exception.TrainerNotFoundException;
+import dev.trainerforge.exception.notfound.TrainerAchievementNotFoundException;
+import dev.trainerforge.exception.notfound.TrainerNotFoundException;
 import dev.trainerforge.model.entities.TrainerAchievement;
 import dev.trainerforge.repository.TrainerAchievementRepository;
 

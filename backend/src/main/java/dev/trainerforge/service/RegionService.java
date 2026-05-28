@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 import dev.trainerforge.exception.InvalidFilterValueException;
-import dev.trainerforge.exception.RegionNotFoundException;
+import dev.trainerforge.exception.notfound.RegionNotFoundException;
 import dev.trainerforge.model.entities.Region;
 import dev.trainerforge.repository.RegionRepository;
 

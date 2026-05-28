@@ -7,9 +7,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import dev.trainerforge.dto.response.PokemonTeamDto;
 import dev.trainerforge.exception.InvalidFilterValueException;
-import dev.trainerforge.exception.PokemonNotFoundException;
-import dev.trainerforge.exception.PokemonTeamNotFoundException;
-import dev.trainerforge.exception.TeamNotFoundException;
+import dev.trainerforge.exception.notfound.PokemonNotFoundException;
+import dev.trainerforge.exception.notfound.PokemonTeamNotFoundException;
+import dev.trainerforge.exception.notfound.TeamNotFoundException;
 import dev.trainerforge.model.entities.PokemonTeam;
 import dev.trainerforge.repository.PokemonTeamRepository;
 

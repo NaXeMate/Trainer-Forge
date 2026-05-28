@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import dev.trainerforge.dto.response.TeamDto;
 import dev.trainerforge.exception.InvalidFilterValueException;
-import dev.trainerforge.exception.TeamNotFoundException;
+import dev.trainerforge.exception.notfound.TeamNotFoundException;
 import dev.trainerforge.mapper.TeamMapper;
 import dev.trainerforge.model.entities.Team;
 import dev.trainerforge.model.enumerated.TeamModality;

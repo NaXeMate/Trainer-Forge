@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import dev.trainerforge.exception.InvalidFilterValueException;
-import dev.trainerforge.exception.PokedexNotFoundException;
+import dev.trainerforge.exception.notfound.PokedexNotFoundException;
 import dev.trainerforge.model.entities.Pokedex;
 import dev.trainerforge.model.entities.VideogamePokedex;
 import dev.trainerforge.model.enumerated.PokemonClass;

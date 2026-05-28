@@ -1,4 +1,6 @@
-package dev.trainerforge.exception;
+package dev.trainerforge.exception.notfound;
+
+import dev.trainerforge.exception.ResourceNotFoundException;
 
 public class AchievementNotFoundException extends ResourceNotFoundException {
     public AchievementNotFoundException(Long id) {

@@ -1,4 +1,6 @@
-package dev.trainerforge.exception;
+package dev.trainerforge.exception.notfound;
+
+import dev.trainerforge.exception.ResourceNotFoundException;
 
 public class MoveNotFoundException extends ResourceNotFoundException {
     public MoveNotFoundException(Long id) {

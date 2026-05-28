@@ -1,4 +1,6 @@
-package dev.trainerforge.exception;
+package dev.trainerforge.exception.notfound;
+
+import dev.trainerforge.exception.ResourceNotFoundException;
 
 public class GenerationNotFoundException extends ResourceNotFoundException {
     public GenerationNotFoundException(Long id) {

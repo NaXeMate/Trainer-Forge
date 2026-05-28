@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import dev.trainerforge.dto.input.TrainerInputDto;
 import dev.trainerforge.exception.InvalidFilterValueException;
-import dev.trainerforge.exception.TrainerNotFoundException;
+import dev.trainerforge.exception.notfound.TrainerNotFoundException;
 import dev.trainerforge.mapper.TrainerMapper;
 import dev.trainerforge.model.entities.GamePossesion;
 import dev.trainerforge.model.entities.Trainer;

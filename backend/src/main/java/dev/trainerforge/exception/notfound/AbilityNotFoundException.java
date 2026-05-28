@@ -1,4 +1,6 @@
-package dev.trainerforge.exception;
+package dev.trainerforge.exception.notfound;
+
+import dev.trainerforge.exception.ResourceNotFoundException;
 
 public class AbilityNotFoundException extends ResourceNotFoundException {
     public AbilityNotFoundException(Long id) {

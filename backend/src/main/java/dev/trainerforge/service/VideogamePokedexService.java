@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import dev.trainerforge.exception.VideogamePokedexNotFoundException;
+import dev.trainerforge.exception.notfound.VideogamePokedexNotFoundException;
 import dev.trainerforge.model.entities.VideogamePokedex;
 import dev.trainerforge.repository.VideogamePokedexRepository;
 

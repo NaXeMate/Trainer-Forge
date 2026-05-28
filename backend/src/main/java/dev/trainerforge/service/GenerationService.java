@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import dev.trainerforge.exception.GenerationNotFoundException;
+import dev.trainerforge.exception.notfound.GenerationNotFoundException;
 import dev.trainerforge.model.entities.Generation;
 import dev.trainerforge.repository.GenerationRepository;
 

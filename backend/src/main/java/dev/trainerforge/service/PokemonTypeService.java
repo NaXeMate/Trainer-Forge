@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import dev.trainerforge.exception.PokemonTypeNotFoundException;
+import dev.trainerforge.exception.notfound.PokemonTypeNotFoundException;
 import dev.trainerforge.model.entities.PokemonType;
 import dev.trainerforge.repository.PokemonTypeRepository;
 
