@@ -397,6 +397,10 @@ public class PokedexService {
         return result;
     }
 
+    public boolean existsById(Long id) {
+        return pokedexRepo.existsById(id);
+    }
+
     public List<Pokedex> findBySpeedBaseBetween(int minSpeedBase, int maxSpeedBase) {
         validateStatRangeBetween(minSpeedBase, maxSpeedBase, "Speed");
 

@@ -131,9 +131,7 @@ public class TrainerService {
 
     @Transactional
     public Trainer updateTrainer(Long id, TrainerInputDto dto) {
-        Trainer trainer = trainerRepo.findById(id)
-            .orElseThrow(() -> new TrainerNotFoundException(id));
-
+        Trainer trainer = this.findById(id);
         validateUsername(dto.username());
         validateEmail(dto.email());
         validateRealName(dto.realName());
