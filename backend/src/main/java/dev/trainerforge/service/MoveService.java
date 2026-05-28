@@ -253,6 +253,10 @@ public class MoveService {
         return result;
     }
 
+    public boolean existsById(Long id) {
+        return moveRepo.existsById(id);
+    }
+
     public List<MoveTarget> getMoveTargets() {
         return moveTargetRepo.findAll();
     }
