@@ -1,16 +1,16 @@
 package dev.trainerforge.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import dev.trainerforge.model.entities.Move;
-import dev.trainerforge.model.entities.PokemonType;
 import dev.trainerforge.model.enumerated.MoveClass;
 
 public interface MoveRepository extends JpaRepository<Move, Long> {
-    Move findByName(String name);
-    List<Move> findByType(PokemonType type);
+    Optional<Move> findByName(String name);
+    List<Move> findByTypeId(Long typeId);
     List<Move> findByMoveClass(MoveClass moveClass);
     List<Move> findByPower(int power);
     List<Move> findByPowerBetween(int minPower, int maxPower);

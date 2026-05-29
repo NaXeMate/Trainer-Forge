@@ -12,4 +12,5 @@ public interface TrainerAchievementRepository extends JpaRepository<TrainerAchie
     List<TrainerAchievement> findByAchievementId(Long achievementId);
     List<TrainerAchievement> findByDateObtained(LocalDateTime dateObtained);
     List<TrainerAchievement> findByDateObtainedBetween(LocalDateTime startDate, LocalDateTime endDate);
+    boolean existsByTrainerIdAndAchievementId(Long trainerId, Long achievementId);
 }
