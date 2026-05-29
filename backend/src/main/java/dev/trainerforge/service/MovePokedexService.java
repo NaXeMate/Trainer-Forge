@@ -33,7 +33,7 @@ public class MovePokedexService {
         .orElseThrow(() -> new MovePokedexNotFoundException(id));
     }
 
-    List<MovePokedex> findByMoveId(Long moveId) {
+    public List<MovePokedex> findByMoveId(Long moveId) {
         if (!moveService.existsById(moveId)) {
             throw new MovePokedexNotFoundException("MovePokedex entry not found with move id: " + moveId + ".");
         }
