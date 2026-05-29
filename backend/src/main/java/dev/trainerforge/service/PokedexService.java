@@ -195,7 +195,7 @@ public class PokedexService {
         List<Pokedex> result = pokedexRepo.findByWeight(weight);
 
         if (result.isEmpty()) {
-            throw new PokedexNotFoundException("Pokedex entry found with weight: " + weight + " kg.");
+            throw new PokedexNotFoundException("Pokedex entry not found with weight: " + weight + " kg.");
         }
         
         return result;
