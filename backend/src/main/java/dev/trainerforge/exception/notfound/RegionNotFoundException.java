@@ -1,8 +1,8 @@
 package dev.trainerforge.exception.notfound;
 
-import dev.trainerforge.exception.TrainerForgeException;
+import dev.trainerforge.exception.ResourceNotFoundException;
 
-public class RegionNotFoundException extends TrainerForgeException {
+public class RegionNotFoundException extends ResourceNotFoundException {
     public RegionNotFoundException(Long id) {
         super("Region not found with id: " + id);
     }
