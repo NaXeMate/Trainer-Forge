@@ -79,13 +79,12 @@ public class MoveService {
 
     public List<Move> findByPower(int power) {
         if (power < 0) {
-            throw new InvalidFilterValueException("Power must be a negative value. If you want to filter by STATUS moves, use 0 as the power value.");
+            throw new InvalidFilterValueException("Power cannot be negative. If you want to filter by STATUS moves, use 0 as the power value.");
         }
         
         if (power % 5 != 0) {
-            throw new InvalidFilterValueException("Accuracy must be a multiple of 5.");
+            throw new InvalidFilterValueException("Power must be a multiple of 5.");
         }
-
         List<Move> result = moveRepo.findByPower(power);
 
         if (result.isEmpty()) {
