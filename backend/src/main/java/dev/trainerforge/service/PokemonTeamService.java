@@ -38,28 +38,37 @@ public class PokemonTeamService {
 
     @Transactional
     public PokemonTeam createPokemonTeam(PokemonTeamDto dto) {
-        if (!teamService.existsById(Long.valueOf(dto.teamId()))) {
-            throw new TeamNotFoundException(dto.teamId());
+        final Long teamId;
+        final Long pokemonId;
+        try {
+            teamId = Long.valueOf(dto.teamId());
+            pokemonId = Long.valueOf(dto.pokemonId());
+        } catch (NumberFormatException ex) {
+            throw new InvalidFilterValueException("teamId and pokemonId must be numeric.");
         }
-        if (!pokemonService.existsById(Long.valueOf(dto.pokemonId()))) {
-            throw new PokemonNotFoundException(dto.pokemonId());
+
+        if (!teamService.existsById(teamId)) {
+            throw new TeamNotFoundException(teamId);
+        }
+        if (!pokemonService.existsById(pokemonId)) {
+            throw new PokemonNotFoundException(pokemonId);
         }
 
         validatePositionRange(dto.position());
 
-        if (pokemonTeamRepo.existsByTeamIdAndPosition(Long.valueOf(dto.teamId()), dto.position())) {
+        if (pokemonTeamRepo.existsByTeamIdAndPosition(teamId, dto.position())) {
             throw new InvalidFilterValueException(
-                "Position " + dto.position() + " is already occupied in team with id: " + dto.teamId() + ".");
+                "Position " + dto.position() + " is already occupied in team with id: " + teamId + ".");
         }
 
-        if (pokemonTeamRepo.existsByTeamIdAndPokemonId(Long.valueOf(dto.teamId()), Long.valueOf(dto.pokemonId()))) {
+        if (pokemonTeamRepo.existsByTeamIdAndPokemonId(teamId, pokemonId)) {
             throw new InvalidFilterValueException(
-                "Pokemon with id " + dto.pokemonId() + " is already in team with id: " + dto.teamId() + ".");
+                "Pokemon with id " + pokemonId + " is already in team with id: " + teamId + ".");
         }
 
         PokemonTeam newAssociation = new PokemonTeam();
-        newAssociation.setTeam(teamService.findById(Long.valueOf(dto.teamId())));
-        newAssociation.setPokemon(pokemonService.findById(Long.valueOf(dto.pokemonId())));
+        newAssociation.setTeam(teamService.findById(teamId));
+        newAssociation.setPokemon(pokemonService.findById(pokemonId));
         newAssociation.setPosition(dto.position());
 
         return pokemonTeamRepo.save(newAssociation);
