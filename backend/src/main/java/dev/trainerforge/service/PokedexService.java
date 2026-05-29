@@ -207,7 +207,7 @@ public class PokedexService {
         List<Pokedex> result = pokedexRepo.findByHeight(height);
 
         if (result.isEmpty()) {
-            throw new PokedexNotFoundException("Pokedex entry found with height: " + height + " m.");
+            throw new PokedexNotFoundException("Pokedex entry not found with height: " + height + " m.");
         }
         
         return result;
