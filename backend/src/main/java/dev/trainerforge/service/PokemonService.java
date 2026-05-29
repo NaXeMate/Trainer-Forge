@@ -97,10 +97,20 @@ public class PokemonService {
         validateLevel(dto.level());
         validateAbility(dto.ability());
         validateMove(dto.move1());
-        validateMove(dto.move2());
-        validateMove(dto.move3());
-        validateMove(dto.move4());
-        validateEquippedItem(dto.equippedItem());
+
+        if (dto.move2() != null && !dto.move2().isBlank()) {
+            validateMove(dto.move2());
+        }
+        if (dto.move3() != null && !dto.move3().isBlank()) {
+            validateMove(dto.move3());
+        }
+        if (dto.move4() != null && !dto.move4().isBlank()) {
+            validateMove(dto.move4());
+        }
+        if (dto.equippedItem() != null && !dto.equippedItem().isBlank()) {
+            validateEquippedItem(dto.equippedItem());
+        }
+
         validateNature(dto.nature());
         validateEvRange(dto.hpEv(), "HP");
         validateEvRange(dto.attackEv(), "Attack");
@@ -109,9 +119,10 @@ public class PokemonService {
         validateEvRange(dto.specialDefenseEv(), "Special Defense");
         validateEvRange(dto.speedEv(), "Speed");
 
-        if (dto.move1().equals(dto.move2()) || dto.move1().equals(dto.move3()) || dto.move1().equals(dto.move4())
-                || dto.move2().equals(dto.move3()) || dto.move2().equals(dto.move4())
-                || dto.move3().equals(dto.move4())) {
+        java.util.List<String> moves = java.util.stream.Stream.of(dto.move1(), dto.move2(), dto.move3(), dto.move4())
+            .filter(m -> m != null && !m.isBlank())
+            .toList();
+        if (moves.size() != new java.util.HashSet<>(moves).size()) {
             throw new InvalidFilterValueException("All moves must be different from each other.");
         }
     }
