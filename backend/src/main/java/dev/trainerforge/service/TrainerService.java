@@ -114,9 +114,10 @@ public class TrainerService {
         
         newTrainer.setFriendCode(friendCode);
         
-        // This will be used at the Spring Security implementation.
-        // newTrainer.setPasswordHash(passwordEncoder.encode(dto.password()));
-        
+        if (dto.password() == null || dto.password().isBlank()) {
+            throw new InvalidFilterValueException("The password cannot be empty.");
+        }
+        newTrainer.setPasswordHash(dto.password());
         return trainerRepo.save(newTrainer);
     }
     
