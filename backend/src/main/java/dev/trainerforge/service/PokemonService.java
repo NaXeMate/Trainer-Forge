@@ -9,6 +9,7 @@ import dev.trainerforge.dto.response.PokemonDto;
 import dev.trainerforge.exception.InvalidFilterValueException;
 import dev.trainerforge.exception.notfound.PokemonNotFoundException;
 import dev.trainerforge.mapper.PokemonMapper;
+import dev.trainerforge.model.entities.Nature;
 import dev.trainerforge.model.entities.Pokemon;
 import dev.trainerforge.model.enumerated.Gender;
 import dev.trainerforge.repository.PokemonRepository;

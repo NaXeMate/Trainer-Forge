@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import dev.trainerforge.exception.notfound.PokedexNotFoundException;
+import dev.trainerforge.exception.notfound.PokedexItemNotFoundException;
 import dev.trainerforge.model.entities.PokedexItem;
 import dev.trainerforge.repository.PokedexItemRepository;
 
@@ -25,6 +25,6 @@ public class PokedexItemService {
 
     public PokedexItem findById(Long id) {
         return pokedexItemRepo.findById(id)
-        .orElseThrow(() -> new PokedexNotFoundException(id));
+        .orElseThrow(() -> new PokedexItemNotFoundException(id));
     }
 }

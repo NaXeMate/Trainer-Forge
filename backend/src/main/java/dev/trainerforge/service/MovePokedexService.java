@@ -37,6 +37,7 @@ public class MovePokedexService {
         if (!moveService.existsById(moveId)) {
             throw new MovePokedexNotFoundException("MovePokedex entry not found with move id: " + moveId + ".");
         }
+        
         List<MovePokedex> result = movePokedexRepo.findByMoveId(moveId);
 
         if (result.isEmpty()) {
@@ -50,6 +51,7 @@ public class MovePokedexService {
         if (!pokedexService.existsById(pokedexId)) {
             throw new MovePokedexNotFoundException("MovePokedex entry not found with pokedex id: " + pokedexId + ".");
         }
+        
         List<MovePokedex> result = movePokedexRepo.findByPokedexId(pokedexId);
 
         if (result.isEmpty()) {

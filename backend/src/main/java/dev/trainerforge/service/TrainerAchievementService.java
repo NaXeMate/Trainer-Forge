@@ -11,6 +11,7 @@ import dev.trainerforge.exception.notfound.AchievementNotFoundException;
 import dev.trainerforge.exception.InvalidFilterValueException;
 import dev.trainerforge.exception.notfound.TrainerAchievementNotFoundException;
 import dev.trainerforge.exception.notfound.TrainerNotFoundException;
+import dev.trainerforge.model.entities.Trainer;
 import dev.trainerforge.model.entities.TrainerAchievement;
 import dev.trainerforge.repository.TrainerAchievementRepository;
 
