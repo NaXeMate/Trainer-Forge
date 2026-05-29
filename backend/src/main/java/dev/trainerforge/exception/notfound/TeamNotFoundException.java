@@ -1,8 +1,8 @@
 package dev.trainerforge.exception.notfound;
 
-import dev.trainerforge.exception.TrainerForgeException;
+import dev.trainerforge.exception.ResourceNotFoundException;
 
-public class TeamNotFoundException extends TrainerForgeException {
+public class TeamNotFoundException extends ResourceNotFoundException {
     public TeamNotFoundException(Long id) {
         super("Team not found with id: " + id + ".");
     }
