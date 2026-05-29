@@ -183,7 +183,7 @@ public class PokedexService {
         List<Pokedex> result = pokedexRepo.findByCategory(category);
         
         if (result.isEmpty()) {
-            throw new PokedexNotFoundException("Pokedex entry found with category: " + category + ".");
+            throw new PokedexNotFoundException("Pokedex entry not found with category: " + category + ".");
         }
         
         return result;
