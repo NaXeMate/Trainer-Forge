@@ -1,8 +1,8 @@
 package dev.trainerforge.exception.notfound;
 
-import dev.trainerforge.exception.TrainerForgeException;
+import dev.trainerforge.exception.ResourceNotFoundException;
 
-public class PokemonNotFoundException extends TrainerForgeException {
+public class PokemonNotFoundException extends ResourceNotFoundException {
     public PokemonNotFoundException(Long id) {
         super("Pokemon not found with id: " + id + ".");
     }
