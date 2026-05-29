@@ -17,9 +17,19 @@ public interface PokedexRepository extends JpaRepository<Pokedex, Long> {
     List<Pokedex> findByGenerationId(Long generationId);
     List<Pokedex> findByRegionId(Long regionId);
     List<Pokedex> findByPokemonClass(PokemonClass pokemonClass);
-    @Query("SELECT p FROM Pokedex p WHERE p.type1.id = :typeId OR p.type2.id = :typeId")
+    @Query("""
+        SELECT p FROM Pokedex p
+        LEFT JOIN p.type2 t2
+        WHERE p.type1.id = :typeId OR t2.id = :typeId
+        """)
     List<Pokedex> findByTypeId(@Param("typeId") Long typeId);
-    @Query("SELECT p FROM Pokedex p WHERE p.ability1.id = :abilityId OR p.ability2.id = :abilityId OR p.hiddenAbility.id = :abilityId")
+
+    @Query("""
+        SELECT p FROM Pokedex p
+        LEFT JOIN p.ability2 a2
+        LEFT JOIN p.hiddenAbility ha
+        WHERE p.ability1.id = :abilityId OR a2.id = :abilityId OR ha.id = :abilityId
+        """)
     List<Pokedex> findByAbilityId(@Param("abilityId") Long abilityId);
     List<Pokedex> findByCategory(String category);
     List<Pokedex> findByWeight(BigDecimal weight);
