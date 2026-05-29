@@ -9,7 +9,6 @@ import dev.trainerforge.dto.response.PokemonDto;
 import dev.trainerforge.exception.InvalidFilterValueException;
 import dev.trainerforge.exception.notfound.PokemonNotFoundException;
 import dev.trainerforge.mapper.PokemonMapper;
-import dev.trainerforge.model.entities.Nature;
 import dev.trainerforge.model.entities.Pokemon;
 import dev.trainerforge.model.enumerated.Gender;
 import dev.trainerforge.repository.PokemonRepository;
@@ -20,6 +19,10 @@ public class PokemonService {
 
     private final PokemonRepository pokemonRepo;
     private final PokedexService pokedexService;
+    private final AbilityService abilityService;
+    private final MoveService moveService;
+    private final NatureService natureService;
+    private final PokemonItemService pokemonItemService;
 
     private final PokemonMapper pokemonMapper;
 
@@ -127,10 +130,42 @@ public class PokemonService {
         }
     }
 
-    public PokemonService(PokemonRepository pokemonRepo, PokedexService pokedexService, PokemonMapper pokemonMapper) {
+    public PokemonService(
+        PokemonRepository pokemonRepo,
+        PokedexService pokedexService,
+        AbilityService abilityService,
+        MoveService moveService,
+        NatureService natureService,
+        PokemonItemService pokemonItemService,
+        PokemonMapper pokemonMapper
+    ) {
         this.pokemonRepo = pokemonRepo;
         this.pokedexService = pokedexService;
+        this.abilityService = abilityService;
+        this.moveService = moveService;
+        this.natureService = natureService;
+        this.pokemonItemService = pokemonItemService;
         this.pokemonMapper = pokemonMapper;
+    }
+
+    private void updateRelationsFromDto(PokemonDto dto, Pokemon pokemon) {
+        pokemon.setSpecies(pokedexService.findById(dto.species()));
+        pokemon.setAbility(abilityService.findByName(dto.ability()));
+        pokemon.setMove1(moveService.findByName(dto.move1()));
+        pokemon.setNature(natureService.findByName(dto.nature()));
+
+        if (dto.move2() != null && !dto.move2().isBlank()) {
+            pokemon.setMove2(moveService.findByName(dto.move2()));
+        }
+        if (dto.move3() != null && !dto.move3().isBlank()) {
+            pokemon.setMove3(moveService.findByName(dto.move3()));
+        }
+        if (dto.move4() != null && !dto.move4().isBlank()) {
+            pokemon.setMove4(moveService.findByName(dto.move4()));
+        }
+        if (dto.equippedItem() != null && !dto.equippedItem().isBlank()) {
+            pokemon.setEquippedItem(pokemonItemService.findByName(dto.equippedItem()));
+        }
     }
 
     @Transactional
@@ -140,6 +175,7 @@ public class PokemonService {
 
         Pokemon newPokemon = new Pokemon();
         pokemonMapper.updateEntityFromDto(dto, newPokemon);
+        updateRelationsFromDto(dto, newPokemon);
         
         // The Pokemon species name will be used as default "nickname" if it's not provided
         if (dto.nickname() == null || dto.nickname().isBlank()) {
@@ -157,6 +193,7 @@ public class PokemonService {
         validatePokemonFromDto(dto);
 
         pokemonMapper.updateEntityFromDto(dto, pokemon);
+        updateRelationsFromDto(dto, pokemon);
 
         return pokemonRepo.save(pokemon);
     }
