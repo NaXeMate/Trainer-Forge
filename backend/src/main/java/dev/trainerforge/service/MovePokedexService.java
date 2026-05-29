@@ -46,7 +46,7 @@ public class MovePokedexService {
         return result;
     }
 
-    List<MovePokedex> findByPokedexId(Long pokedexId) {
+    public List<MovePokedex> findByPokedexId(Long pokedexId) {
         if (!pokedexService.existsById(pokedexId)) {
             throw new MovePokedexNotFoundException("MovePokedex entry not found with pokedex id: " + pokedexId + ".");
         }
