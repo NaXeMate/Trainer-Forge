@@ -96,11 +96,11 @@ public class MoveService {
 
     public List<Move> findByPowerBetween(int minPower, int maxPower) {
         if (minPower < 0 || maxPower < 0) {
-            throw new InvalidFilterValueException("Power values musn't be negative. If you want to filter by STATUS moves, use 0 as the power value.");
+            throw new InvalidFilterValueException("Power values must not be negative. If you want to filter by STATUS moves, use 0 as the power value.");
         }
 
         if (maxPower % 5 != 0 || minPower % 5 != 0) {
-            throw new InvalidFilterValueException("Accuracy must be a multiple of 5.");
+            throw new InvalidFilterValueException("Power must be a multiple of 5.");
         }
 
         if (minPower > maxPower) {
