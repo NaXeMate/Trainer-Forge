@@ -137,7 +137,8 @@ VALUES
  'TF0000000005',
  'ADVENTURER');
 
-
+UPDATE "trainers" SET "best_friend_id" = 5 WHERE "id" = 3;
+UPDATE "trainers" SET "best_friend_id" = 3 WHERE "id" = 5;
 -- ========================================
 -- TRAINER ACHIEVEMENTS
 -- ========================================
