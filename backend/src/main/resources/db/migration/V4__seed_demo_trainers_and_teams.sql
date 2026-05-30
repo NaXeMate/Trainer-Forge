@@ -2,13 +2,6 @@
 -- V4 - DEMO TRAINERS, TEAMS & POKÉMON DATA
 -- ========================================
 
--- ========================================
--- EXTEND TRAINER CLASS ENUM
--- ========================================
-
-ALTER TYPE "trainer_class_t" ADD VALUE IF NOT EXISTS 'ADVENTURER';
-ALTER TYPE "trainer_class_t" ADD VALUE IF NOT EXISTS 'COORDINATOR';
-
 
 -- ========================================
 -- MORE POKEMON SPECIES
