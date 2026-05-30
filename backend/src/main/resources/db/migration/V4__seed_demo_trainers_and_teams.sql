@@ -132,9 +132,9 @@ VALUES
  'Rod',
  9,   -- Paldea
  36,  -- Pokemon Scarlet
- 238, -- Skeledirge
- 3,   -- Liko
- 'TF0000000005',
+  238, -- Skeledirge
+  NULL,   -- Liko (set after INSERT to satisfy FK)
+  'TF0000000005',
  'ADVENTURER');
 
 UPDATE "trainers" SET "best_friend_id" = 5 WHERE "id" = 3;
