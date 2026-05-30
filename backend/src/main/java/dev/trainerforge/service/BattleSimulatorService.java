@@ -195,7 +195,7 @@ public class BattleSimulatorService {
 
     private double findTypeMultiplier(String attackerType, String defenderType) {
         return typeEffectivenessRepo
-            .findByAttackingTypeAndDefendingType(attackerType, defenderType)
+            .findByAttackingType_NameAndDefendingType_Name(attackerType, defenderType)
             .map(te -> te.getMultiplier().doubleValue())
             .orElse(1.0);
     }
