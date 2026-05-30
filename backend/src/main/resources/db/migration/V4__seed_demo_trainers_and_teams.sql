@@ -105,11 +105,11 @@ VALUES
  'hash_liko_demo',
  'Liko',
  9,   -- Paldea
- 36,   -- Pokemon Scarlet
- 235,   -- Meowscarada
- 5,   -- Rod
- 'TF0000000003',
- 'ADVENTURER'),
+  36,   -- Pokemon Scarlet
+  235,   -- Meowscarada
+  NULL,   -- Rod (set after INSERT to satisfy FK)
+  'TF0000000003',
+  'ADVENTURER'),
 
 (4,
  'may',
