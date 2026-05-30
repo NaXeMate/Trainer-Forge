@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import dev.trainerforge.model.entities.TypeEffectiveness;
 
 public interface TypeEffectivenessRepository extends JpaRepository<TypeEffectiveness, Long> {
-    Optional<TypeEffectiveness> findByAttackingTypeAndDefendingType(String attackingTypeName, String defendingTypeName);
+    Optional<TypeEffectiveness> findByAttackingType_NameAndDefendingType_Name(String attackingTypeName, String defendingTypeName);
 }
