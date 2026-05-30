@@ -42,5 +42,7 @@ public enum TrainerClass {
     KIMONO_GIRL,
     KIMONO_BOY,
     KAHUNA,
-    CAPTAIN
+    CAPTAIN,
+    COORDINATOR,
+    ADVENTURER
 }
