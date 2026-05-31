@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
+import Button from "../../common/button";
 import { useAuth } from "../../../context/AuthContext";
 import "./header.css";
 
@@ -56,11 +57,10 @@ function Header() {
         <div className="header__left">
           <NavLink to="/" className="header__brand" onClick={closeMenu}>
             <img
-              src="/logo.png"
+              src="/header-logo.png"
               alt="TrainerForge logo"
               className="header__logo"
             />
-            <span className="header__title">TrainerForge</span>
           </NavLink>
         </div>
 
@@ -82,23 +82,21 @@ function Header() {
           {user ? (
             <>
               <span className="header__username">{user.userName}</span>
-              <button
-                type="button"
-                className="header__btn header__btn--logout"
+              <Button
+                label="LOGOUT"
+                variant="danger"
+                uppercase
                 onClick={handleLogout}
-              >
-                LOGOUT
-              </button>
+              />
             </>
           ) : (
-            <button
-              type="button"
-              className="header__btn header__btn--login"
+            <Button
+              label="LOGIN"
+              variant="secondary"
+              leadingIcon={<UserIcon />}
+              uppercase
               onClick={handleLogin}
-            >
-              <UserIcon />
-              LOGIN
-            </button>
+            />
           )}
 
           <button

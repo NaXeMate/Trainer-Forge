@@ -1,8 +1,5 @@
 // Footer component — shown at the bottom of every page
 
-import { useEffect, useState } from "react";
-import moonIcon from "./moon-icon.svg";
-import sunIcon from "./sun-icon.svg";
 import "./footer.css";
 
 const technicalLinks = [
@@ -12,19 +9,6 @@ const technicalLinks = [
 ];
 
 function Footer() {
-  const [theme, setTheme] = useState<"light" | "dark">(() => {
-    const saved = document.documentElement.getAttribute("data-theme");
-    return saved === "light" ? "light" : "dark";
-  });
-
-  useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
-  }, [theme]);
-
-  const toggleTheme = () => {
-    setTheme((current) => (current === "dark" ? "light" : "dark"));
-  };
-
   return (
     <footer className="footer">
       <div className="footer__container">
@@ -74,22 +58,6 @@ function Footer() {
 
         <div className="footer__bottom">
           <p className="footer__copyright">© 2026 TrainerForge</p>
-          <button
-            type="button"
-            className="footer__mode-btn"
-            onClick={toggleTheme}
-            aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
-          >
-            <span
-              className="footer__mode-icon"
-              style={{
-                maskImage: `url(${theme === "dark" ? moonIcon : sunIcon})`,
-                WebkitMaskImage: `url(${theme === "dark" ? moonIcon : sunIcon})`,
-              }}
-              aria-hidden="true"
-            />
-            MODE
-          </button>
         </div>
       </div>
     </footer>

@@ -45,6 +45,10 @@
   --color-accent: #ffcb05;
   --color-accent-hover: #e6b800;
 
+  --poke-accent: #8b5afa;
+  --poke-accent-hover: #7a4ae8;
+  --poke-accent-active: #6a3fd6;
+
   /* ===== NEUTRAL SURFACES (dark theme default) ===== */
   --color-bg: #0f1117;
   --color-surface: #16181f;
@@ -166,28 +170,14 @@
   --content-wide: 1200px;
 }
 
-/* ===== DARK MODE TYPOGRAPHY ADJUSTMENTS ===== */
-[data-theme="dark"] {
+/* ===== TYPOGRAPHY ADJUSTMENTS (always-on dark scheme) ===== */
+:root {
   --font-weight-regular: 450;
   --font-weight-medium: 550;
   --font-weight-semibold: 650;
   letter-spacing: 0.01em;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-[data-theme="light"] {
-  --color-bg: #f5f5f5;
-  --color-surface: #ffffff;
-  --color-surface-2: #f0f0f0;
-  --color-surface-offset: #e8e8e8;
-  --color-border: #d0d0d0;
-  --color-divider: #e0e0e0;
-  --color-text: #1a1a2e;
-  --color-text-muted: #5a5a7a;
-  --color-text-faint: #9a9ab0;
-  --color-text-inverse: #f0f1f5;
-  -webkit-font-smoothing: subpixel-antialiased;
 }
 
 /* ===== BASE HTML ===== */
