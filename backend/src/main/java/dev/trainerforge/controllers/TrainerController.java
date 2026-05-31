@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -151,12 +152,14 @@ public class TrainerController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("authentication.name == @trainerService.findById(#id).username")
     public ResponseEntity<TrainerDto> updateTrainer(@PathVariable Long id, @RequestBody TrainerInputDto dto) {
         Trainer updated = trainerService.updateTrainer(id, dto);
         return ResponseEntity.ok(trainerMapper.toDto(updated));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("authentication.name == @trainerService.findById(#id).username")
     public ResponseEntity<Void> deleteTrainer(@PathVariable Long id) {
         trainerService.deleteTrainer(id);
         return ResponseEntity.noContent().build();

@@ -51,14 +51,10 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<AuthResponseDto> register(@RequestBody @Valid TrainerInputDto dto) {
         trainerService.createTrainer(dto);
-        
-        Authentication auth = authManager.authenticate(
-                new UsernamePasswordAuthenticationToken(dto.username(), dto.password())
-        );
-        
-        String token = jwtUtil.generate(auth.getName());
-        
+
+        String token = jwtUtil.generate(dto.username());
+
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new AuthResponseDto(token, auth.getName()));
+                .body(new AuthResponseDto(token, dto.username()));
     }
 }

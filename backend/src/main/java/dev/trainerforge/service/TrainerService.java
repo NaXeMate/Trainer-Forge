@@ -92,11 +92,11 @@ public class TrainerService {
         return "TF-%04d-%04d".formatted(part1, part2);
     } 
 
-    public TrainerService(TrainerRepository trainerRepo, GamePossessionRepository gamePossessionRepo, TrainerMapper trainerMapper, PasswordEncoder passw) {
+    public TrainerService(TrainerRepository trainerRepo, GamePossessionRepository gamePossessionRepo, TrainerMapper trainerMapper, PasswordEncoder passwordEncoder) {
         this.trainerRepo = trainerRepo;
         this.gamePossessionRepo = gamePossessionRepo;
         this.trainerMapper = trainerMapper;
-        this.passw = passw;
+        this.passwordEncoder = passwordEncoder;
     }
 
     /**
@@ -130,7 +130,7 @@ public class TrainerService {
         
         newTrainer.setFriendCode(friendCode);
         
-        newTrainer.setPasswordHash(passw.encode(dto.password()));
+        newTrainer.setPasswordHash(passwordEncoder.encode(dto.password()));
         return trainerRepo.save(newTrainer);
     }
     
