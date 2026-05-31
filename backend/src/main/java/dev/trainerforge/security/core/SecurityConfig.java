@@ -1,9 +1,11 @@
 package dev.trainerforge.security.core;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -18,6 +20,9 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import dev.trainerforge.dto.response.ErrorDTO;
 import dev.trainerforge.security.jwt.JwtFilter;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -26,9 +31,10 @@ import jakarta.servlet.http.HttpServletResponse;
 public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
-
-    public SecurityConfig(JwtFilter jwtFilter) {
+    private final ObjectMapper objectMapper;
+    public SecurityConfig(JwtFilter jwtFilter, ObjectMapper objectMapper) {
         this.jwtFilter = jwtFilter;
+        this.objectMapper = objectMapper;
     }
 
     @Bean
@@ -39,6 +45,7 @@ public class SecurityConfig {
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/actuator/health").permitAll()
                 .anyRequest().authenticated()
             )
             .exceptionHandling(ex -> ex
@@ -70,7 +77,17 @@ public class SecurityConfig {
         return (request, response, authException) -> {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
-            response.getWriter().write("{\"error\":\"Unauthorized\"}");
+            response.setCharacterEncoding("UTF-8");
+
+            ErrorDTO error = new ErrorDTO(
+                HttpStatus.UNAUTHORIZED.value(),
+                "Unauthorized",
+                "Wrong credentials",
+                request.getRequestURI(),
+                LocalDateTime.now()
+            );
+
+            objectMapper.writeValue(response.getOutputStream(), error);
         };
     }
 
