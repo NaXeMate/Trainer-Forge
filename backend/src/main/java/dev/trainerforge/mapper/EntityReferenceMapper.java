@@ -106,8 +106,12 @@ public class EntityReferenceMapper {
         return pokemonTypeRepository.findByName(name).orElse(null);
     }
 
+    public Trainer mapTrainer(String username) {
+        if (username == null) return null;
+        return trainerRepository.findByUsername(username).orElse(null);
+    }
     // Entity → String / Primitive
-
+    
     public String map(Region r) { return r == null ? null : r.getName(); }
     public String map(Generation g) { return g == null ? null : g.getName(); }
     public String map(Pokedex p) { return p == null ? null : p.getName(); }
@@ -122,6 +126,7 @@ public class EntityReferenceMapper {
     public String map(Nature n) { return n == null ? null : n.getName(); }
     public String map(PokemonType t) { return t == null ? null : t.getName(); }
     public int mapToInt(Generation g) { return g == null ? 0 : (int) (long) g.getId(); }
+    public String map(Trainer t) { return t == null ? null : t.getUsername(); }
 
     public Set<Achievement> mapAchievements(Long[] achievementsIds) {
         Set<Achievement> achievements = new HashSet<>();
