@@ -65,13 +65,13 @@
 
 .footer__link {
   font-size: var(--font-size-caption);
-  color: var(--color-accent);
+  color: var(--poke-accent);
   text-decoration: none;
   transition: color var(--transition-base);
 }
 
 .footer__link:hover {
-  color: var(--color-accent-hover);
+  color: var(--poke-accent-hover);
   text-decoration: underline;
 }
 

@@ -49,8 +49,9 @@
   --poke-accent-hover: #7a4ae8;
   --poke-accent-active: #6a3fd6;
 
-  /* ===== NEUTRAL SURFACES (dark theme default) ===== */
-  --color-bg: #0f1117;
+  /* ===== NEUTRAL SURFACES ===== */
+  /* Page background: diagonal gradient (lavender → mint) */
+  --color-bg: linear-gradient(to bottom right, #faf1ff 0%, #f4fff9 100%);
   --color-surface: #16181f;
   --color-surface-2: #1c1f28;
   --color-surface-offset: #22263a;
@@ -196,7 +197,8 @@ body {
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-body);
   color: var(--color-text);
-  background-color: var(--color-bg);
+  background: var(--color-bg);
+  background-attachment: fixed;
   min-height: 100dvh;
 }
 
