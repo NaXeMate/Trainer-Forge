@@ -1,0 +1,216 @@
+/* ===== REGISTER PAGE ===== */
+
+/* Full page centering */
+.register-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: var(--color-bg);
+  padding: var(--space-6);
+}
+
+/* Card — lavender background matching the Figma design */
+.register-card {
+  background: #e8e4f8;
+  border-radius: var(--radius-xl);
+  padding: var(--space-8) var(--space-8);
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Card header: logo + two-color title */
+.register-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.register-card__logo {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+}
+
+.register-card__title {
+  font-family: var(--font-title);
+  font-weight: var(--font-weight-bold);
+  font-size: 1.75rem;
+  line-height: 1;
+}
+
+.register-card__title--black { color: #1a1040; }
+.register-card__title--purple { color: var(--color-secondary); }
+
+/* Form fields */
+.register-card__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.register-card__label {
+  font-family: var(--font-title);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-body-small);
+  color: #1a1040;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.register-card__input {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  background: #1a1040;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  color: #ffffff;
+  font-family: var(--font-body);
+  font-size: var(--font-size-body);
+  transition: border-color var(--transition-base);
+}
+
+.register-card__input:focus {
+  outline: none;
+  border-color: var(--color-secondary);
+}
+
+.register-card__input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* ===== REAL NAME label with (OPTIONAL) tag ===== */
+.register-card__label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.register-card__optional {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+  font-style: italic;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* ===== POPUP OVERLAY ===== */
+.register-popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: var(--space-6);
+  /* Fade in */
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Pop-up card */
+.register-popup {
+  background: #e8e4f8;
+  border-radius: var(--radius-xl);
+  padding: var(--space-8);
+  width: 100%;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  box-shadow: var(--shadow-lg);
+  /* Slide up */
+  animation: slideUp 0.25s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.register-popup__header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+.register-popup__logo {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+}
+
+.register-popup__title {
+  font-family: var(--font-title);
+  font-weight: var(--font-weight-bold);
+  font-size: 1.5rem;
+}
+
+.register-popup__title--black  { color: #1a1040; }
+.register-popup__title--purple { color: var(--color-secondary); }
+
+.register-popup__subtitle {
+  font-size: var(--font-size-body-small);
+  color: #3d3060;
+  text-align: center;
+  margin-top: calc(-1 * var(--space-2));
+}
+
+/* Select inputs — same dark style as text inputs */
+.register-popup__select {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  background: #1a1040;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  color: #ffffff;
+  font-family: var(--font-body);
+  font-size: var(--font-size-body);
+  cursor: pointer;
+  transition: border-color var(--transition-base);
+  /* Remove default arrow on some browsers */
+  appearance: none;
+}
+
+.register-popup__select:focus {
+  outline: none;
+  border-color: var(--color-secondary);
+}
+
+/* Placeholder option */
+.register-popup__select option[value=""] {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.register-popup__error,
+.register-card__error {
+  font-size: var(--font-size-caption);
+  color: var(--color-error);
+  text-align: center;
+}
+
+.register-popup__loading {
+  font-size: var(--font-size-caption);
+  color: #3d3060;
+  text-align: center;
+}
+
+.register-popup__actions,
+.register-card__actions {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: space-between;
+  margin-top: var(--space-2);
+}

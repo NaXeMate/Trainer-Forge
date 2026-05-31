@@ -1,0 +1,160 @@
+/* ===== STAT SLICER ===== */
+
+.slicer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.slicer__header {
+  display: flex;
+  align-items: center;
+}
+
+.slicer__label {
+  font-family: var(--font-title);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-body-small);
+  color: #1a1040;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Row: 0 ......[ bar ]...... 255 */
+.slicer__track-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.slicer__bound {
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+  color: #3d3060;
+  flex-shrink: 0;
+  min-width: 1.5ch;
+  text-align: center;
+}
+
+/* Wrapper that stacks the track, the fill, the native range and the value label */
+.slicer__track-wrap {
+  position: relative;
+  flex: 1;
+  height: 28px;
+  display: flex;
+  align-items: center;
+}
+
+/* Neutral base bar */
+.slicer__track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: rgba(26, 16, 64, 0.18);
+  pointer-events: none;
+}
+
+/* Highlighted (filled) section — only shown in MIN/MAX modes */
+.slicer__fill {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: var(--poke-accent);
+  pointer-events: none;
+}
+
+/* Native range — transparent track, custom thumb */
+.slicer__range {
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: 100%;
+  margin: 0;
+  background: transparent;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+.slicer__range:focus {
+  outline: none;
+}
+
+.slicer__range::-webkit-slider-runnable-track {
+  background: transparent;
+  height: 4px;
+}
+
+.slicer__range::-moz-range-track {
+  background: transparent;
+  height: 4px;
+}
+
+/* ===== CUSTOM THUMB SHAPES ===== */
+
+/* WebKit */
+.slicer__range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  margin-top: -7px;
+  background: var(--poke-accent);
+  border: none;
+  cursor: pointer;
+}
+
+/* Firefox */
+.slicer__range::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  background: var(--poke-accent);
+  border: none;
+  cursor: pointer;
+}
+
+/* Mode 0 — EXACT: filled circle */
+.slicer__range--mode0::-webkit-slider-thumb {
+  border-radius: 50%;
+}
+.slicer__range--mode0::-moz-range-thumb {
+  border-radius: 50%;
+}
+
+/* Mode 1 — MINIMUM: right-pointing triangle */
+.slicer__range--mode1::-webkit-slider-thumb {
+  border-radius: 0;
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+}
+.slicer__range--mode1::-moz-range-thumb {
+  border-radius: 0;
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+}
+
+/* Mode 2 — MAXIMUM: left-pointing triangle */
+.slicer__range--mode2::-webkit-slider-thumb {
+  border-radius: 0;
+  clip-path: polygon(100% 0, 0 50%, 100% 100%);
+}
+.slicer__range--mode2::-moz-range-thumb {
+  border-radius: 0;
+  clip-path: polygon(100% 0, 0 50%, 100% 100%);
+}
+
+/* Current value, displayed just below the handle */
+.slicer__value {
+  position: absolute;
+  top: 100%;
+  transform: translateX(-50%);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+  color: #3d3060;
+  pointer-events: none;
+  white-space: nowrap;
+}
