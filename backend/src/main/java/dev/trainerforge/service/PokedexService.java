@@ -160,7 +160,7 @@ public class PokedexService {
         List<Pokedex> result = pokedexRepo.findByPokemonClass(pokemonClass);
 
         if (result.isEmpty()) {
-            throw new PokedexNotFoundException("Pokedex entry not found with Pokémon class: " + pokemonClass + ".");
+            throw new PokedexNotFoundException("Pokedex entry not found with Pokemon class: " + pokemonClass + ".");
         }
 
         return result;

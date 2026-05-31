@@ -299,7 +299,7 @@ public class BattleSimulatorService {
 
         if (sizeOne != sizeTwo) {
             throw new InvalidFilterValueException(
-                "Both teams must have the same number of Pokémon to simulate a battle."
+                "Both teams must have the same number of Pokemon to simulate a battle."
             );
         }
     }
@@ -309,7 +309,7 @@ public class BattleSimulatorService {
 
         if (teamSize < TEAM_MIN_SIZE || teamSize > TEAM_MAX_SIZE) {
             throw new InvalidFilterValueException(
-                label + " must have between " + TEAM_MIN_SIZE + " and " + TEAM_MAX_SIZE + " Pokémon."
+                label + " must have between " + TEAM_MIN_SIZE + " and " + TEAM_MAX_SIZE + " Pokemon."
             );
         }
     }

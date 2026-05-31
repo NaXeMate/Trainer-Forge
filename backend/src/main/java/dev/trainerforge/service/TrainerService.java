@@ -12,10 +12,10 @@ import dev.trainerforge.dto.input.TrainerInputDto;
 import dev.trainerforge.exception.InvalidFilterValueException;
 import dev.trainerforge.exception.notfound.TrainerNotFoundException;
 import dev.trainerforge.mapper.TrainerMapper;
-import dev.trainerforge.model.entities.GamePossesion;
+import dev.trainerforge.model.entities.GamePossession;
 import dev.trainerforge.model.entities.Trainer;
 import dev.trainerforge.model.enumerated.TrainerClass;
-import dev.trainerforge.repository.GamePossesionRepository;
+import dev.trainerforge.repository.GamePossessionRepository;
 import dev.trainerforge.repository.TrainerRepository;
 
 @Transactional(readOnly = true)
@@ -23,7 +23,7 @@ import dev.trainerforge.repository.TrainerRepository;
 public class TrainerService {
     
     private final TrainerRepository trainerRepo;
-    private final GamePossesionRepository gamePossesionRepo;
+    private final GamePossessionRepository gamePossessionRepo;
 
     private final TrainerMapper trainerMapper;
     private final PasswordEncoder passw;
@@ -92,9 +92,9 @@ public class TrainerService {
         return "TF-%04d-%04d".formatted(part1, part2);
     } 
 
-    public TrainerService(TrainerRepository trainerRepo, GamePossesionRepository gamePossesionRepo, TrainerMapper trainerMapper, PasswordEncoder passw) {
+    public TrainerService(TrainerRepository trainerRepo, GamePossessionRepository gamePossessionRepo, TrainerMapper trainerMapper, PasswordEncoder passw) {
         this.trainerRepo = trainerRepo;
-        this.gamePossesionRepo = gamePossesionRepo;
+        this.gamePossessionRepo = gamePossessionRepo;
         this.trainerMapper = trainerMapper;
         this.passw = passw;
     }
@@ -258,7 +258,7 @@ public class TrainerService {
         List<Trainer> result = trainerRepo.findByFavoritePokemonId(favoritePokemonId);
 
         if (result.isEmpty()) {
-            throw new TrainerNotFoundException("No trainers found with favorite Pokémon id: " + favoritePokemonId + ".");
+            throw new TrainerNotFoundException("No trainers found with favorite Pokemon id: " + favoritePokemonId + ".");
         }
 
         return result;
@@ -295,13 +295,13 @@ public class TrainerService {
      * @return all game possession entries for the provided trainer.
      * @throws TrainerNotFoundException when the trainer does not exist or has no possession records.
      */
-    public List<GamePossesion> findGamesByTrainerId(Long trainerId) {
+    public List<GamePossession> findGamesByTrainerId(Long trainerId) {
 
         if (!trainerRepo.existsById(trainerId)) {
             throw new TrainerNotFoundException(trainerId);
         }
 
-        List<GamePossesion> result = gamePossesionRepo.findByTrainerId(trainerId);
+        List<GamePossession> result = gamePossessionRepo.findByTrainerId(trainerId);
 
         if (result.isEmpty()) {
             throw new TrainerNotFoundException("No game possessions found for trainer with id: " + trainerId + ".");
@@ -317,8 +317,8 @@ public class TrainerService {
      * @return all game possession entries that reference the provided videogame.
      * @throws TrainerNotFoundException when no trainer possession records exist for the videogame.
      */
-    public List<GamePossesion> findTrainersByVideogameId(Long videogameId) {
-        List<GamePossesion> result = gamePossesionRepo.findByVideogameId(videogameId);
+    public List<GamePossession> findTrainersByVideogameId(Long videogameId) {
+        List<GamePossession> result = gamePossessionRepo.findByVideogameId(videogameId);
 
         if (result.isEmpty()) {
             throw new TrainerNotFoundException("No trainers found with videogame id: " + videogameId + ".");
