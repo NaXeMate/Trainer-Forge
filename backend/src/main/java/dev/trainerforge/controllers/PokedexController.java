@@ -9,7 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import dev.trainerforge.model.entities.Pokedex;
+import dev.trainerforge.dto.response.PokedexDto;
+import dev.trainerforge.mapper.PokedexMapper;
 import dev.trainerforge.model.enumerated.PokemonClass;
 import dev.trainerforge.service.PokedexService;
 
@@ -18,106 +19,113 @@ import dev.trainerforge.service.PokedexService;
 public class PokedexController {
 
     private final PokedexService pokedexService;
+    private final PokedexMapper pokedexMapper;
 
-    public PokedexController(PokedexService pokedexService) {
+    public PokedexController(PokedexService pokedexService, PokedexMapper pokedexMapper) {
         this.pokedexService = pokedexService;
+        this.pokedexMapper = pokedexMapper;
     }
 
-    // POKEDEX LIST PAGE - Complete list, name and number searching.
-
     @GetMapping
-    public ResponseEntity<List<Pokedex>> getAllPokedexEntries() {
-        List<Pokedex> pokedexEntries = pokedexService.findAll();
+    public ResponseEntity<List<PokedexDto>> getAllPokedexEntries() {
+        List<PokedexDto> pokedexEntries = pokedexService.findAll()
+                .stream().map(pokedexMapper::toDto).toList();
         return ResponseEntity.ok(pokedexEntries);
     }
 
     @GetMapping("/name/{name}")
-    public ResponseEntity<Pokedex> getPokedexEntryByName(@PathVariable String name) {
-        Pokedex pokedexEntry = pokedexService.findByName(name);
+    public ResponseEntity<PokedexDto> getPokedexEntryByName(@PathVariable String name) {
+        PokedexDto pokedexEntry = pokedexMapper.toDto(pokedexService.findByName(name));
         return ResponseEntity.ok(pokedexEntry);
     }
 
-    @GetMapping("/number/{nationalPokedexNumber}")
-    public ResponseEntity<List<Pokedex>> getPokedexEntryByNumber(@PathVariable Long nationalPokedexNumber) {
-        List<Pokedex> pokedexEntries = pokedexService.findByNationalPokedex(nationalPokedexNumber);
+    @GetMapping("/number/{nationalPokedex}")
+    public ResponseEntity<List<PokedexDto>> getPokedexEntriesByNationalNumber(@PathVariable Long nationalPokedex) {
+        List<PokedexDto> pokedexEntries = pokedexService.findByNationalPokedex(nationalPokedex)
+                .stream().map(pokedexMapper::toDto).toList();
         return ResponseEntity.ok(pokedexEntries);
     }
 
-    // FILTERS - Tytpe, Generation, Region, Ability, Class
-    
     @GetMapping("/type/{typeId}")
-    public ResponseEntity<List<Pokedex>> getPokedexEntriesByType(@PathVariable Long typeId) {
-        List<Pokedex> pokedexEntries = pokedexService.findByType(typeId);
+    public ResponseEntity<List<PokedexDto>> getPokedexEntriesByType(@PathVariable Long typeId) {
+        List<PokedexDto> pokedexEntries = pokedexService.findByType(typeId)
+                .stream().map(pokedexMapper::toDto).toList();
         return ResponseEntity.ok(pokedexEntries);
     }
 
     @GetMapping("/generation/{generationId}")
-    public ResponseEntity<List<Pokedex>> getPokedexEntriesByGeneration(@PathVariable Long generationId) {
-        List<Pokedex> pokedexEntries = pokedexService.findByGenerationId(generationId);
+    public ResponseEntity<List<PokedexDto>> getPokedexEntriesByGeneration(@PathVariable Long generationId) {
+        List<PokedexDto> pokedexEntries = pokedexService.findByGenerationId(generationId)
+                .stream().map(pokedexMapper::toDto).toList();
         return ResponseEntity.ok(pokedexEntries);
     }
 
     @GetMapping("/region/{regionId}")
-    public ResponseEntity<List<Pokedex>> getPokedexEntriesByRegion(@PathVariable Long regionId) {
-        List<Pokedex> pokedexEntries = pokedexService.findByRegionId(regionId);
+    public ResponseEntity<List<PokedexDto>> getPokedexEntriesByRegion(@PathVariable Long regionId) {
+        List<PokedexDto> pokedexEntries = pokedexService.findByRegionId(regionId)
+                .stream().map(pokedexMapper::toDto).toList();
         return ResponseEntity.ok(pokedexEntries);
     }
 
     @GetMapping("/ability/{abilityId}")
-    public ResponseEntity<List<Pokedex>> getPokedexEntriesByAbility(@PathVariable Long abilityId) {
-        List<Pokedex> pokedexEntries = pokedexService.findByAbility(abilityId);
+    public ResponseEntity<List<PokedexDto>> getPokedexEntriesByAbility(@PathVariable Long abilityId) {
+        List<PokedexDto> pokedexEntries = pokedexService.findByAbility(abilityId)
+                .stream().map(pokedexMapper::toDto).toList();
         return ResponseEntity.ok(pokedexEntries);
     }
 
     @GetMapping("/class/{pokemonClass}")
-    public ResponseEntity<List<Pokedex>> getPokedexEntriesByClass(@PathVariable PokemonClass pokemonClass) {
-        List<Pokedex> pokedexEntries = pokedexService.findByPokemonClass(pokemonClass);
+    public ResponseEntity<List<PokedexDto>> getPokedexEntriesByClass(@PathVariable PokemonClass pokemonClass) {
+        List<PokedexDto> pokedexEntries = pokedexService.findByPokemonClass(pokemonClass)
+                .stream().map(pokedexMapper::toDto).toList();
         return ResponseEntity.ok(pokedexEntries);
     }
 
-    // STAT FILTERS
-
     @GetMapping("/stats/hp")
-    public ResponseEntity<List<Pokedex>> getPokedexEntriesByHp(@RequestParam int min, @RequestParam int max) {
-        List<Pokedex> pokedexEntries = pokedexService.findByHpBaseBetween(min, max);
+    public ResponseEntity<List<PokedexDto>> getPokedexEntriesByHp(@RequestParam int min, @RequestParam int max) {
+        List<PokedexDto> pokedexEntries = pokedexService.findByHpBaseBetween(min, max)
+                .stream().map(pokedexMapper::toDto).toList();
         return ResponseEntity.ok(pokedexEntries);
     }
 
     @GetMapping("/stats/attack")
-    public ResponseEntity<List<Pokedex>> getPokedexEntriesByAttack(@RequestParam int min, @RequestParam int max) {
-        List<Pokedex> pokedexEntries = pokedexService.findByAttackBaseBetween(min, max);
+    public ResponseEntity<List<PokedexDto>> getPokedexEntriesByAttack(@RequestParam int min, @RequestParam int max) {
+        List<PokedexDto> pokedexEntries = pokedexService.findByAttackBaseBetween(min, max)
+                .stream().map(pokedexMapper::toDto).toList();
         return ResponseEntity.ok(pokedexEntries);
     }
 
     @GetMapping("/stats/defense")
-    public ResponseEntity<List<Pokedex>> getPokedexEntriesByDefense(@RequestParam int min, @RequestParam int max) {
-        List<Pokedex> pokedexEntries = pokedexService.findByDefenseBaseBetween(min, max);
+    public ResponseEntity<List<PokedexDto>> getPokedexEntriesByDefense(@RequestParam int min, @RequestParam int max) {
+        List<PokedexDto> pokedexEntries = pokedexService.findByDefenseBaseBetween(min, max)
+                .stream().map(pokedexMapper::toDto).toList();
         return ResponseEntity.ok(pokedexEntries);
     }
 
     @GetMapping("/stats/special-attack")
-    public ResponseEntity<List<Pokedex>> getPokedexEntriesBySpecialAttack(@RequestParam int min, @RequestParam int max) {
-        List<Pokedex> pokedexEntries = pokedexService.findBySpecialAttackBaseBetween(min, max);
+    public ResponseEntity<List<PokedexDto>> getPokedexEntriesBySpecialAttack(@RequestParam int min, @RequestParam int max) {
+        List<PokedexDto> pokedexEntries = pokedexService.findBySpecialAttackBaseBetween(min, max)
+                .stream().map(pokedexMapper::toDto).toList();
         return ResponseEntity.ok(pokedexEntries);
     }
 
     @GetMapping("/stats/special-defense")
-    public ResponseEntity<List<Pokedex>> getPokedexEntriesBySpecialDefense(@RequestParam int min, @RequestParam int max) {
-        List<Pokedex> pokedexEntries = pokedexService.findBySpecialDefenseBaseBetween(min, max);
+    public ResponseEntity<List<PokedexDto>> getPokedexEntriesBySpecialDefense(@RequestParam int min, @RequestParam int max) {
+        List<PokedexDto> pokedexEntries = pokedexService.findBySpecialDefenseBaseBetween(min, max)
+                .stream().map(pokedexMapper::toDto).toList();
         return ResponseEntity.ok(pokedexEntries);
     }
 
     @GetMapping("/stats/speed")
-    public ResponseEntity<List<Pokedex>> getPokedexEntriesBySpeed(@RequestParam int min, @RequestParam int max) {
-        List<Pokedex> pokedexEntries = pokedexService.findBySpeedBaseBetween(min, max);
+    public ResponseEntity<List<PokedexDto>> getPokedexEntriesBySpeed(@RequestParam int min, @RequestParam int max) {
+        List<PokedexDto> pokedexEntries = pokedexService.findBySpeedBaseBetween(min, max)
+                .stream().map(pokedexMapper::toDto).toList();
         return ResponseEntity.ok(pokedexEntries);
     }
 
-    // POKEDEX DETAIL PAGE
-
     @GetMapping("/{id}")
-    public ResponseEntity<Pokedex> getPokedexEntryById(@PathVariable Long id) {
-        Pokedex pokedexEntry = pokedexService.findById(id);
+    public ResponseEntity<PokedexDto> getPokedexEntryById(@PathVariable Long id) {
+        PokedexDto pokedexEntry = pokedexMapper.toDto(pokedexService.findById(id));
         return ResponseEntity.ok(pokedexEntry);
     }
 }
