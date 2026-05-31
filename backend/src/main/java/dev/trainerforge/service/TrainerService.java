@@ -26,7 +26,7 @@ public class TrainerService {
     private final GamePossessionRepository gamePossessionRepo;
 
     private final TrainerMapper trainerMapper;
-    private final PasswordEncoder passw;
+    private final PasswordEncoder passwordEncoder;
 
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
     private static final Pattern FRIEND_CODE_PATTERN = Pattern.compile("^TF-\\d{4}-\\d{4}$");
