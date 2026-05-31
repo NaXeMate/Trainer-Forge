@@ -1,0 +1,60 @@
+package dev.trainerforge.controllers;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import dev.trainerforge.dto.input.LoginInputDto;
+import dev.trainerforge.dto.input.TrainerInputDto;
+import dev.trainerforge.dto.response.AuthResponseDto;
+import dev.trainerforge.security.jwt.JwtUtil;
+import dev.trainerforge.service.TrainerService;
+import jakarta.validation.Valid;
+
+@RestController
+@RequestMapping("/api/auth")
+public class AuthController {
+
+    private final AuthenticationManager authManager;
+    private final JwtUtil jwtUtil;
+    private final TrainerService trainerService;
+
+    public AuthController(AuthenticationManager authManager, JwtUtil jwtUtil, TrainerService trainerService) {
+        this.authManager = authManager;
+        this.jwtUtil = jwtUtil;
+        this.trainerService = trainerService;
+    }
+    
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponseDto> login(@RequestBody @Valid LoginInputDto dto) {
+        try {
+            Authentication auth = authManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(dto.username(), dto.password())
+            );
+            String token = jwtUtil.generate(auth.getName());
+            return ResponseEntity.ok(new AuthResponseDto(token, auth.getName()));
+        } catch (BadCredentialsException | UsernameNotFoundException ex) {
+            throw new BadCredentialsException("Wrong credentials", ex);
+        }
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<AuthResponseDto> register(@RequestBody @Valid TrainerInputDto dto) {
+        trainerService.createTrainer(dto);
+
+        String token = jwtUtil.generate(dto.username());
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new AuthResponseDto(token, dto.username()));
+    }
+}

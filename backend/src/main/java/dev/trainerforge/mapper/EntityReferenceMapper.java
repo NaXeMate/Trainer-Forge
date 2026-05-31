@@ -18,7 +18,7 @@ public class EntityReferenceMapper {
     private final VideogameRepository videogameRepository;
     private final AbilityRepository abilityRepository;
     private final AchievementRepository achievementRepository;
-    private final GamePossesionRepository gamePossesionRepository;
+    private final GamePossessionRepository gamePossessionRepository;
     private final MoveRepository moveRepository;
     private final MovePokedexRepository movePokedexRepository;
     private final MoveSecondaryEffectRepository moveSecondaryEffectRepository;
@@ -166,23 +166,23 @@ public class EntityReferenceMapper {
         return abilities.stream().map(Ability::getId).toArray(Long[]::new);
     }
 
-    public Set<GamePossesion> mapGamePossesions(Long[] gamePossesionsIds) {
-        Set<GamePossesion> gamePossesions = new HashSet<>();
-        if (gamePossesionsIds != null) {
-            for (Long id : gamePossesionsIds) {
+    public Set<GamePossession> mapGamePossessions(Long[] gamePossessionsIds) {
+        Set<GamePossession> gamePossessions = new HashSet<>();
+        if (gamePossessionsIds != null) {
+            for (Long id : gamePossessionsIds) {
                 if (id != null) {
-                    gamePossesionRepository.findById(id).ifPresent(gamePossesions::add);
+                    gamePossessionRepository.findById(id).ifPresent(gamePossessions::add);
                 }
             }
         }
-        return gamePossesions;
+        return gamePossessions;
     }
 
-    public Long[] mapGamePossesionsIds(Set<GamePossesion> gamePossesions) {
-        if (gamePossesions == null || gamePossesions.isEmpty()) {
+    public Long[] mapGamePossessionsIds(Set<GamePossession> gamePossessions) {
+        if (gamePossessions == null || gamePossessions.isEmpty()) {
             return new Long[0];
         }
-        return gamePossesions.stream().map(GamePossesion::getId).toArray(Long[]::new);
+        return gamePossessions.stream().map(GamePossession::getId).toArray(Long[]::new);
     }
 
     public Set<Generation> mapGeneration(Long[] generationsIds) {

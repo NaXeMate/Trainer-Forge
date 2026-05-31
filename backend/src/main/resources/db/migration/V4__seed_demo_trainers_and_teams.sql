@@ -1,5 +1,5 @@
 -- ========================================
--- V4 - DEMO TRAINERS, TEAMS & POKÉMON DATA
+-- V4 - DEMO TRAINERS, TEAMS & POKEMON DATA
 -- ========================================
 
 
@@ -154,7 +154,7 @@ VALUES
 
 
 -- ========================================
--- GAME POSSESIONS (TRAINER'S GAMES)
+-- GAME POSSESSIONS (TRAINER'S GAMES)
 -- ========================================
 
 INSERT INTO "game_possesions" (id, trainer_id, videogame_id) VALUES
@@ -194,7 +194,7 @@ VALUES
  220, 59, 136, 30, 63, 4, 20,
  32, 0, 32, 4, 0, 2),
 
--- Equipo de Leaf: Pikachu, Clefable, Gardevoir
+-- Leaf's Team: Pikachu, Clefable, Gardevoir
 (4, 53, NULL, 'Kanto Viridian Forest', 55, FALSE, 'FEMALE',
  310, 148, 99, 150, 149, 2, 21,
  0, 4, 0, 32, 0, 32),
@@ -207,7 +207,7 @@ VALUES
  317, 98, 103, 139, 62, 4, 15,
  32, 0, 0, 32, 4, 2),
 
--- Equipo de Liko: Meowscarada, Hatterene, Terapagos, Armarouge
+-- Liko's Team: Meowscarada, Hatterene, Terapagos, Armarouge
 -- Meowscarada
 (7, 235, NULL, 'Indigo Academy', 90, FALSE, 'FEMALE',
  134, 164, 165, 166, 99,
@@ -232,7 +232,7 @@ VALUES
   2, 1,
  0, 4, 0, 32, 0, 32),
 
--- Equipo de May: Gardevoir, Gallade, Lucario
+-- May's Team: Gardevoir, Gallade, Lucario
 (11, 89, NULL, 'Hoenn Route 117', 62, FALSE, 'FEMALE',
  317, 98, 48, 140, 62, 4, 16,
  32, 0, 0, 32, 4, 2),
@@ -272,7 +272,7 @@ VALUES
 
 
 -- ========================================
--- TEAMS (EQUIPOS)
+-- TEAMS
 -- ========================================
 
 INSERT INTO "teams"
@@ -286,7 +286,7 @@ VALUES
 
 
 -- ========================================
--- POKÉMON_TEAMS (TEAM / POKEMON)
+-- POKEMON_TEAMS (TEAM / POKEMON)
 -- ========================================
 
 INSERT INTO "pokemon_teams"

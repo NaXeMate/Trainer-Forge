@@ -10,8 +10,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "game_possesions")
-public class GamePossesion {
+@Table(name = "game_possessions")
+public class GamePossession {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,9 +25,9 @@ public class GamePossesion {
     @JoinColumn(name = "videogame_id", nullable = false)
     private Videogame videogame;
     
-    public GamePossesion() {}
+    public GamePossession() {}
 
-    public GamePossesion(Trainer trainer, Videogame videogame) {
+    public GamePossession(Trainer trainer, Videogame videogame) {
         this.trainer = trainer;
         this.videogame = videogame;
     }

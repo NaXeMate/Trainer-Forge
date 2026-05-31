@@ -5,18 +5,18 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
 
-import dev.trainerforge.dto.response.GamePossesionDto;
-import dev.trainerforge.model.entities.GamePossesion;
+import dev.trainerforge.dto.response.GamePossessionDto;
+import dev.trainerforge.model.entities.GamePossession;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = {EntityReferenceMapper.class})
-public interface GamePossesionMapper {
+public interface GamePossessionMapper {
 
     @Mapping(source = "trainerUsername", target = "trainer")
-    GamePossesion toEntity(GamePossesionDto gamePossesionDto);
+    GamePossession toEntity(GamePossessionDto gamePossessionDto);
 
     @Mapping(source = "trainer.username", target = "trainerUsername")
-    GamePossesionDto toDto(GamePossesion gamePossesion);
+    GamePossessionDto toDto(GamePossession gamePossession);
 
     @Mapping(source = "trainerUsername", target = "trainer")
-    void updateEntityFromDto(GamePossesionDto gamePossesionDto, @MappingTarget GamePossesion gamePossesion);
+    void updateEntityFromDto(GamePossessionDto gamePossessionDto, @MappingTarget GamePossession gamePossession);
 }

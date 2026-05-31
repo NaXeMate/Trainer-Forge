@@ -40,6 +40,16 @@ public class BattleSimulatorService {
 
     // SIMULATION
 
+    /**
+     * Simulates a battle outcome between two teams of equal size.
+     *
+     * Compares pokemon by slot position, so both teams must have matching roster sizes.
+     *
+     * @param teamId1 identifier of the first team in the matchup.
+     * @param teamId2 identifier of the second team in the matchup.
+     * @return a formatted battle summary including side scores, winner, and confidence percentage.
+     * @throws InvalidFilterValueException when a team identifier is null or team structures are incompatible for simulation.
+     */
     public String simulateBattle(Long teamId1, Long teamId2) {
         validateTeamId(teamId1, "team one");
         validateTeamId(teamId2, "team two");
@@ -64,8 +74,11 @@ public class BattleSimulatorService {
     // SCORING
 
     /**
-     * Side score: average of each Pokémon's individual score
-     * against the opposing Pokémon in the same slot position.
+     * Calculates the side score as the average of per-slot matchup scores.
+     *
+     * @param attackers ordered pokemon list for the evaluated side.
+     * @param defenders ordered pokemon list for the opposing side.
+     * @return average score obtained by comparing each pokemon against the opponent in the same slot.
      */
     private double calculateSideScore(List<Pokemon> attackers, List<Pokemon> defenders) {
         double totalScore = 0.0;
@@ -81,7 +94,11 @@ public class BattleSimulatorService {
     }
 
     /**
-     * Individual Pokémon score: base score modified by type effectiveness.
+     * Calculates an individual matchup score by applying type effectiveness over base score.
+     *
+     * @param attacker pokemon whose score is being computed.
+     * @param defender opposing pokemon used to derive the type modifier.
+     * @return final attacker score for this one-on-one slot matchup.
      */
     private double calculatePokemonScore(Pokemon attacker, Pokemon defender) {
         double baseScore = calculatePokemonBaseScore(attacker);
@@ -90,9 +107,12 @@ public class BattleSimulatorService {
     }
 
     /**
-     * Base score derived from level, base stats and EVs.
-     * The level and stats factors act as additive bonuses over the base stat sum,
-     * so low-level Pokémon still produce a meaningful non-zero score.
+     * Derives a pokemon base score from species stats, level scaling, and EV scaling.
+     *
+     * Applies level and stat factors as additive bonuses over the species base-stat sum so low-level pokemon still produce a non-zero baseline.
+     *
+     * @param pokemon pokemon whose intrinsic score baseline is being calculated.
+     * @return base score before matchup type modifiers are applied.
      */
     private double calculatePokemonBaseScore(Pokemon pokemon) {
         Pokedex species = pokemon.getSpecies();
@@ -139,12 +159,13 @@ public class BattleSimulatorService {
     }
 
     /**
-     * Offensive type modifier using the species types of both Pokémon.
-     * All attacker-type vs defender-type pairs are evaluated via the database.
+     * Computes the offensive type modifier using all attacker-type versus defender-type pairs.
      *
-     * - multiplier > 1.0 → advantage  (accumulates +20 % per qualifying pair).
-     * - multiplier < 1.0 → disadvantage → returns 0.5 immediately.
-     * - multiplier == 1.0 → neutral, no effect.
+     * Queries type multipliers from persistence. Any disadvantage immediately forces a 0.5 penalty, while each advantage adds a fixed bonus over 1.0.
+     *
+     * @param attacker attacking pokemon whose species types are evaluated.
+     * @param defender defending pokemon whose species types are evaluated.
+     * @return aggregated offensive modifier for the attacker against the defender.
      */
     private double calculateOffensiveTypeModifier(Pokemon attacker, Pokemon defender) {
         List<String> attackerTypes = getTypeNames(attacker.getSpecies());
@@ -250,7 +271,10 @@ public class BattleSimulatorService {
     // TEAM MANAGEMENT
 
     /**
-     * Extracts all Pokémon from a team ordered by slot position.
+     * Extracts team pokemon ordered by their configured slot position.
+     *
+     * @param team team entity containing slot associations.
+     * @return ordered pokemon list ready for slot-by-slot simulation.
      */
     private List<Pokemon> extractTeamPokemons(Team team) {
         return team.getPokemonTeams().stream()
@@ -260,8 +284,11 @@ public class BattleSimulatorService {
     }
 
     /**
-     * Validates that both teams have between 1 and 6 Pokémon
-     * and that their sizes match.
+     * Validates team size bounds and enforces equal roster sizes for both sides.
+     *
+     * @param teamOne pokemon list for the first side.
+     * @param teamTwo pokemon list for the second side.
+     * @throws InvalidFilterValueException when either team is out of bounds or both team sizes differ.
      */
     private void validateTeamStructure(List<Pokemon> teamOne, List<Pokemon> teamTwo) {
         validateTeamSize(teamOne, "Team one");
@@ -272,7 +299,7 @@ public class BattleSimulatorService {
 
         if (sizeOne != sizeTwo) {
             throw new InvalidFilterValueException(
-                "Both teams must have the same number of Pokémon to simulate a battle."
+                "Both teams must have the same number of Pokemon to simulate a battle."
             );
         }
     }
@@ -282,7 +309,7 @@ public class BattleSimulatorService {
 
         if (teamSize < TEAM_MIN_SIZE || teamSize > TEAM_MAX_SIZE) {
             throw new InvalidFilterValueException(
-                label + " must have between " + TEAM_MIN_SIZE + " and " + TEAM_MAX_SIZE + " Pokémon."
+                label + " must have between " + TEAM_MIN_SIZE + " and " + TEAM_MAX_SIZE + " Pokemon."
             );
         }
     }

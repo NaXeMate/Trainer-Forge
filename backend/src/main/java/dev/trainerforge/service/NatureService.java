@@ -34,6 +34,13 @@ public class NatureService {
         .orElseThrow(() -> new NatureNotFoundException("Nature not found with name: " + name + "."));
     }
 
+    /**
+     * Retrieves natures that increase a specific stat.
+     *
+     * @param rise stat modifier used as the increasing trait filter.
+     * @return all natures that boost the provided stat.
+     * @throws NatureNotFoundException when no nature raises the requested stat.
+     */
     public List<Nature> findByRise(NatureRiseLower rise) {
         List<Nature> result = natureRepo.findByRise(rise);
 
@@ -44,6 +51,13 @@ public class NatureService {
         return result;
     }
 
+    /**
+     * Retrieves natures that lower a specific stat.
+     *
+     * @param lower stat modifier used as the decreasing trait filter.
+     * @return all natures that reduce the provided stat.
+     * @throws NatureNotFoundException when no nature lowers the requested stat.
+     */
     public List<Nature> findByLower(NatureRiseLower lower) {
         List<Nature> result = natureRepo.findByLower(lower);
 

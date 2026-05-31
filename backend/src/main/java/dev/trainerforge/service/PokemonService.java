@@ -149,6 +149,12 @@ public class PokemonService {
         this.pokemonMapper = pokemonMapper;
     }
 
+    /**
+     * Resolves relation fields from DTO identifiers and names into managed entity references.
+     *
+     * @param dto payload containing relation identifiers and names to resolve.
+     * @param pokemon pokemon entity that receives resolved relation references.
+     */
     private void updateRelationsFromDto(PokemonDto dto, Pokemon pokemon) {
         pokemon.setSpecies(pokedexService.findById(dto.species()));
         pokemon.setAbility(abilityService.findByName(dto.ability()));
@@ -169,6 +175,15 @@ public class PokemonService {
         }
     }
 
+    /**
+     * Creates a pokemon from DTO data, validating business rules and resolving entity relations.
+     *
+     * If nickname is blank, the species name is used as a default nickname before persistence.
+     *
+     * @param dto payload containing pokemon attributes and relation references.
+     * @return the newly persisted pokemon entity.
+     * @throws InvalidFilterValueException when DTO values violate required constraints or uniqueness rules for move slots.
+     */
     @Transactional
     public Pokemon createPokemon(PokemonDto dto) {
 
@@ -187,6 +202,15 @@ public class PokemonService {
         return pokemonRepo.save(newPokemon);
     }
 
+    /**
+     * Updates a pokemon with DTO data after applying the same validation and relation resolution used on creation.
+     *
+     * @param id identifier of the pokemon to update.
+     * @param dto payload containing new pokemon values.
+     * @return the updated pokemon entity.
+     * @throws PokemonNotFoundException when the pokemon identifier does not exist.
+     * @throws InvalidFilterValueException when DTO values violate domain constraints.
+     */
     @Transactional
     public Pokemon updatePokemon(Long id, PokemonDto dto) {
         Pokemon pokemon = this.findById(id);
@@ -220,6 +244,14 @@ public class PokemonService {
         return pokemonRepo.findBySpeciesId(speciesId);
     }
 
+    /**
+     * Retrieves pokemon by nickname after validating non-empty nickname input.
+     *
+     * @param nickname nickname used as filter criteria.
+     * @return all pokemon that use the provided nickname.
+     * @throws InvalidFilterValueException when the nickname is null or blank.
+     * @throws PokemonNotFoundException when no pokemon match the provided nickname.
+     */
     public List<Pokemon> findByNickname(String nickname) {
         if (nickname == null || nickname.isBlank()) {
             throw new InvalidFilterValueException("The nickname cannot be empty.");
@@ -234,6 +266,14 @@ public class PokemonService {
         return result;
     }
 
+    /**
+     * Retrieves pokemon captured at a specific location.
+     *
+     * @param locationFound capture location text used as filter criteria.
+     * @return all pokemon registered with the provided capture location.
+     * @throws InvalidFilterValueException when the location text is null or blank.
+     * @throws PokemonNotFoundException when no pokemon are registered at the provided location.
+     */
     public List<Pokemon> findByLocationFound(String locationFound) {
         if (locationFound == null || locationFound.isBlank()) {
             throw new InvalidFilterValueException("The location found cannot be empty.");
@@ -254,6 +294,16 @@ public class PokemonService {
         return pokemonRepo.findByLevel(level);
     }
 
+    /**
+     * Retrieves pokemon whose levels are within an inclusive interval.
+     *
+     * When both bounds are equal, this method delegates to exact-level filtering.
+     *
+     * @param minLevel lower level bound used for filtering.
+     * @param maxLevel upper level bound used for filtering.
+     * @return all pokemon whose level is inside the provided range.
+     * @throws InvalidFilterValueException when a bound is outside allowed levels or interval order is invalid.
+     */
     public List<Pokemon> findByLevelBetween(int minLevel, int maxLevel) {
         validateLevel(minLevel);
         validateLevel(maxLevel);

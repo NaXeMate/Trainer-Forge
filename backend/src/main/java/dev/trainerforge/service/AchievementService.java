@@ -33,6 +33,12 @@ public class AchievementService {
         .orElseThrow(() -> new AchievementNotFoundException("Achievement not found with name: " + name + "."));
     }
 
+    /**
+     * Retrieves all achievements that are visible to end users.
+     *
+     * @return all achievements flagged as non-hidden.
+     * @throws AchievementNotFoundException when no visible achievements are available.
+     */
     public List<Achievement> findVisibleAchievements() {
         List<Achievement> result = achievementRepo.findByHiddenFalse();
         

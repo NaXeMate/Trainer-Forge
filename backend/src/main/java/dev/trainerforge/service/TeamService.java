@@ -30,6 +30,12 @@ public class TeamService {
         this.teamMapper = teamMapper;
     }
 
+    /**
+     * Creates a team entity from input data and persists it.
+     *
+     * @param dto payload containing team metadata and relations to bind.
+     * @return the persisted team with generated identifiers.
+     */
     @Transactional
     public Team createTeam(TeamDto dto) {
         Team newTeam = new Team();
@@ -39,6 +45,14 @@ public class TeamService {
         return teamRepo.save(newTeam);
     }
 
+    /**
+     * Updates an existing team with values provided by the input payload.
+     *
+     * @param id identifier of the team to update.
+     * @param dto payload containing the fields to overwrite.
+     * @return the updated and persisted team entity.
+     * @throws TeamNotFoundException when no team exists for the provided identifier.
+     */
     @Transactional
     public Team updateTeam(Long id, TeamDto dto) {
         Team team = this.findById(id);
@@ -64,6 +78,14 @@ public class TeamService {
         .orElseThrow(() -> new TeamNotFoundException(id));
     }
 
+    /**
+     * Retrieves teams owned by a trainer after validating trainer existence.
+     *
+     * @param trainerId identifier of the trainer whose teams are requested.
+     * @return all teams registered for the specified trainer.
+     * @throws InvalidFilterValueException when the trainer identifier is null or does not resolve to an existing trainer.
+     * @throws TeamNotFoundException when the trainer exists but has no teams.
+     */
     public List<Team> findByTrainerId(Long trainerId) {
         if (trainerId == null) {
             throw new InvalidFilterValueException("The trainer ID cannot be null.");
@@ -82,6 +104,14 @@ public class TeamService {
         return result;
     }
 
+    /**
+     * Retrieves teams available in a videogame after validating videogame existence.
+     *
+     * @param videogameId identifier of the videogame used to filter teams.
+     * @return all teams associated with the requested videogame.
+     * @throws InvalidFilterValueException when the videogame identifier is null or does not resolve to an existing videogame.
+     * @throws TeamNotFoundException when the videogame exists but has no teams.
+     */
     public List<Team> findByVideogameId(Long videogameId) {
         if (videogameId == null) {
             throw new InvalidFilterValueException("The videogame ID cannot be null.");
@@ -100,6 +130,14 @@ public class TeamService {
         return result;
     }
 
+    /**
+     * Retrieves teams grouped by competition modality.
+     *
+     * @param modality team modality used as filter criteria.
+     * @return all teams tagged with the provided modality.
+     * @throws InvalidFilterValueException when the modality filter is null.
+     * @throws TeamNotFoundException when no teams match the provided modality.
+     */
     public List<Team> findByModality(TeamModality modality) {
         if (modality == null) {
             throw new InvalidFilterValueException("The modality cannot be null.");
@@ -113,6 +151,13 @@ public class TeamService {
         return result;
     }
 
+    /**
+     * Retrieves teams by visibility status.
+     *
+     * @param isHidden visibility flag where true returns hidden teams and false returns public teams.
+     * @return all teams that match the provided visibility state.
+     * @throws TeamNotFoundException when no teams exist for the requested visibility.
+     */
     public List<Team> findByIsHidden(boolean isHidden) {
         List<Team> result = teamRepo.findByIsHidden(isHidden);
         

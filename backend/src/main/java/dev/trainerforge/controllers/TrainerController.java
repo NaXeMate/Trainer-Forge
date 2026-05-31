@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,9 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import dev.trainerforge.dto.input.TrainerInputDto;
-import dev.trainerforge.dto.response.GamePossesionDto;
+import dev.trainerforge.dto.response.GamePossessionDto;
 import dev.trainerforge.dto.response.TrainerDto;
-import dev.trainerforge.mapper.GamePossesionMapper;
+import dev.trainerforge.mapper.GamePossessionMapper;
 import dev.trainerforge.mapper.TrainerMapper;
 import dev.trainerforge.model.entities.Trainer;
 import dev.trainerforge.model.enumerated.TrainerClass;
@@ -28,12 +29,12 @@ public class TrainerController {
 
     private final TrainerService trainerService;
     private final TrainerMapper trainerMapper;
-    private final GamePossesionMapper gamePossesionMapper;
-    
-    public TrainerController(TrainerService trainerService, TrainerMapper trainerMapper, GamePossesionMapper gamePossesionMapper) {
+    private final GamePossessionMapper gamePossessionMapper;
+
+    public TrainerController(TrainerService trainerService, TrainerMapper trainerMapper, GamePossessionMapper gamePossessionMapper) {
         this.trainerService = trainerService;
         this.trainerMapper = trainerMapper;
-        this.gamePossesionMapper = gamePossesionMapper;
+        this.gamePossessionMapper = gamePossessionMapper;
     }
 
     // GETs
@@ -125,19 +126,19 @@ public class TrainerController {
     // GAME POSSESSIONS QUERIES
 
     @GetMapping("/{trainerId}/games")
-    public ResponseEntity<List<GamePossesionDto>> getGamesByTrainer(@PathVariable Long trainerId) {
-        List<GamePossesionDto> games = trainerService.findGamesByTrainerId(trainerId)
+    public ResponseEntity<List<GamePossessionDto>> getGamesByTrainer(@PathVariable Long trainerId) {
+        List<GamePossessionDto> games = trainerService.findGamesByTrainerId(trainerId)
                 .stream()
-                .map(gamePossesionMapper::toDto)
+                .map(gamePossessionMapper::toDto)
                 .toList();
         return ResponseEntity.ok(games);
     }
 
     @GetMapping("/games/videogame/{videogameId}")
-    public ResponseEntity<List<GamePossesionDto>> getTrainersByVideogame(@PathVariable Long videogameId) {
-        List<GamePossesionDto> games = trainerService.findTrainersByVideogameId(videogameId)
+    public ResponseEntity<List<GamePossessionDto>> getTrainersByVideogame(@PathVariable Long videogameId) {
+        List<GamePossessionDto> games = trainerService.findTrainersByVideogameId(videogameId)
                 .stream()
-                .map(gamePossesionMapper::toDto)
+                .map(gamePossessionMapper::toDto)
                 .toList();
         return ResponseEntity.ok(games);
     }
@@ -151,12 +152,14 @@ public class TrainerController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("authentication.name == @trainerService.findById(#id).username")
     public ResponseEntity<TrainerDto> updateTrainer(@PathVariable Long id, @RequestBody TrainerInputDto dto) {
         Trainer updated = trainerService.updateTrainer(id, dto);
         return ResponseEntity.ok(trainerMapper.toDto(updated));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("authentication.name == @trainerService.findById(#id).username")
     public ResponseEntity<Void> deleteTrainer(@PathVariable Long id) {
         trainerService.deleteTrainer(id);
         return ResponseEntity.noContent().build();

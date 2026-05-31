@@ -93,6 +93,14 @@ public class PokedexService {
         .orElseThrow(() -> new PokedexNotFoundException(id));
     }
 
+    /**
+     * Retrieves entries by national Pokedex number after validating allowed bounds.
+     *
+     * @param nationalPokedex national dex number used as filter criteria.
+     * @return all entries that match the provided national dex number.
+     * @throws InvalidFilterValueException when the national dex number is outside the supported range.
+     * @throws PokedexNotFoundException when no entries match the provided national dex number.
+     */
     public List<Pokedex> findByNationalPokedex(Long nationalPokedex) {
         if (nationalPokedex < 1 || nationalPokedex > MAX_NATIONAL_POKEDEX) {
             throw new InvalidFilterValueException("National Pokedex number must be between 1 and " + MAX_NATIONAL_POKEDEX + ".");
@@ -112,6 +120,14 @@ public class PokedexService {
         .orElseThrow(() -> new PokedexNotFoundException("Pokedex entry not found with name: " + name + "."));
     }
     
+    /**
+     * Retrieves entries introduced in a generation after validating generation bounds.
+     *
+     * @param generationId identifier of the generation used for filtering.
+     * @return all entries associated with the provided generation.
+     * @throws InvalidFilterValueException when the generation identifier is outside the supported range.
+     * @throws PokedexNotFoundException when no entries are found for the provided generation.
+     */
     public List<Pokedex> findByGenerationId(Long generationId) {
         if (generationId < 1 || generationId > GENERATION_MAX_ID) {
             throw new InvalidFilterValueException("Generation ID must be between 1 and " + GENERATION_MAX_ID + ".");
@@ -144,12 +160,20 @@ public class PokedexService {
         List<Pokedex> result = pokedexRepo.findByPokemonClass(pokemonClass);
 
         if (result.isEmpty()) {
-            throw new PokedexNotFoundException("Pokedex entry not found with Pokémon class: " + pokemonClass + ".");
+            throw new PokedexNotFoundException("Pokedex entry not found with Pokemon class: " + pokemonClass + ".");
         }
 
         return result;
     }
 
+    /**
+     * Retrieves entries by species type after validating the type identifier.
+     *
+     * @param typeId identifier of the pokemon type used as filter criteria.
+     * @return all entries that include the provided type.
+     * @throws InvalidFilterValueException when the type identifier is outside the supported range.
+     * @throws PokedexNotFoundException when no entries include the provided type.
+     */
     public List<Pokedex> findByType(Long typeId) {
         
         if (typeId < 1 || typeId > MAX_TYPE_ID) {
@@ -165,6 +189,14 @@ public class PokedexService {
         return result;
     }
     
+    /**
+     * Retrieves entries by ability after validating the ability identifier.
+     *
+     * @param abilityId identifier of the ability used as filter criteria.
+     * @return all entries that can have the requested ability.
+     * @throws InvalidFilterValueException when the ability identifier is outside the supported range.
+     * @throws PokedexNotFoundException when no entries match the provided ability.
+     */
     public List<Pokedex> findByAbility(Long abilityId) {
         if (abilityId < 1 || abilityId > MAX_ABILITY_ID) {
             throw new InvalidFilterValueException("Ability ID must be between 1 and " + MAX_ABILITY_ID + ".");
@@ -213,6 +245,17 @@ public class PokedexService {
         return result;
     }
 
+    /**
+     * Retrieves entries whose weight is within an inclusive interval.
+     *
+     * When both bounds are equal, this method delegates to exact-weight filtering.
+     *
+     * @param minWeight lower weight bound in kilograms.
+     * @param maxWeight upper weight bound in kilograms.
+     * @return all entries with weight inside the requested interval.
+     * @throws InvalidFilterValueException when bounds are null, out of allowed limits, or out of order.
+     * @throws PokedexNotFoundException when no entries are found in the requested weight interval.
+     */
     public List<Pokedex> findByWeightBetween(BigDecimal minWeight, BigDecimal maxWeight) {
         validateBigDecimalRange(minWeight, maxWeight, MIN_WEIGHT, MAX_WEIGHT, "Weight", "kg");
 
@@ -229,6 +272,17 @@ public class PokedexService {
         return result;
     }
 
+    /**
+     * Retrieves entries whose height is within an inclusive interval.
+     *
+     * When both bounds are equal, this method delegates to exact-height filtering.
+     *
+     * @param minHeight lower height bound in meters.
+     * @param maxHeight upper height bound in meters.
+     * @return all entries with height inside the requested interval.
+     * @throws InvalidFilterValueException when bounds are null, out of allowed limits, or out of order.
+     * @throws PokedexNotFoundException when no entries are found in the requested height interval.
+     */
     public List<Pokedex> findByHeightBetween(BigDecimal minHeight, BigDecimal maxHeight) {
         validateBigDecimalRange(minHeight, maxHeight, MIN_HEIGHT, MAX_HEIGHT, "Height", "m");
 
@@ -417,6 +471,13 @@ public class PokedexService {
         return pokedexRepo.existsById(id);
     }
     
+    /**
+     * Retrieves videogame availability records for a species.
+     *
+     * @param pokedexId identifier of the species whose videogame records are requested.
+     * @return all videogame-pokedex associations for the provided species.
+     * @throws PokedexNotFoundException when the species does not appear in any videogame.
+     */
     public List<VideogamePokedex> findVideogamesByPokedexId(Long pokedexId) {
         List<VideogamePokedex> result = videogamePokedexRepo.findByPokedexId(pokedexId);
         

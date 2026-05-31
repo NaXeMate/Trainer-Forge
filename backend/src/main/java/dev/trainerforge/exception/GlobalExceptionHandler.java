@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -37,6 +39,40 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST.value(),
                 "Bad Request",
                 ex.getMessage(),
+                request.getRequestURI(),
+                LocalDateTime.now()
+            )
+        );
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ErrorDTO> handleBadCredentials(
+            AuthenticationException ex, HttpServletRequest request) {
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+            new ErrorDTO(
+                HttpStatus.UNAUTHORIZED.value(),
+                "Unauthorized",
+                "Wrong credentials",
+                request.getRequestURI(),
+                LocalDateTime.now()
+            )
+        );
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorDTO> handleValidationException(
+            MethodArgumentNotValidException ex, HttpServletRequest request) {
+
+        String message = ex.getBindingResult().getFieldError() != null
+                ? ex.getBindingResult().getFieldError().getDefaultMessage()
+                : "Invalid request data";
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+            new ErrorDTO(
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                message,
                 request.getRequestURI(),
                 LocalDateTime.now()
             )

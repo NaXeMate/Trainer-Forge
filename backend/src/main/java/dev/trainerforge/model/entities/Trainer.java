@@ -71,7 +71,7 @@ public class Trainer {
     private List<TrainerAchievement> trainerAchievements = new ArrayList<>();
 
     @OneToMany(mappedBy = "trainer", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<GamePossesion> gamePossesions = new ArrayList<>();
+    private List<GamePossession> gamePossessions = new ArrayList<>();
 
     public Trainer() {}
 
@@ -203,12 +203,12 @@ public class Trainer {
         this.trainerAchievements = trainerAchievements;
     }
 
-    public List<GamePossesion> getGamePossesions() {
-        return gamePossesions;
+    public List<GamePossession> getGamePossessions() {
+        return gamePossessions;
     }
 
-    public void setGamePossesions(List<GamePossesion> gamePossesions) {
-        this.gamePossesions = gamePossesions;
+    public void setGamePossessions(List<GamePossession> gamePossessions) {
+        this.gamePossessions = gamePossessions;
     }
 
     
