@@ -15,8 +15,8 @@ public interface TeamMapper {
     @Mapping(source = "videogame",       target = "videogame")
     Team toEntity(TeamDto teamDto);
 
-    @Mapping(source = "trainer",    target = "trainerUsername")
-    @Mapping(source = "videogame",  target = "videogame")
+    @Mapping(source = "trainer.username",    target = "trainerUsername")
+    @Mapping(source = "videogame.name",      target = "videogame")
     TeamDto toDto(Team team);
 
     @Mapping(source = "trainerUsername", target = "trainer")
