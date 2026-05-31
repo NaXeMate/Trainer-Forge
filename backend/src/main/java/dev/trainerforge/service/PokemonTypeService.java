@@ -30,6 +30,14 @@ public class PokemonTypeService {
             .orElseThrow(() -> new PokemonTypeNotFoundException(id));
     }
 
+    /**
+     * Resolves a pokemon type by its canonical name after validating the input text.
+     *
+     * @param name pokemon type name received from the caller.
+     * @return the pokemon type that matches the provided name.
+     * @throws IllegalArgumentException when the type name is null or blank.
+     * @throws PokemonTypeNotFoundException when no pokemon type matches the provided name.
+     */
     public PokemonType findByName(String name) {
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("Name cannot be null or blank.");
@@ -39,6 +47,14 @@ public class PokemonTypeService {
             .orElseThrow(() -> new PokemonTypeNotFoundException("No PokemonType found with name: " + name + "."));
     }
 
+    /**
+     * Retrieves pokemon types introduced in a specific generation.
+     *
+     * @param generationId identifier of the generation used for filtering.
+     * @return all pokemon types associated with the requested generation.
+     * @throws IllegalArgumentException when the generation identifier is null or outside the supported range.
+     * @throws PokemonTypeNotFoundException when no pokemon type is linked to the provided generation.
+     */
     public List<PokemonType> findByGenerationId(Long generationId) {
         if (generationId == null || generationId < 1 || generationId > GENERATION_MAX_ID) {
             throw new IllegalArgumentException("Generation ID must be between 1 and " + GENERATION_MAX_ID + ".");

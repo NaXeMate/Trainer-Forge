@@ -33,6 +33,13 @@ public class MovePokedexService {
         .orElseThrow(() -> new MovePokedexNotFoundException(id));
     }
 
+    /**
+     * Retrieves move-learning entries for a move after checking that the move exists.
+     *
+     * @param moveId identifier of the move used to filter learning entries.
+     * @return all move-pokedex entries that reference the provided move.
+     * @throws MovePokedexNotFoundException when the move does not exist or has no learning entries.
+     */
     public List<MovePokedex> findByMoveId(Long moveId) {
         if (!moveService.existsById(moveId)) {
             throw new MovePokedexNotFoundException("MovePokedex entry not found with move id: " + moveId + ".");
@@ -47,6 +54,13 @@ public class MovePokedexService {
         return result;
     }
 
+    /**
+     * Retrieves move-learning entries for a species after checking that the species exists.
+     *
+     * @param pokedexId identifier of the species used to filter learning entries.
+     * @return all move-pokedex entries that reference the provided species.
+     * @throws MovePokedexNotFoundException when the species does not exist or has no learning entries.
+     */
     public List<MovePokedex> findByPokedexId(Long pokedexId) {
         if (!pokedexService.existsById(pokedexId)) {
             throw new MovePokedexNotFoundException("MovePokedex entry not found with pokedex id: " + pokedexId + ".");
@@ -61,6 +75,13 @@ public class MovePokedexService {
         return result;
     }
 
+    /**
+     * Retrieves move-learning entries by learning method.
+     *
+     * @param learningMethod learning channel used to filter entries, such as level-up or TM.
+     * @return all move-pokedex entries that use the requested learning method.
+     * @throws MovePokedexNotFoundException when no entries match the provided learning method.
+     */
     public List<MovePokedex> findByLearningMethod(LearningMethod learningMethod) {
         List<MovePokedex> result = movePokedexRepo.findByLearningMethod(learningMethod);
 

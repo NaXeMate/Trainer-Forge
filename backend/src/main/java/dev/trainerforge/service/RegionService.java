@@ -36,6 +36,14 @@ public class RegionService {
         .orElseThrow(() -> new RegionNotFoundException("Region not found with name: " + name + "."));
     }
 
+    /**
+     * Retrieves regions introduced in a generation after validating generation boundaries.
+     *
+     * @param generationId identifier of the generation used to filter regions.
+     * @return all regions introduced in the requested generation.
+     * @throws InvalidFilterValueException when the generation identifier is outside the supported range.
+     * @throws RegionNotFoundException when no regions are associated with the provided generation.
+     */
     public List<Region> findByGenerationId(Long generationId) {
         if (generationId < 1 || generationId > GENERATION_MAX_ID) {
             throw new InvalidFilterValueException("Generation ID must be between 1 and " + GENERATION_MAX_ID + ".");

@@ -32,6 +32,13 @@ public class VideogamePokedexService {
         .orElseThrow(() -> new VideogamePokedexNotFoundException(id));
     }
 
+    /**
+     * Retrieves videogame-pokedex associations for a species after validating species existence.
+     *
+     * @param pokedexId identifier of the species used to filter associations.
+     * @return every videogame-pokedex association linked to the species.
+     * @throws VideogamePokedexNotFoundException when the species does not exist or has no associations.
+     */
     public List<VideogamePokedex> findByPokedexId(Long pokedexId) {
         if (!pokedexService.existsById(pokedexId)) {
             throw new VideogamePokedexNotFoundException("No videogame-pokedex associations found for pokedex with id: " + pokedexId + ".");
@@ -46,6 +53,13 @@ public class VideogamePokedexService {
         return result;
     }
 
+    /**
+     * Retrieves videogame-pokedex associations for a videogame after validating videogame existence.
+     *
+     * @param videogameId identifier of the videogame used to filter associations.
+     * @return every videogame-pokedex association linked to the videogame.
+     * @throws VideogamePokedexNotFoundException when the videogame does not exist or has no associations.
+     */
     public List<VideogamePokedex> findByVideogameId(Long videogameId) {
         if (!videogameService.existsById(videogameId)) {
             throw new VideogamePokedexNotFoundException("No videogame-pokedex associations found for videogame with id: " + videogameId + ".");

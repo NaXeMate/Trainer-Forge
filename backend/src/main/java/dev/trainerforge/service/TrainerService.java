@@ -96,6 +96,15 @@ public class TrainerService {
         this.trainerMapper = trainerMapper;
     }
 
+    /**
+     * Creates a trainer after validating profile fields and uniqueness constraints.
+     *
+     * A unique friend code is generated in a retry loop before persistence.
+     *
+     * @param dto payload containing trainer profile data.
+     * @return the newly persisted trainer.
+     * @throws InvalidFilterValueException when mandatory fields are invalid, duplicated, or missing.
+     */
     @Transactional
     public Trainer createTrainer(TrainerInputDto dto) {
         validateUsername(dto.username());
@@ -121,6 +130,15 @@ public class TrainerService {
         return trainerRepo.save(newTrainer);
     }
     
+    /**
+     * Updates a trainer while preserving uniqueness rules for username and email.
+     *
+     * @param id identifier of the trainer to update.
+     * @param dto payload containing updated trainer profile data.
+     * @return the updated trainer entity.
+     * @throws TrainerNotFoundException when no trainer exists for the provided identifier.
+     * @throws InvalidFilterValueException when the new data violates format or uniqueness constraints.
+     */
     @Transactional
     public Trainer updateTrainer(Long id, TrainerInputDto dto) {
         Trainer trainer = this.findById(id);
@@ -179,6 +197,14 @@ public class TrainerService {
         .orElseThrow(() -> new TrainerNotFoundException("Trainer not found with real name: " + realName + "."));
     }
 
+    /**
+     * Resolves a trainer by friend code after validating TrainerForge friend code format.
+     *
+     * @param friendCode TrainerForge friend code expected in TF-XXXX-XXXX format.
+     * @return the trainer associated with the provided friend code.
+     * @throws InvalidFilterValueException when the friend code is blank or does not match the expected format.
+     * @throws TrainerNotFoundException when no trainer uses the provided friend code.
+     */
     public Trainer findByFriendCode(String friendCode) {
         if (friendCode == null || friendCode.isBlank()) {
             throw new InvalidFilterValueException("The friend code cannot be empty.");
@@ -192,6 +218,14 @@ public class TrainerService {
         .orElseThrow(() -> new TrainerNotFoundException("Trainer not found with friend code: " + friendCode + "."));
     }
 
+    /**
+     * Retrieves trainers from a region after validating region boundaries.
+     *
+     * @param regionId identifier of the region used to filter trainers.
+     * @return all trainers registered in the requested region.
+     * @throws InvalidFilterValueException when the region identifier is outside the supported range.
+     * @throws TrainerNotFoundException when no trainers are found for the provided region.
+     */
     public List<Trainer> findByRegionId(Long regionId) {
         if (regionId < 1 || regionId > REGION_MAX_ID) {
             throw new InvalidFilterValueException("Region ID must be between 1 and " + REGION_MAX_ID + ".");
@@ -250,6 +284,13 @@ public class TrainerService {
         return trainerRepo.existsById(id);
     }
 
+    /**
+     * Retrieves all game possession records linked to a trainer.
+     *
+     * @param trainerId identifier of the trainer whose game possession records are requested.
+     * @return all game possession entries for the provided trainer.
+     * @throws TrainerNotFoundException when the trainer does not exist or has no possession records.
+     */
     public List<GamePossesion> findGamesByTrainerId(Long trainerId) {
 
         if (!trainerRepo.existsById(trainerId)) {
@@ -265,6 +306,13 @@ public class TrainerService {
         return result;
     }
 
+    /**
+     * Retrieves trainer possession records for a specific videogame.
+     *
+     * @param videogameId identifier of the videogame used to filter possession records.
+     * @return all game possession entries that reference the provided videogame.
+     * @throws TrainerNotFoundException when no trainer possession records exist for the videogame.
+     */
     public List<GamePossesion> findTrainersByVideogameId(Long videogameId) {
         List<GamePossesion> result = gamePossesionRepo.findByVideogameId(videogameId);
 

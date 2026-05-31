@@ -52,6 +52,14 @@ public class MoveService {
         .orElseThrow(() -> new MoveNotFoundException("Move not found with name: " + name + "."));
     }
 
+    /**
+     * Retrieves moves for a pokemon type after validating the type identifier range.
+     *
+     * @param typeId identifier of the pokemon type used as filter criteria.
+     * @return all moves assigned to the requested type.
+     * @throws InvalidFilterValueException when the type identifier is outside the supported range.
+     * @throws MoveNotFoundException when no moves exist for the provided type.
+     */
     public List<Move> findByTypeId(Long typeId) {
         
         if (typeId < 1 || typeId > MAX_TYPE_ID) {
@@ -77,6 +85,14 @@ public class MoveService {
         return result;
     }
 
+    /**
+     * Retrieves moves with an exact power value after validating battle data constraints.
+     *
+     * @param power target power value used to filter moves.
+     * @return all moves that match the requested power.
+     * @throws InvalidFilterValueException when power is negative or not a multiple of five.
+     * @throws MoveNotFoundException when no moves match the provided power value.
+     */
     public List<Move> findByPower(int power) {
         if (power < 0) {
             throw new InvalidFilterValueException("Power cannot be negative. If you want to filter by STATUS moves, use 0 as the power value.");
@@ -94,6 +110,15 @@ public class MoveService {
         return result;
     }
 
+    /**
+     * Retrieves moves within a power interval after validating both bounds.
+     *
+     * @param minPower lower power bound used for filtering.
+     * @param maxPower upper power bound used for filtering.
+     * @return all moves whose power lies within the requested interval.
+     * @throws InvalidFilterValueException when bounds are negative, not multiples of five, or out of order.
+     * @throws MoveNotFoundException when no moves are found inside the provided power range.
+     */
     public List<Move> findByPowerBetween(int minPower, int maxPower) {
         if (minPower < 0 || maxPower < 0) {
             throw new InvalidFilterValueException("Power values must not be negative. If you want to filter by STATUS moves, use 0 as the power value.");
@@ -132,6 +157,15 @@ public class MoveService {
         return result;
     }
 
+    /**
+     * Retrieves moves within an accuracy interval after validating accuracy-specific constraints.
+     *
+     * @param minAccuracy lower accuracy bound used for filtering.
+     * @param maxAccuracy upper accuracy bound used for filtering.
+     * @return all moves whose accuracy falls inside the requested interval.
+     * @throws InvalidFilterValueException when bounds are negative, not multiples of five, or out of order.
+     * @throws MoveNotFoundException when no moves are found inside the provided accuracy range.
+     */
     public List<Move> findByAccuracyBetween(int minAccuracy, int maxAccuracy) {
         if (minAccuracy < 0 || maxAccuracy < 0) {
             throw new InvalidFilterValueException("Accuracy values musn't be negative. If you want to filter by moves that never miss, use 0 as the accuracy value.");
@@ -170,6 +204,15 @@ public class MoveService {
         return result;
     }
 
+    /**
+     * Retrieves moves within a priority interval.
+     *
+     * @param minPriority lower priority bound used for filtering.
+     * @param maxPriority upper priority bound used for filtering.
+     * @return all moves whose priority is between the provided bounds.
+     * @throws InvalidFilterValueException when the minimum priority is greater than the maximum.
+     * @throws MoveNotFoundException when no moves are found in the requested priority range.
+     */
     public List<Move> findByPriorityBetween(int minPriority, int maxPriority) {
         if (minPriority > maxPriority) {
             throw new InvalidFilterValueException("Minimum priority (" + minPriority + ") cannot be greater than maximum priority (" + maxPriority + ").");
@@ -220,6 +263,15 @@ public class MoveService {
         return result;
     }
 
+    /**
+     * Retrieves moves within a PP interval after validating allowed PP rules.
+     *
+     * @param minPp lower PP bound used for filtering.
+     * @param maxPp upper PP bound used for filtering.
+     * @return all moves whose PP value is between the requested bounds.
+     * @throws InvalidFilterValueException when bounds are outside allowed PP values, not multiples of five, or out of order.
+     * @throws MoveNotFoundException when no moves are found in the provided PP interval.
+     */
     public List<Move> findByPpBetween(int minPp, int maxPp) {
         if (minPp < MIN_PP || maxPp > MAX_PP) {
             throw new InvalidFilterValueException("PP must be between " + MIN_PP + " and " + MAX_PP + ".");
@@ -238,6 +290,14 @@ public class MoveService {
         return result;
     }
 
+    /**
+     * Retrieves moves introduced in a generation after validating generation bounds.
+     *
+     * @param generationId identifier of the generation used as filter criteria.
+     * @return all moves associated with the requested generation.
+     * @throws InvalidFilterValueException when the generation identifier is outside the supported range.
+     * @throws MoveNotFoundException when no moves are available for the provided generation.
+     */
     public List<Move> findByGenerationId(Long generationId) {
         if (generationId < 1 || generationId > GENERATION_MAX_ID) {
             throw new InvalidFilterValueException("Generation ID must be between 1 and " + GENERATION_MAX_ID + ".");

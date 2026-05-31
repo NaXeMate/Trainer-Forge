@@ -41,6 +41,14 @@ public class VideogameService {
          .orElseThrow(() -> new VideogameNotFoundException("Videogame not found with name: " + name + "."));
     }
 
+    /**
+     * Filters videogames by generation after validating the supported generation range.
+     *
+     * @param generationId identifier of the generation used to filter videogames.
+     * @return all videogames assigned to the requested generation.
+     * @throws IllegalArgumentException when the generation identifier is outside the supported range.
+     * @throws VideogameNotFoundException when no videogame is registered for the provided generation.
+     */
     public List<Videogame> findByGenerationId(Long generationId) {
         if (generationId < 1 || generationId > GENERATION_MAX_ID) {
             throw new IllegalArgumentException("Generation ID must be between 1 and " + GENERATION_MAX_ID + ".");
@@ -55,6 +63,14 @@ public class VideogameService {
         return result;
     }
 
+    /**
+     * Filters videogames by region after validating the configured region boundaries.
+     *
+     * @param regionId identifier of the region used to filter videogames.
+     * @return all videogames linked to the requested region.
+     * @throws IllegalArgumentException when the region identifier is outside the supported range.
+     * @throws VideogameNotFoundException when no videogame is associated with the provided region.
+     */
     public List<Videogame> findByRegionId(Long regionId) {
         if (regionId < 1 || regionId > REGION_MAX_ID) {
             throw new IllegalArgumentException("Region ID must be between 1 and " + REGION_MAX_ID + ".");
@@ -73,6 +89,13 @@ public class VideogameService {
         return videogameRepo.existsById(id);
     }
 
+    /**
+     * Retrieves all Pokedex entries available in a specific videogame.
+     *
+     * @param videogameId identifier of the videogame whose roster is requested.
+     * @return the videogame-pokedex associations available for the given videogame.
+     * @throws VideogameNotFoundException when the videogame has no associated pokemon entries.
+     */
     public List<VideogamePokedex> findPokedexByVideogameId(Long videogameId) {
         List<VideogamePokedex> result = videogamePokedexRepo.findByVideogameId(videogameId);
         

@@ -29,6 +29,16 @@ public class TrainerAchievementService {
         this.achievementService = achievementService;
     }
 
+    /**
+     * Unlocks an achievement for a trainer and timestamps the unlock event.
+     *
+     * If no date is provided in the payload, the current server timestamp is used.
+     *
+     * @param dto payload containing trainer reference, achievement identifier, and optional unlock date.
+     * @return the persisted trainer-achievement association.
+     * @throws InvalidFilterValueException when the achievement identifier is not numeric or already unlocked for the trainer.
+     * @throws AchievementNotFoundException when the referenced achievement does not exist.
+     */
     @Transactional
     public TrainerAchievement unlockAchievement(TrainerAchievementDto dto) {
         Trainer trainer = trainerService.findByUsername(dto.trainerUsername());
@@ -66,6 +76,14 @@ public class TrainerAchievementService {
         .orElseThrow(() -> new TrainerAchievementNotFoundException(id));
     }
 
+    /**
+     * Retrieves all achievements unlocked by a trainer.
+     *
+     * @param trainerId identifier of the trainer used to filter unlock records.
+     * @return all trainer-achievement records associated with the trainer.
+     * @throws TrainerNotFoundException when the trainer does not exist.
+     * @throws TrainerAchievementNotFoundException when the trainer exists but has no unlocked achievements.
+     */
     public List<TrainerAchievement> findByTrainerId(Long trainerId) {
         if (!trainerService.existsById(trainerId)) {
             throw new TrainerNotFoundException(trainerId);
@@ -80,6 +98,14 @@ public class TrainerAchievementService {
         return result;
     }
 
+    /**
+     * Retrieves all trainers who unlocked a specific achievement.
+     *
+     * @param achievementId identifier of the achievement used as filter criteria.
+     * @return all unlock records linked to the provided achievement.
+     * @throws AchievementNotFoundException when the achievement does not exist.
+     * @throws TrainerAchievementNotFoundException when the achievement exists but has no unlock records.
+     */
     public List<TrainerAchievement> findByAchievementId(Long achievementId) {
         if (!achievementService.existsById(achievementId)) {
             throw new AchievementNotFoundException(achievementId);
@@ -94,6 +120,14 @@ public class TrainerAchievementService {
         return result;
     }
 
+    /**
+     * Retrieves unlock records for an exact timestamp.
+     *
+     * @param dateObtained timestamp used to filter unlock records.
+     * @return all records unlocked at the provided timestamp.
+     * @throws InvalidFilterValueException when the timestamp is null.
+     * @throws TrainerAchievementNotFoundException when no unlock record matches the provided timestamp.
+     */
     public List<TrainerAchievement> findByDateObtained(LocalDateTime dateObtained) {
         if (dateObtained == null) {
             throw new InvalidFilterValueException("Date obtained cannot be null.");
@@ -108,6 +142,15 @@ public class TrainerAchievementService {
         return result;
     }
 
+    /**
+     * Retrieves unlock records whose timestamps fall within an inclusive interval.
+     *
+     * @param startDate lower bound of the unlock timestamp interval.
+     * @param endDate upper bound of the unlock timestamp interval.
+     * @return all records unlocked between the requested timestamps.
+     * @throws InvalidFilterValueException when either bound is null or the interval order is invalid.
+     * @throws TrainerAchievementNotFoundException when no unlock record exists in the requested interval.
+     */
     public List<TrainerAchievement> findByDateObtainedBetween(LocalDateTime startDate, LocalDateTime endDate) {
         if (startDate == null || endDate == null) {
             throw new InvalidFilterValueException("Start date and end date cannot be null.");

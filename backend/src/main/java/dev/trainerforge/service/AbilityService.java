@@ -35,6 +35,14 @@ public class AbilityService {
         .orElseThrow(() -> new AbilityNotFoundException("Ability not found with name: " + name + "."));
     }
 
+    /**
+     * Filters abilities by generation after validating the accepted generation interval.
+     *
+     * @param generationId identifier of the generation used to filter abilities.
+     * @return all abilities that belong to the requested generation.
+     * @throws IllegalArgumentException when the generation identifier is outside the supported range.
+     * @throws AbilityNotFoundException when no abilities exist for the provided generation.
+     */
     public List<Ability> findByGenerationId(Long generationId) {
         if (generationId < 1 || generationId > GENERATION_MAX_ID) {
             throw new IllegalArgumentException("Generation ID must be between 1 and " + GENERATION_MAX_ID + ".");

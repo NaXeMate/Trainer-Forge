@@ -47,6 +47,14 @@ public class PokemonItemService {
         return result;
     }
 
+    /**
+     * Retrieves items introduced in a generation after validating generation bounds.
+     *
+     * @param generationId identifier of the generation used as filter criteria.
+     * @return all items associated with the requested generation.
+     * @throws InvalidFilterValueException when the generation identifier is outside the supported range.
+     * @throws ItemNotFoundException when no items are registered for the provided generation.
+     */
     public List<PokemonItem> findByGenerationId(Long generationId) {
         if (generationId < 1 || generationId > GENERATION_MAX_ID) {
             throw new InvalidFilterValueException("Generation ID must be between 1 and " + GENERATION_MAX_ID + ".");
