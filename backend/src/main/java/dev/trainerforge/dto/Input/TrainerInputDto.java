@@ -1,12 +1,13 @@
 package dev.trainerforge.dto.input;
 
 import dev.trainerforge.model.enumerated.TrainerClass;
+import jakarta.validation.constraints.NotBlank;
 
 public record TrainerInputDto(
-    String username,
+    @NotBlank String username,
     String email,
     String profilePictureUrl,
-    String password,
+    @NotBlank String password,
     String realName,
     String region,
     String favoriteGame,

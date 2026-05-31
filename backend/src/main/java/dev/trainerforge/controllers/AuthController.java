@@ -19,6 +19,7 @@ import dev.trainerforge.dto.input.TrainerInputDto;
 import dev.trainerforge.dto.response.AuthResponseDto;
 import dev.trainerforge.security.jwt.JwtUtil;
 import dev.trainerforge.service.TrainerService;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -35,7 +36,7 @@ public class AuthController {
     }
     
     @PostMapping("/login")
-    public ResponseEntity<AuthResponseDto> login(@RequestBody LoginInputDto dto) {
+    public ResponseEntity<AuthResponseDto> login(@RequestBody @Valid LoginInputDto dto) {
         try {
             Authentication auth = authManager.authenticate(
                     new UsernamePasswordAuthenticationToken(dto.username(), dto.password())
@@ -48,7 +49,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponseDto> register(@RequestBody TrainerInputDto dto) {
+    public ResponseEntity<AuthResponseDto> register(@RequestBody @Valid TrainerInputDto dto) {
         trainerService.createTrainer(dto);
         
         Authentication auth = authManager.authenticate(

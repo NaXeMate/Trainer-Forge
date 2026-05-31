@@ -1,6 +1,8 @@
 package dev.trainerforge.dto.input;
 
+import jakarta.validation.constraints.NotBlank;
+
 public record LoginInputDto(
-    String username,
-    String password
+    @NotBlank String username,
+    @NotBlank String password
 ) {}
