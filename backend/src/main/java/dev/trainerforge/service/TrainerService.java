@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +26,7 @@ public class TrainerService {
     private final GamePossesionRepository gamePossesionRepo;
 
     private final TrainerMapper trainerMapper;
+    private final PasswordEncoder passw;
 
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
     private static final Pattern FRIEND_CODE_PATTERN = Pattern.compile("^TF-\\d{4}-\\d{4}$");
@@ -90,10 +92,11 @@ public class TrainerService {
         return "TF-%04d-%04d".formatted(part1, part2);
     } 
 
-    public TrainerService(TrainerRepository trainerRepo, GamePossesionRepository gamePossesionRepo, TrainerMapper trainerMapper) {
+    public TrainerService(TrainerRepository trainerRepo, GamePossesionRepository gamePossesionRepo, TrainerMapper trainerMapper, PasswordEncoder passw) {
         this.trainerRepo = trainerRepo;
         this.gamePossesionRepo = gamePossesionRepo;
         this.trainerMapper = trainerMapper;
+        this.passw = passw;
     }
 
     /**
@@ -113,6 +116,10 @@ public class TrainerService {
         validateEmailUniqueness(dto.email());
         validateRealName(dto.realName());
         
+        if (dto.password() == null || dto.password().isBlank()) {
+            throw new InvalidFilterValueException("The password cannot be empty.");
+        }
+        
         String friendCode;
         do {
             friendCode = generateFriendCode();
@@ -123,10 +130,7 @@ public class TrainerService {
         
         newTrainer.setFriendCode(friendCode);
         
-        if (dto.password() == null || dto.password().isBlank()) {
-            throw new InvalidFilterValueException("The password cannot be empty.");
-        }
-        newTrainer.setPasswordHash(dto.password());
+        newTrainer.setPasswordHash(passw.encode(dto.password()));
         return trainerRepo.save(newTrainer);
     }
     

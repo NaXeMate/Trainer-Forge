@@ -6,7 +6,6 @@ public record TrainerInputDto(
     String username,
     String email,
     String profilePictureUrl,
-    // TODO: Modify this to trainer.setPassword(passwordEncoder.encode(dto.password())) in the service layer.
     String password,
     String realName,
     String region,
