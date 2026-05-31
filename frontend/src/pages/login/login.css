@@ -1,0 +1,123 @@
+/* ===== LOGIN PAGE ===== */
+
+/* Full page centering */
+.login-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: var(--color-bg);
+  padding: var(--space-6);
+}
+
+/* Card — lavender background matching the Figma design */
+.login-card {
+  background: #e8e4f8;
+  border-radius: var(--radius-xl);
+  padding: var(--space-8) var(--space-8);
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Card header: logo + two-color title */
+.login-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.login-card__logo {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+}
+
+.login-card__title {
+  font-family: var(--font-title);
+  font-weight: var(--font-weight-bold);
+  font-size: 1.75rem;
+  line-height: 1;
+}
+
+.login-card__title--black { color: #1a1040; }
+.login-card__title--purple { color: var(--color-secondary); }
+
+/* Form fields */
+.login-card__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.login-card__label {
+  font-family: var(--font-title);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-body-small);
+  color: #1a1040;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.login-card__input {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  background: #1a1040;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  color: #ffffff;
+  font-family: var(--font-body);
+  font-size: var(--font-size-body);
+  transition: border-color var(--transition-base);
+}
+
+.login-card__input:focus {
+  outline: none;
+  border-color: var(--color-secondary);
+}
+
+.login-card__input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* "Forgot password" link */
+.login-card__forgot {
+  font-size: var(--font-size-caption);
+  color: var(--color-secondary);
+  text-align: right;
+  text-decoration: none;
+  margin-top: var(--space-1);
+}
+
+.login-card__forgot:hover {
+  text-decoration: underline;
+}
+
+/* Action buttons row */
+.login-card__actions {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: space-between;
+  margin-top: var(--space-2);
+}
+
+/* Error message */
+.login-card__error {
+  font-size: var(--font-size-caption);
+  color: var(--color-error);
+  text-align: center;
+  margin-top: calc(-1 * var(--space-2));
+}
+
+/* Loading message */
+.login-card__loading {
+  font-size: var(--font-size-caption);
+  color: #3d3060;
+  text-align: center;
+  margin-top: calc(-1 * var(--space-2));
+}

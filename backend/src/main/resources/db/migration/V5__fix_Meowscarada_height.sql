@@ -1,0 +1,1 @@
+UPDATE pokedex SET height = 1.20 WHERE name = 'Meowscarada';

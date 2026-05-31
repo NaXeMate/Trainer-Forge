@@ -1,0 +1,108 @@
+.footer {
+  background-color: var(--footer-background);
+  color: var(--color-text-muted);
+  padding: var(--space-12) var(--space-6) var(--space-6);
+  margin-top: auto;
+}
+
+.footer__container {
+  max-width: var(--content-wide);
+  margin-inline: auto;
+}
+
+.footer__top {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-10);
+}
+
+.footer__column {
+  min-width: 0;
+}
+
+.footer-heading {
+  font-size: var(--font-size-overline);
+  letter-spacing: var(--letter-spacing-overline);
+  text-transform: uppercase;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+  margin-bottom: var(--space-3);
+}
+
+.footer-heading--warning {
+  color: var(--color-warning);
+}
+
+.footer__text {
+  font-size: var(--font-size-body-small);
+  line-height: var(--line-height-body-small);
+  color: var(--color-text-muted);
+  max-width: none;
+  margin-bottom: 0;
+}
+
+.footer__middle {
+  margin-top: var(--space-10);
+  text-align: center;
+}
+
+.footer__middle .overline {
+  margin-bottom: var(--space-4);
+}
+
+.footer__links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.footer__link-item {
+  display: inline-flex;
+  align-items: center;
+}
+
+.footer__link {
+  font-size: var(--font-size-caption);
+  color: var(--poke-accent);
+  text-decoration: none;
+  transition: color var(--transition-base);
+}
+
+.footer__link:hover {
+  color: var(--poke-accent-hover);
+  text-decoration: underline;
+}
+
+.footer__divider {
+  margin-inline: var(--space-3);
+  color: var(--color-text-faint);
+}
+
+.footer__bottom {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: var(--space-4);
+  margin-top: var(--space-8);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--color-border);
+}
+
+.footer__copyright {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-faint);
+  margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+  .footer__top {
+    grid-template-columns: 1fr;
+  }
+
+  .footer__bottom {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

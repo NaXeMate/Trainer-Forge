@@ -1,0 +1,51 @@
+/* ===== ERROR PAGE ===== */
+.error-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: var(--space-8);
+  text-align: center;
+  background-color: var(--color-bg);
+}
+
+/* Warning icon — uses color-error (red/maroon) and a pulsing animation */
+.error-page__icon {
+  color: var(--color-error);
+  margin-bottom: var(--space-6);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.error-page__svg {
+  width: 80px;
+  height: 80px;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.45; }
+}
+
+.error-page__title {
+  font-family: var(--font-title);
+  font-weight: var(--font-weight-bold);
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  color: var(--color-text);
+  margin-bottom: var(--space-4);
+}
+
+.error-page__message {
+  font-size: var(--font-size-body);
+  color: var(--color-text-muted);
+  max-width: 480px;
+  margin-bottom: var(--space-10);
+  line-height: var(--line-height-body);
+}
+
+.error-page__actions {
+  display: flex;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  justify-content: center;
+}

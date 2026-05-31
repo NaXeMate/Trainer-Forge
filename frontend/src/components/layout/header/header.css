@@ -1,0 +1,129 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.header__container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  max-width: var(--content-wide);
+  height: 70px;
+  margin-inline: auto;
+  padding-inline: var(--space-6);
+}
+
+.header__left {
+  flex-shrink: 0;
+}
+
+.header__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  text-decoration: none;
+  color: inherit;
+}
+
+.header__brand:hover {
+  color: inherit;
+}
+
+.header__logo {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+}
+
+.header__nav {
+  display: none;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.header__link {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+  text-decoration: none;
+  transition: color var(--transition-base);
+}
+
+.header__link:hover,
+.header__link.active {
+  color: var(--color-text);
+}
+
+.header__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-shrink: 0;
+}
+
+.header__username {
+  display: none;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+}
+
+.header__user-icon {
+  flex-shrink: 0;
+}
+
+.header__menu-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  font-size: 1.5rem;
+  color: var(--color-text);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.header__mobile-nav {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background-color: var(--color-surface-2);
+  border-top: 1px solid var(--color-border);
+}
+
+.header__mobile-link {
+  padding: var(--space-4) var(--space-6);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+  text-decoration: none;
+  transition: color var(--transition-base);
+}
+
+.header__mobile-link:hover,
+.header__mobile-link.active {
+  color: var(--color-text);
+}
+
+@media (min-width: 769px) {
+  .header__nav {
+    display: flex;
+  }
+
+  .header__menu-toggle {
+    display: none;
+  }
+
+  .header__mobile-nav {
+    display: none;
+  }
+
+  .header__username {
+    display: inline;
+  }
+}
+

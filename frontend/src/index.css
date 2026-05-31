@@ -1,0 +1,402 @@
+/* ===== GLOBAL RESET ===== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ===== CSS VARIABLES ===== */
+:root {
+  /* Viewport reference (unitless, for clamp calculations) */
+  --viewport-min: 320;
+  --viewport-max: 1440;
+
+  /* ===== POKEMON TYPE COLORS ===== */
+  --steel-type: #6db7df;
+  --water-type: #2c99ff;
+  --bug-type: #a7af23;
+  --dragon-type: #5060e1;
+  --electric-type: #ffdf00;
+  --ghost-type: #714875;
+  --fire-type: #ff662c;
+  --fairy-type: #ffb5ff;
+  --ice-type: #46dfff;
+  --fighting-type: #ffa701;
+  --normal-type: #ababab;
+  --grass-type: #46c923;
+  --psychic-type: #ff6886;
+  --rock-type: #bebd8e;
+  --dark-type: #544c4c;
+  --ground-type: #b07d39;
+  --poison-type: #9e4ed7;
+  --flying-type: #9ed3ff;
+
+  /* ===== BRAND / UI COLORS ===== */
+  --color-primary: #e3350d;
+  --color-primary-hover: #c42d0b;
+  --color-primary-active: #a02408;
+
+  --color-secondary: #3b4cca;
+  --color-secondary-hover: #2f3da3;
+  --color-secondary-active: #232e7c;
+
+  --color-accent: #ffcb05;
+  --color-accent-hover: #e6b800;
+
+  --poke-accent: #8b5afa;
+  --poke-accent-hover: #7a4ae8;
+  --poke-accent-active: #6a3fd6;
+
+  /* ===== NEUTRAL SURFACES ===== */
+  /* Page background: diagonal gradient (lavender → mint) */
+  --color-bg: linear-gradient(to bottom right, #faf1ff 0%, #f4fff9 100%);
+  --color-surface: #16181f;
+  --color-surface-2: #1c1f28;
+  --color-surface-offset: #22263a;
+  --color-border: #2e3347;
+  --color-divider: #252940;
+
+  /* ===== TEXT ===== */
+  --color-text: #f0f1f5;
+  --color-text-muted: #8b90a7;
+  --color-text-faint: #4e5268;
+  --color-text-inverse: #0f1117;
+
+  /* ===== SEMANTIC COLORS ===== */
+  --color-success: #46c923;
+  --color-warning: #ffcb05;
+  --color-error: #e3350d;
+
+  /* ===== FOOTER ===== */
+  --footer-background: #171d2e;
+
+  /* ===== TYPOGRAPHY — SCALE (ratio 1.25 Major Third) ===== */
+  /* clamp formula: clamp(MINrem, calc(MINrem + (MAX - MIN) * ((100vw - 320px) / (1440 - 320))), MAXrem) */
+
+  /* Headings */
+  --font-size-h1: clamp(2.5rem, calc(2.5rem + (72 - 40) * ((100vw - 320px) / 1120)), 4.5rem);
+  --line-height-h1: 1.1;
+  --letter-spacing-h1: -0.02em;
+
+  --font-size-h2: clamp(2rem, calc(2rem + (56 - 32) * ((100vw - 320px) / 1120)), 3.5rem);
+  --line-height-h2: 1.2;
+  --letter-spacing-h2: -0.015em;
+
+  --font-size-h3: clamp(1.5rem, calc(1.5rem + (42 - 24) * ((100vw - 320px) / 1120)), 2.625rem);
+  --line-height-h3: 1.3;
+  --letter-spacing-h3: -0.01em;
+
+  --font-size-h4: clamp(1.25rem, calc(1.25rem + (32 - 20) * ((100vw - 320px) / 1120)), 2rem);
+  --line-height-h4: 1.35;
+  --letter-spacing-h4: 0;
+
+  --font-size-h5: clamp(1.125rem, calc(1.125rem + (28 - 18) * ((100vw - 320px) / 1120)), 1.75rem);
+  --line-height-h5: 1.4;
+
+  --font-size-h6: clamp(1rem, calc(1rem + (24 - 16) * ((100vw - 320px) / 1120)), 1.5rem);
+  --line-height-h6: 1.45;
+
+  /* Body & functional text */
+  --font-size-body: clamp(1rem, calc(1rem + (20 - 16) * ((100vw - 320px) / 1120)), 1.25rem);
+  --line-height-body: 1.6;
+
+  --font-size-body-small: clamp(0.875rem, calc(0.875rem + (18 - 14) * ((100vw - 320px) / 1120)), 1.125rem);
+  --line-height-body-small: 1.5;
+
+  --font-size-caption: clamp(0.75rem, calc(0.75rem + (14 - 12) * ((100vw - 320px) / 1120)), 0.875rem);
+  --line-height-caption: 1.4;
+
+  --font-size-overline: clamp(0.625rem, calc(0.625rem + (12 - 10) * ((100vw - 320px) / 1120)), 0.75rem);
+  --line-height-overline: 1.2;
+  --letter-spacing-overline: 0.08em;
+
+  /* Special elements */
+  --font-size-lead: clamp(1.25rem, calc(1.25rem + (28 - 20) * ((100vw - 320px) / 1120)), 1.75rem);
+  --line-height-lead: 1.5;
+
+  --font-size-button: clamp(0.875rem, calc(0.875rem + (16 - 14) * ((100vw - 320px) / 1120)), 1rem);
+  --line-height-button: 1.2;
+  --letter-spacing-button: 0.02em;
+
+  --font-size-code: clamp(0.875rem, calc(0.875rem + (16 - 14) * ((100vw - 320px) / 1120)), 1rem);
+  --line-height-code: 1.6;
+
+  /* ===== FONT FAMILIES ===== */
+  --font-title: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  --font-code: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+
+  /* ===== FONT WEIGHTS ===== */
+  --font-weight-light: 300;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-black: 900;
+
+  /* ===== SPACING (4px base unit) ===== */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+
+  /* ===== BORDER RADIUS ===== */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-full: 9999px;
+
+  /* ===== SHADOWS ===== */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.5);
+
+  /* ===== TRANSITIONS ===== */
+  --transition-base: 180ms cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ===== CONTENT WIDTHS ===== */
+  --content-narrow: 640px;
+  --content-default: 960px;
+  --content-wide: 1200px;
+}
+
+/* ===== TYPOGRAPHY ADJUSTMENTS (always-on dark scheme) ===== */
+:root {
+  --font-weight-regular: 450;
+  --font-weight-medium: 550;
+  --font-weight-semibold: 650;
+  letter-spacing: 0.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ===== BASE HTML ===== */
+html {
+  font-size: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  scroll-behavior: smooth;
+  scroll-padding-top: var(--space-16);
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-body);
+  color: var(--color-text);
+  background: var(--color-bg);
+  background-attachment: fixed;
+  min-height: 100dvh;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+/* ===== HEADINGS ===== */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-title);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: 0.5em;
+  text-wrap: balance;
+  line-height: 1.15;
+}
+
+h1 {
+  font-size: var(--font-size-h1);
+  line-height: var(--line-height-h1);
+  letter-spacing: var(--letter-spacing-h1);
+  font-weight: var(--font-weight-black);
+}
+
+h2 {
+  font-size: var(--font-size-h2);
+  line-height: var(--line-height-h2);
+  letter-spacing: var(--letter-spacing-h2);
+}
+
+h3 {
+  font-size: var(--font-size-h3);
+  line-height: var(--line-height-h3);
+  letter-spacing: var(--letter-spacing-h3);
+  font-weight: var(--font-weight-semibold);
+}
+
+h4 {
+  font-size: var(--font-size-h4);
+  line-height: var(--line-height-h4);
+  letter-spacing: var(--letter-spacing-h4);
+}
+
+h5 {
+  font-size: var(--font-size-h5);
+  line-height: var(--line-height-h5);
+  font-weight: var(--font-weight-semibold);
+}
+
+h6 {
+  font-size: var(--font-size-h6);
+  line-height: var(--line-height-h6);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ===== PARAGRAPHS & TEXT ===== */
+p {
+  margin-bottom: 1em;
+  max-width: 65ch;
+  text-wrap: pretty;
+}
+
+.lead {
+  font-size: var(--font-size-lead);
+  line-height: var(--line-height-lead);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+}
+
+small,
+.caption {
+  font-size: var(--font-size-caption);
+  line-height: var(--line-height-caption);
+  color: var(--color-text-muted);
+}
+
+.overline {
+  font-size: var(--font-size-overline);
+  line-height: var(--line-height-overline);
+  letter-spacing: var(--letter-spacing-overline);
+  text-transform: uppercase;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+}
+
+/* ===== LINKS ===== */
+a {
+  color: var(--color-accent);
+  font-weight: var(--font-weight-medium);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  transition: color var(--transition-base);
+}
+
+a:hover {
+  color: var(--color-accent-hover);
+}
+
+/* ===== INLINE TEXT ===== */
+strong, b {
+  font-weight: var(--font-weight-bold);
+}
+
+em, i {
+  font-style: italic;
+}
+
+/* ===== CODE ===== */
+code, kbd, pre {
+  font-family: var(--font-code);
+  font-size: var(--font-size-code);
+  line-height: var(--line-height-code);
+}
+
+/* ===== BUTTONS ===== */
+button, .btn {
+  font-family: var(--font-body);
+  font-size: var(--font-size-button);
+  line-height: var(--line-height-button);
+  letter-spacing: var(--letter-spacing-button);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  border: none;
+  background: none;
+  transition: color var(--transition-base),
+              background var(--transition-base),
+              border-color var(--transition-base),
+              box-shadow var(--transition-base);
+}
+
+/* ===== LISTS ===== */
+ul, ol {
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+  padding-left: var(--space-6);
+}
+
+li {
+  margin-bottom: var(--space-2);
+}
+
+/* ===== TABLES ===== */
+table {
+  font-size: var(--font-size-body-small);
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th {
+  font-weight: var(--font-weight-semibold);
+}
+
+/* ===== ACCESSIBILITY ===== */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ===== REDUCED MOTION ===== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
