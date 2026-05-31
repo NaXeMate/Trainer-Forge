@@ -1,16 +1,14 @@
 package dev.trainerforge.security.jwt;
 
-import java.util.Base64;
-import java.util.Date;
-
-import javax.crypto.SecretKey;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import javax.crypto.SecretKey;
+import java.util.Base64;
+import java.util.Date;
 
 @Component
 public class JwtUtil {
@@ -24,10 +22,9 @@ public class JwtUtil {
         this.expirationMs = expirationMs;
     }
 
-    public String generate(Long userId, String username) {
+    public String generate(String username) {
         return Jwts.builder()
                 .subject(username)
-                .claim("userId", userId)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expirationMs))
                 .signWith(key)
@@ -36,10 +33,6 @@ public class JwtUtil {
 
     public String extractUsername(String token) {
         return getClaims(token).getSubject();
-    }
-
-    public Long extractUserId(String token) {
-        return getClaims(token).get("userId", Long.class);
     }
 
     public boolean isValid(String token) {
