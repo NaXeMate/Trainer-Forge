@@ -3,25 +3,23 @@
 # Spring Boot + React + Vite + TypeScript + PostgreSQL + Docker
 # ============================================================
 
-HELP.md
-
-# Compilados y bytecode
+# Compiled and Bytecode
 *.class
 *.jar
 *.war
 *.ear
 *.nar
 
-# Directorio de salida de Maven
+# Maven's Output Directory
 target/
 
-# Maven Wrapper (solo el JAR)
+# Maven Wrapper (only JAR)
 .mvn/wrapper/maven-wrapper.jar
 
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-### STS ###
+# STS
 .apt_generated
 .classpath
 .factorypath
@@ -30,18 +28,42 @@ target/
 .springBeans
 .sts4-cache
 
-# Logs de Spring Boot / aplicación
+# Spring Boot / App Logs
 *.log
 logs/
 
-### IntelliJ IDEA ###
+# Dependencies
+node_modules/
+.pnpm-store
+
+# Vite Build
+frontend/dist/
+frontend/build/
+frontend/.vite/
+
+# TypeScript & testing cache
+*.tsbuildinfo
+frontend/coverage/
+frontend/.nyc_output/
+
+# Tools and packages
+.codegraph
+
+# ========== IDEs ==========
+
+# VS Code
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# IntelliJ IDEA
 .idea
 .idea/
 *.iws
 *.iml
 *.ipr
 
-### NetBeans ###
+# NetBeans
 /nbproject/private/
 /nbbuild/
 /dist/
@@ -51,12 +73,16 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-### VS Code ###
-.vscode/
-!.vscode/extensions.json
-!.vscode/settings.json
+# Eclipse / NetBeans / Vim / Emacs
+.classpath
+.project
+.settings/
+nbproject/
+*.swp
+*.swo
+*~
 
-# ========== SISTEMA OPERATIVO ==========
+# ========== OPERATING SYSTEMS ==========
 
 # macOS
 .DS_Store
@@ -74,52 +100,37 @@ ehthumbs.db
 Desktop.ini
 $RECYCLE.BIN/
 
-# Dependencias
-node_modules/
+# ========== ENVIRONMENT AND SECRETS ==========
 
-# Build de Vite
-frontend/dist/
-frontend/build/
-frontend/.vite/
-
-# Variables de entorno del frontend
+# Environment Variables
+.env
+.env.*
 frontend/.env
 frontend/.env.local
 frontend/.env.development.local
 frontend/.env.test.local
 frontend/.env.production.local
 
-# Cache de TypeScript y testing
-*.tsbuildinfo
-frontend/coverage/
-frontend/.nyc_output/
-
-# Configuración con secretos o credenciales reales
-application-prod.yml
-application-prod.properties
-application-local.yml
-application-local.properties
-
-# ========== ENTORNO Y SECRETOS ==========
-
-# Variables de entorno — NUNCA subir credenciales
-.env
-.env.*
-
-# Plantilla pública SIN valores reales
+# Public Template (NO real values)
 !.env.example
 !.env.properties.example
 
-# Archivos de claves y certificados
+# Keys and certificates
 *.pem
 *.key
 *.p12
 *.jks
 secrets/
 
-# ========== BASE DE DATOS ==========
+# Secret config or real credentials
+application-prod.yml
+application-prod.properties
+application-local.yml
+application-local.properties
 
-# Volcados y backups de PostgreSQL
+# ========== DATABASE ==========
+
+# PostgreSQL Backups and Dumps 
 *.sql.gz
 *.dump
 *.backup
@@ -132,15 +143,6 @@ docker-compose.override.yml
 .docker/
 trainerforge-docker.bat
 trainerforge-docker.sh
-
-# Eclipse / NetBeans / Vim / Emacs
-.classpath
-.project
-.settings/
-nbproject/
-*.swp
-*.swo
-*~
 
 # ========== TESTING ==========
 
