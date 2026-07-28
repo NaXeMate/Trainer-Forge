@@ -82,7 +82,7 @@ VALUES
  10,   -- Pokemon FireRed
  153, -- Charizard
  NULL,
- 'TF0000000001',
+ 'TF-0000-0001',
  'CHAMPION'),
 
 (2,
@@ -95,7 +95,7 @@ VALUES
  11,  -- Pokemon LeafGreen
  150, -- Venusaur
  1,   -- Red
- 'TF0000000002',
+ 'TF-0000-0002',
  'CHAMPION'),
 
 (3,
@@ -108,7 +108,7 @@ VALUES
   36,   -- Pokemon Scarlet
   235,   -- Meowscarada
   NULL,   -- Rod (set after INSERT to satisfy FK)
-  'TF0000000003',
+  'TF-0000-0003',
   'ADVENTURER'),
 
 (4,
@@ -121,7 +121,7 @@ VALUES
  24,  -- Alpha Sapphire
  148,   -- Bulbasaur
  2,   -- Leaf
- 'TF0000000004',
+ 'TF-0000-0004',
  'COORDINATOR'),
 
 (5,
@@ -134,7 +134,7 @@ VALUES
  36,  -- Pokemon Scarlet
   238, -- Skeledirge
   NULL,   -- Liko (set after INSERT to satisfy FK)
-  'TF0000000005',
+  'TF-0000-0005',
  'ADVENTURER');
 
 UPDATE "trainers" SET "best_friend_id" = 5 WHERE "id" = 3;
