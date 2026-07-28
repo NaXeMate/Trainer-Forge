@@ -1,7 +1,7 @@
 package dev.trainerforge.service;
 
-import java.util.Comparator;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 import dev.trainerforge.exception.InvalidFilterValueException;
 import dev.trainerforge.model.entities.Pokedex;
 import dev.trainerforge.model.entities.Pokemon;
-import dev.trainerforge.model.entities.PokemonTeam;
 import dev.trainerforge.model.entities.PokemonType;
 import dev.trainerforge.model.entities.Team;
 import dev.trainerforge.repository.TypeEffectivenessRepository;
@@ -278,8 +277,8 @@ public class BattleSimulatorService {
      */
     private List<Pokemon> extractTeamPokemons(Team team) {
         return team.getPokemonTeams().stream()
-            .sorted(Comparator.comparingInt(PokemonTeam::getPosition))
-            .map(PokemonTeam::getPokemon)
+            .sorted(Comparator.comparingInt(slot -> slot.getPosition()))
+            .map(slot -> slot.getPokemon())
             .toList();
     }
 

@@ -110,8 +110,8 @@ public class EntityReferenceMapper {
         if (username == null) return null;
         return trainerRepository.findByUsername(username).orElse(null);
     }
-    // Entity → String / Primitive
     
+    // Entity → String / Primitive
     public String map(Region r) { return r == null ? null : r.getName(); }
     public String map(Generation g) { return g == null ? null : g.getName(); }
     public String map(Pokedex p) { return p == null ? null : p.getName(); }
@@ -144,7 +144,7 @@ public class EntityReferenceMapper {
         if (achievements == null || achievements.isEmpty()) {
             return new Long[0];
         }
-        return achievements.stream().map(Achievement::getId).toArray(Long[]::new);
+        return achievements.stream().map(achievement -> achievement.getId()).toArray(Long[]::new);
     }
 
     public Set<Ability> mapAbilities(Long[] abilitiesIds) {
@@ -163,7 +163,7 @@ public class EntityReferenceMapper {
         if (abilities == null || abilities.isEmpty()) {
             return new Long[0];
         }
-        return abilities.stream().map(Ability::getId).toArray(Long[]::new);
+        return abilities.stream().map(ability -> ability.getId()).toArray(Long[]::new);
     }
 
     public Set<GamePossession> mapGamePossessions(Long[] gamePossessionsIds) {
@@ -182,7 +182,7 @@ public class EntityReferenceMapper {
         if (gamePossessions == null || gamePossessions.isEmpty()) {
             return new Long[0];
         }
-        return gamePossessions.stream().map(GamePossession::getId).toArray(Long[]::new);
+        return gamePossessions.stream().map(gamePossession -> gamePossession.getId()).toArray(Long[]::new);
     }
 
     public Set<Generation> mapGeneration(Long[] generationsIds) {
@@ -201,7 +201,7 @@ public class EntityReferenceMapper {
         if (generations == null || generations.isEmpty()) {
             return new Long[0];
         }
-        return generations.stream().map(Generation::getId).toArray(Long[]::new);
+        return generations.stream().map(generation -> generation.getId()).toArray(Long[]::new);
     }
 
     public Set<Move> mapMove(Long[] movesIds) {
@@ -220,7 +220,7 @@ public class EntityReferenceMapper {
         if (moves == null || moves.isEmpty()) {
             return new Long[0];
         }
-        return moves.stream().map(Move::getId).toArray(Long[]::new);
+        return moves.stream().map(move -> move.getId()).toArray(Long[]::new);
     }
 
     public Set<MovePokedex> mapMovePokedex(Long[] movePokedexesIds) {
@@ -239,7 +239,7 @@ public class EntityReferenceMapper {
         if (movePokedexes == null || movePokedexes.isEmpty()) {
             return new Long[0];
         }
-        return movePokedexes.stream().map(MovePokedex::getId).toArray(Long[]::new);
+        return movePokedexes.stream().map(movePokedex -> movePokedex.getId()).toArray(Long[]::new);
     }
 
     public Set<MoveSecondaryEffect> mapSecondaryEffects(Long[] secondaryEffectsIds) {
@@ -258,7 +258,7 @@ public class EntityReferenceMapper {
         if (secondaryEffects == null || secondaryEffects.isEmpty()) {
             return new Long[0];
         }
-        return secondaryEffects.stream().map(MoveSecondaryEffect::getId).toArray(Long[]::new);
+        return secondaryEffects.stream().map(secondaryEffect -> secondaryEffect.getId()).toArray(Long[]::new);
     }
 
     public Set<MoveTarget> mapMoveTargets(Long[] moveTargetIds) {
@@ -277,7 +277,7 @@ public class EntityReferenceMapper {
         if (moveTargets == null || moveTargets.isEmpty()) {
             return new Long[0];
         }
-        return moveTargets.stream().map(MoveTarget::getId).toArray(Long[]::new);
+        return moveTargets.stream().map(moveTarget -> moveTarget.getId()).toArray(Long[]::new);
     }
 
     public Set<Nature> mapNatures(Long[] natureIds) {
@@ -296,7 +296,7 @@ public class EntityReferenceMapper {
         if (natures == null || natures.isEmpty()) {
             return new Long[0];
         }
-        return natures.stream().map(Nature::getId).toArray(Long[]::new);
+        return natures.stream().map(nature -> nature.getId()).toArray(Long[]::new);
     }
 
     public Set<Pokedex> mapPokedex(Long[] pokedexesIds) {
@@ -315,7 +315,7 @@ public class EntityReferenceMapper {
         if (pokedexes == null || pokedexes.isEmpty()) {
             return new Long[0];
         }
-        return pokedexes.stream().map(Pokedex::getId).toArray(Long[]::new);
+        return pokedexes.stream().map(pokedex -> pokedex.getId()).toArray(Long[]::new);
     }
 
     public Set<PokedexItem> mapPokedexItems(Long[] pokedexItemIds) {
@@ -334,7 +334,7 @@ public class EntityReferenceMapper {
         if (pokedexItems == null || pokedexItems.isEmpty()) {
             return new Long[0];
         }
-        return pokedexItems.stream().map(PokedexItem::getId).toArray(Long[]::new);
+        return pokedexItems.stream().map(pokedexItem -> pokedexItem.getId()).toArray(Long[]::new);
     }
 
     public Set<Pokemon> mapPokemons(Long[] pokemonsIds) {
@@ -353,7 +353,7 @@ public class EntityReferenceMapper {
         if (pokemons == null || pokemons.isEmpty()) {
             return new Long[0];
         }
-        return pokemons.stream().map(Pokemon::getId).toArray(Long[]::new);
+        return pokemons.stream().map(pokemon -> pokemon.getId()).toArray(Long[]::new);
     }
 
     public Set<PokemonItem> mapPokemonItems(Long[] pokemonItemsIds) {
@@ -372,7 +372,7 @@ public class EntityReferenceMapper {
         if (pokemonItems == null || pokemonItems.isEmpty()) {
             return new Long[0];
         }
-        return pokemonItems.stream().map(PokemonItem::getId).toArray(Long[]::new);
+        return pokemonItems.stream().map(pokemonItem -> pokemonItem.getId()).toArray(Long[]::new);
     }
 
     public Set<PokemonTeam> mapPokemonTeams(Long[] pokemonTeamIds) {
@@ -391,7 +391,7 @@ public class EntityReferenceMapper {
         if (pokemonTeams == null || pokemonTeams.isEmpty()) {
             return new Long[0];
         }
-        return pokemonTeams.stream().map(PokemonTeam::getId).toArray(Long[]::new);
+        return pokemonTeams.stream().map(pokemonTeam -> pokemonTeam.getId()).toArray(Long[]::new);
     }
 
     public Set<PokemonType> mapPokemonTypes(Long[] pokemonTypeIds) {
@@ -410,7 +410,7 @@ public class EntityReferenceMapper {
         if (pokemonTypes == null || pokemonTypes.isEmpty()) {
             return new Long[0];
         }
-        return pokemonTypes.stream().map(PokemonType::getId).toArray(Long[]::new);
+        return pokemonTypes.stream().map(pokemonType -> pokemonType.getId()).toArray(Long[]::new);
     }
 
     public Set<Region> mapRegions(Long[] regionsIds) {
@@ -429,7 +429,7 @@ public class EntityReferenceMapper {
         if (regions == null || regions.isEmpty()) {
             return new Long[0];
         }
-        return regions.stream().map(Region::getId).toArray(Long[]::new);
+        return regions.stream().map(region -> region.getId()).toArray(Long[]::new);
     }
 
     public Set<Team> mapTeams(Long[] teamsIds) {
@@ -448,7 +448,7 @@ public class EntityReferenceMapper {
         if (teams == null || teams.isEmpty()) {
             return new Long[0];
         }
-        return teams.stream().map(Team::getId).toArray(Long[]::new);
+        return teams.stream().map(team -> team.getId()).toArray(Long[]::new);
     }
 
     public Set<Trainer> mapTrainers(Long[] trainersIds) {
@@ -467,7 +467,7 @@ public class EntityReferenceMapper {
         if (trainers == null || trainers.isEmpty()) {
             return new Long[0];
         }
-        return trainers.stream().map(Trainer::getId).toArray(Long[]::new);
+        return trainers.stream().map(trainer -> trainer.getId()).toArray(Long[]::new);
     }
 
     public Set<TrainerAchievement> mapTrainerAchievements(Long[] trainerAchievementIds) {
@@ -486,7 +486,7 @@ public class EntityReferenceMapper {
         if (trainerAchievements == null || trainerAchievements.isEmpty()) {
             return new Long[0];
         }
-        return trainerAchievements.stream().map(TrainerAchievement::getId).toArray(Long[]::new);
+        return trainerAchievements.stream().map(trainerAchievement -> trainerAchievement.getId()).toArray(Long[]::new);
     }
 
     public Set<TypeEffectiveness> mapTypeEffectiveness(Long[] typeEffectivenessIds) {
@@ -505,7 +505,7 @@ public class EntityReferenceMapper {
         if (typeEffectivenessSet == null || typeEffectivenessSet.isEmpty()) {
             return new Long[0];
         }
-        return typeEffectivenessSet.stream().map(TypeEffectiveness::getId).toArray(Long[]::new);
+        return typeEffectivenessSet.stream().map(typeEffectiveness -> typeEffectiveness.getId()).toArray(Long[]::new);
     }
 
     public Set<Videogame> mapVideogames(Long[] videogamesIds) {
@@ -524,7 +524,7 @@ public class EntityReferenceMapper {
         if (videogames == null || videogames.isEmpty()) {
             return new Long[0];
         }
-        return videogames.stream().map(Videogame::getId).toArray(Long[]::new);
+        return videogames.stream().map(videogame -> videogame.getId()).toArray(Long[]::new);
     }
 
     public Set<VideogamePokedex> mapVideogamePokedexes(Long[] videogamePokedexesIds) {
@@ -543,6 +543,6 @@ public class EntityReferenceMapper {
         if (videogamePokedexes == null || videogamePokedexes.isEmpty()) {
             return new Long[0];
         }
-        return videogamePokedexes.stream().map(VideogamePokedex::getId).toArray(Long[]::new);
+        return videogamePokedexes.stream().map(videogamePokedex -> videogamePokedex.getId()).toArray(Long[]::new);
     }
 }
