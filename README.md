@@ -1,42 +1,32 @@
 
 # TrainerForge (English)
 
-## Introduction and Motivation
+## Introduction and Motivations
 
-TrainerForge is my final project for the Web Application Development program. When I first started learning development, one of the earliest ideas I wanted to build was what TrainerForge is now meant to become. Besides being a developer, I am an avid video game player and, as such, one of the franchises I have spent the most time with has been Pokémon.
+TrainerForge is my final project for the Web Application Development Course. When I first started learning development, one of the first ideas I wanted to build was the one that TrainerForge now aims to become. Besides being a programmer, I am a passionate and seasoned video game player and, as such, one of the franchises to which I have devoted the most time has been Pokémon.
 
-Those who share that passion will know that, once you reach a certain level, you end up managing multiple Pokémon teams, each with different mechanics and configurations, for different platforms and with various special requirements. Faced with that situation, I quickly saw the need to create a place where all that information could be stored and related properly. Over time, I tried many options, but none fully convinced me. That is why I felt that, once I had the right technical knowledge, I should build the definitive tool I had always dreamed of. ***That is what TrainerForge is about.***
+Those who share this passion with me will know that, when you become an advanced player, you end up managing multiple Pokémon teams, each with different mechanics and configurations, for different games and with various particularities. Faced with that situation, I soon began to see the need to create somewhere to store and relate all that information. Over time, I tried many options, but none fully convinced me. Therefore, I decided that, once I had the right technical knowledge, I should create the definitive tool I had always dreamed of. ***That is what TrainerForge is about.***
 
 ## Development and Goals
 
-The project officially started in early 2026. Since then, it has been developed in a modular way, working through product updates that each add new features and content on top of the previous version. In this way, an approximate schedule and a fairly fixed feature set have been established for the first half of the year, so that by the end of May the last website version included in the TFC will be finished.
+The development of this project officially began at the beginning of 2026. Since then, the project has been developed in a modular way, oriented towards working on updates to the main product, each adding new features and content on top of the previous one. In this way, an approximate schedule and a more or less closed set of features have been established and prepared for the first half of the year, so that, towards the end of May, the last version of the website that forms part of the TFC will be completed.
 
-### Update Roadmap
+### Update *Roadmap*
 
-Below is the roadmap of planned updates, together with their approximate release dates. For each completed version, more information about the included features will be added in the release notes.
+Below is the roadmap of planned updates, together with their approximate release dates. For each completed version, more information about the included features will be added in the release notes (`CHANGELOG.md`).
 
-#### Beta (mid to late April)
+* **0.9 (late July):** initial version with basic features and no graphical interface (*frontend*).
 
-- PokéDex
-- Team Generator
-- Contact Page
+* **0.9.5 (early August):** update including testing and performance improvements to the code.
 
-#### 1.0 (early May)
+* **1.0 (late August - early September):** update incorporating the graphical interface (*frontend*).
 
-- Trainer Card
-- Save Content (Sign in / Registration)
-- Battle Simulator (approximation)
-
-#### 1.1 (mid May)
-
-- Achievement System
-- GTS Simulator
-- Share Profile Information
-- Dark Mode
+> [!NOTE]
+**More features and versions are on the way.** More information will be shared toward the end of the 1.0 development.
 
 ### Technology Stack
 
-Below is a table with the main technologies used to build this project.
+Below is a table with the main technologies used to build this project:
 
 <table>
 	<thead>
@@ -140,11 +130,11 @@ Below is a table with the main technologies used to build this project.
 	</tbody>
 </table>
 
-### How to Contribute to TrainerForge
+## How to Contribute to TrainerForge
 
-At the moment, **external contributions are not being accepted**, since the project is still within the scope of the TFC. However, once that period is over, anyone will be welcome to contribute features and help fix bugs or optimize the code through ***Pull Requests*** or ***Issues***, all via this same platform and using the templates that will be available in the repository when the time comes. In addition, the website itself will include a native contact section where anyone can send opinions, suggestions, or any comment that may lead to an improvement of the available content or a new feature.
+At present, **external contributions will not be accepted,** as the project is still within the context of the TFC. Nevertheless, once that period has passed, anyone may feel free to contribute features and help fix errors or optimize the code through ***Pull Requests*** or ***Issues***, all through this same platform and using the templates that will be available in the repository when the time comes. In addition, the website itself will have a native contact section through which anyone can send opinions, suggestions, or any comment that could lead to an improvement to the available content or a new feature.
 
-In the meantime, a good way to support TrainerForge is by giving it visibility, for example by starring this repository or talking about the website with anyone who may find it useful. Thank you very much for any help, however small it may be.
+In the meantime, a good way to support TrainerForge is by giving it visibility, for example by starring this repository or talking about the website with anyone interested who might benefit from it. Thank you very much for any help, however small.
 
 # TrainerForge (Español)
 
@@ -160,30 +150,20 @@ El desarrollo de este proyecto comenzó oficialmente a inicios de 2026. Desde en
 
 ### *Roadmap* de actualizaciones
 
-A continuación, se detalla el *roadmap* de actualizaciones previstas, junto a su fecha de salida aproximada. Por cada versión concluida, se incluirá más información acerca de las funciones incluidas en las notas de actualización.
+A continuación, se detalla el *roadmap* de actualizaciones previstas, junto a su fecha de salida aproximada. Por cada versión concluida, se incluirá más información acerca de las funciones incluidas en las notas de actualización (`CHANGELOG.md`).
 
-#### Beta (mediados-finales de abril)
+* **0.9 (finales de julio):** versión inicial con funciones básicas y sin interfaz gráfica (*frontend*).
 
-- PokéDex
-- Generador de Equipos
-- Página de Contacto
+* **0.9.5 (principios de agosto):** actualización con testing y mejoras de rendimiento en el código.
 
-#### 1.0 (principios de mayo)
+* **1.0 (finales de agosto - principios de septiembre):** actualización que incorpora la interfaz gráfica (*frontend*).
 
-- Tarjeta de Entrenador
-- Guardar contenido (Inicio de Sesión / Registro)
-- Simulador de Combate (por aproximación)
-
-#### 1.1 (mediados de mayo)
-
-- Sistema de Logros
-- Simulador de GTS
-- Compartir información del perfil
-- Modo Oscuro
+> [!NOTE]
+**Hay más funciones y versiones en camino.** Se comparte más información hacia el final del desarrollo de la 1.0.
 
 ### Stack tecnológico
 
-A continuación, se presenta una tabla con las principales tecnologías utilizadas para realizar este proyecto.
+A continuación, se presenta una tabla con las principales tecnologías utilizadas para realizar este proyecto:
 
 <table>
 	<thead>
@@ -287,7 +267,7 @@ A continuación, se presenta una tabla con las principales tecnologías utilizad
 	</tbody>
 </table>
 
-### Cómo colaborar con TrainerForge
+## Cómo colaborar con TrainerForge
 
 Actualmente, **no se aceptarán aportaciones externas,** dado que el proyecto aún se encuentra bajo el contexto del TFC. No obstante, una vez haya pasado ese período, cualquiera puede sentirse libre de aportar funcionalidades y ayudar a resolver errores u optimizar el código, mediante ***Pull Requests*** o ***Issues***, todo ello mediante esta misma plataforma y utilizando las plantillas que estarán disponibles en el repositorio, llegado el momento. Además, la propia web contará con una sección de contacto nativa desde la que cualquier persona puede enviar opiniones, sugerencias o cualquier comentario que pueda resultar en una mejora del contenido disponible o una nueva función.
 
