@@ -3,6 +3,7 @@ package dev.trainerforge.dto.response;
 import dev.trainerforge.model.enumerated.Gender;
 
 public record PokemonDto(
+    Long id,
     Long species,
     String nickname,
     String locationFound,
