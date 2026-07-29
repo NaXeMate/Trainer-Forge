@@ -141,8 +141,7 @@ postgres-data/
 
 docker-compose.override.yml
 .docker/
-trainerforge-docker.bat
-trainerforge-docker.sh
+quick_start.sh
 
 # ========== TESTING ==========
 
