@@ -67,10 +67,9 @@ public class TeamService {
      */
     @Transactional
     public Team updateTeam(Long id, TeamDto dto) {
-        Team team = this.findById(id);
+        Team team = this.findOwnedById(id);
         String currentUsername = getCurrentUsername();
 
-        validateOwnership(team, currentUsername);
         validateTrainerAssignment(dto, currentUsername);
         teamMapper.updateEntityFromDto(dto, team);
 
@@ -86,8 +85,7 @@ public class TeamService {
      */
     @Transactional
     public void deleteTeam(Long id) {
-        Team team = this.findById(id);
-        validateOwnership(team, getCurrentUsername());
+        Team team = this.findOwnedById(id);
         teamRepo.delete(team);
         System.out.println("Deleted Team with id: " + id);
     }
@@ -120,6 +118,22 @@ public class TeamService {
             throw new TeamNotFoundException(id);
         }
 
+        return team;
+    }
+
+    /**
+     * Retrieves a team only when it belongs to the currently authenticated trainer.
+     * This is the authorization boundary shared by every operation that mutates a team
+     * or one of its pokemon slots, including operations delegated by {@link PokemonTeamService}.
+     *
+     * @param id identifier of the team whose ownership must be enforced.
+     * @return the owned team.
+     * @throws TeamNotFoundException when the team does not exist or belongs to another trainer.
+     * @throws AuthenticationCredentialsNotFoundException when no authenticated trainer is available.
+     */
+    public Team findOwnedById(Long id) {
+        Team team = this.findById(id);
+        validateOwnership(team, getCurrentUsername());
         return team;
     }
 
