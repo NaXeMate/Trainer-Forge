@@ -1,4 +1,4 @@
-package dev.trainerforge.controllers;
+package dev.trainerforge.controller;
 
 import java.util.List;
 

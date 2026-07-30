@@ -1,4 +1,4 @@
-package dev.trainerforge.controllers;
+package dev.trainerforge.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
