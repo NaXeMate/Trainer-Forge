@@ -11,7 +11,8 @@ import dev.trainerforge.model.entities.Team;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = {EntityReferenceMapper.class})
 public interface TeamMapper {
 
-    @Mapping(source = "trainerUsername", target = "trainer")
+    @Mapping(target = "id",              ignore = true)
+    @Mapping(target = "trainer",         ignore = true)
     @Mapping(source = "videogame",       target = "videogame")
     Team toEntity(TeamDto teamDto);
 
@@ -19,7 +20,8 @@ public interface TeamMapper {
     @Mapping(source = "videogame.name",      target = "videogame")
     TeamDto toDto(Team team);
 
-    @Mapping(source = "trainerUsername", target = "trainer")
+    @Mapping(target = "id",              ignore = true)
+    @Mapping(target = "trainer",         ignore = true)
     @Mapping(source = "videogame",       target = "videogame")
     void updateEntityFromDto(TeamDto teamDto, @MappingTarget Team team);
 }

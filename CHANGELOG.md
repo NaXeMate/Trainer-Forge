@@ -1,6 +1,6 @@
 # Changelog (English)
 
-## [0.9] - 2026-07-28
+## [0.9] - 2026-07-30
 
 First functional version of TrainerForge, focused on the backend and its REST API. It allows the main trainer, Pokémon and team management features to be tested, but it does not yet include a graphical interface; the frontend is planned for version 1.0.
 
@@ -30,7 +30,7 @@ First functional version of TrainerForge, focused on the backend and its REST AP
 
 # Changelog (Spanish)
 
-## [0.9] - 2026-07-28
+## [0.9] - 2026-07-30
 
 Primera versión funcional de TrainerForge, centrada en el backend y en su API REST. Permite probar las funciones principales de gestión de entrenadores, Pokémon y equipos, pero todavía no incluye una interfaz gráfica; el frontend queda previsto para la versión 1.0.
 

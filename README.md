@@ -134,7 +134,7 @@ Below is a table with the main technologies used to build this project:
 
 The repository includes `quick_start.sh`, which prepares PostgreSQL and starts the backend with the required local profile. Create `.env` from `.env.example`, complete its values and run `./quick_start.sh` from the repository root.
 
-See the complete requirements, configuration and start instructions in [`START_SEQUENCE.md`](START_SEQUENCE.md).
+See the complete requirements, configuration and start instructions in [`START_SEQUENCE.md`](Documentation/START_SEQUENCE.md).
 
 ## How to contribute to TrainerForge
 
@@ -277,7 +277,7 @@ A continuación, se presenta una tabla con las principales tecnologías utilizad
 
 El repositorio incluye `quick_start.sh`, que prepara PostgreSQL e inicia el backend con el perfil local necesario. Crea `.env` a partir de `.env.example`, completa sus valores y ejecuta `./quick_start.sh` desde la raíz del repositorio.
 
-Consulta todos los requisitos, la configuración y las instrucciones de inicio en [`START_SEQUENCE.md`](START_SEQUENCE.md).
+Consulta todos los requisitos, la configuración y las instrucciones de inicio en [`START_SEQUENCE.md`](Documentation/START_SEQUENCE.md).
 
 ## Cómo colaborar con TrainerForge
 

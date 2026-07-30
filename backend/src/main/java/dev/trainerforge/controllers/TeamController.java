@@ -31,10 +31,6 @@ public class TeamController {
         this.teamMapper = teamMapper;
     }
 
-    // -----------------------------------------------------------------------
-    // QUERIES
-    // -----------------------------------------------------------------------
-
     @GetMapping
     public ResponseEntity<List<TeamDto>> getAllTeams() {
         List<TeamDto> teams = teamService.findAll()
@@ -85,10 +81,6 @@ public class TeamController {
                 .toList();
         return ResponseEntity.ok(teams);
     }
-
-    // -----------------------------------------------------------------------
-    // CRUD
-    // -----------------------------------------------------------------------
 
     @PostMapping
     public ResponseEntity<TeamDto> createTeam(@RequestBody TeamDto dto) {
