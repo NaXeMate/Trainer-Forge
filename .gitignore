@@ -141,7 +141,6 @@ postgres-data/
 
 docker-compose.override.yml
 .docker/
-quick_start.sh
 
 # ========== TESTING ==========
 
