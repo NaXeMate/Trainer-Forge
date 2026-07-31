@@ -9,7 +9,7 @@ Those who share this passion with me will know that, when you become an advanced
 
 ## Development and goals
 
-The development of this project officially began at the beginning of 2026. Since then, the project has been developed in a modular way, oriented towards working on updates to the main product, each adding new features and content on top of the previous one. In this way, an approximate schedule and a more or less closed set of features have been established and prepared for the first half of the year, so that, towards the end of May, the last version of the website that forms part of the TFC will be completed.
+The development of this project officially began at the beginning of 2026. Since then, the project has been developed in a modular way, oriented towards working on updates to the main product, each adding new features and content on top of the previous one. In this way, an approximate schedule and a more or less closed set of features have been established and prepared for the end of the year, so that, towards December, the last version of the website that forms part of the TFC will be completed.
 
 ### Update *roadmap*
 
@@ -152,7 +152,7 @@ Quienes también compartan esta pasión conmigo sabrán que, cuando eres avanzad
 
 ## Desarrollo y objetivos
 
-El desarrollo de este proyecto comenzó oficialmente a inicios de 2026. Desde entonces, el proyecto se ha desarrollado de forma modular, orientado a trabajar sobre actualizaciones del producto principal, cada una añadiendo nuevas funciones y contenido sobre la anterior. De este modo, se ha establecido un calendario aproximado y un caudal de funcionalidades más o menos cerrado y preparado para la primera mitad del año, de forma que, hacia finales de mayo, esté finalizada la última versión de la web que forme parte del TFC.
+El desarrollo de este proyecto comenzó oficialmente a inicios de 2026. Desde entonces, el proyecto se ha desarrollado de forma modular, orientado a trabajar sobre actualizaciones del producto principal, cada una añadiendo nuevas funciones y contenido sobre la anterior. De este modo, se ha establecido un calendario aproximado y un caudal de funcionalidades más o menos cerrado y preparado para el final del año, de forma que, hacia diciembre, esté finalizada la última versión de la web que forme parte del TFC.
 
 ### *Roadmap* de actualizaciones
 
