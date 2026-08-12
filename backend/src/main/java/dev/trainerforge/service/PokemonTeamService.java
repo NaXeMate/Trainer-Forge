@@ -4,18 +4,15 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import dev.trainerforge.dto.response.PokemonTeamDto;
-import dev.trainerforge.exception.InvalidFilterValueException;
-import dev.trainerforge.exception.notfound.PokemonNotFoundException;
 import dev.trainerforge.exception.notfound.PokemonTeamNotFoundException;
-import dev.trainerforge.exception.notfound.TeamNotFoundException;
 import dev.trainerforge.model.entities.PokemonTeam;
 import dev.trainerforge.model.entities.Team;
 import dev.trainerforge.repository.PokemonTeamRepository;
+import dev.trainerforge.validator.PokemonTeamValidator;
 
 @Transactional(readOnly = true)
 @Service
@@ -24,15 +21,6 @@ public class PokemonTeamService {
     private final PokemonTeamRepository pokemonTeamRepo;
     private final TeamService teamService;
     private final PokemonService pokemonService;
-
-    private static final int MAX_POSITION = 6;
-    private static final int MIN_POSITION = 1;
-
-    private void validatePositionRange(int position) {
-        if (position < MIN_POSITION || position > MAX_POSITION) {
-            throw new InvalidFilterValueException("Position must be between " + MIN_POSITION + " and " + MAX_POSITION + ".");
-        }
-    }
 
     public PokemonTeamService(PokemonTeamRepository pokemonTeamRepo, TeamService teamService, PokemonService pokemonService) {
         this.pokemonTeamRepo = pokemonTeamRepo;
@@ -52,31 +40,20 @@ public class PokemonTeamService {
      */
     @Transactional
     public PokemonTeam createPokemonTeam(PokemonTeamDto dto) {
-        final Long teamId;
-        final Long pokemonId;
-        try {
-            teamId = Long.valueOf(dto.teamId());
-            pokemonId = Long.valueOf(dto.pokemonId());
-        } catch (NumberFormatException ex) {
-            throw new InvalidFilterValueException("teamId and pokemonId must be numeric.");
-        }
+        long[] identifiers = PokemonTeamValidator.parseIdentifiers(dto.teamId(), dto.pokemonId());
+        Long teamId = identifiers[0];
+        Long pokemonId = identifiers[1];
 
         Team team = teamService.findOwnedById(teamId);
-        if (!pokemonService.existsById(pokemonId)) {
-            throw new PokemonNotFoundException(pokemonId);
-        }
+        PokemonTeamValidator.validatePokemonExists(pokemonService.existsById(pokemonId), pokemonId);
 
-        validatePositionRange(dto.position());
+        PokemonTeamValidator.validatePosition(dto.position());
 
-        if (pokemonTeamRepo.existsByTeamIdAndPosition(teamId, dto.position())) {
-            throw new InvalidFilterValueException(
-                "Position " + dto.position() + " is already occupied in team with id: " + teamId + ".");
-        }
+        PokemonTeamValidator.validatePositionAvailable(
+            pokemonTeamRepo.existsByTeamIdAndPosition(teamId, dto.position()), dto.position(), teamId);
 
-        if (pokemonTeamRepo.existsByTeamIdAndPokemonId(teamId, pokemonId)) {
-            throw new InvalidFilterValueException(
-                "Pokemon with id " + pokemonId + " is already in team with id: " + teamId + ".");
-        }
+        PokemonTeamValidator.validatePokemonNotInTeam(
+            pokemonTeamRepo.existsByTeamIdAndPokemonId(teamId, pokemonId), pokemonId, teamId);
 
         PokemonTeam newAssociation = new PokemonTeam();
         newAssociation.setTeam(team);
@@ -103,16 +80,14 @@ public class PokemonTeamService {
         PokemonTeam association = findStoredById(id);
         teamService.findOwnedById(association.getTeam().getId());
 
-        validatePositionRange(newPosition);
+        PokemonTeamValidator.validatePosition(newPosition);
 
         if (association.getPosition() == newPosition) {
             return association;
         }
 
-        if (pokemonTeamRepo.existsByTeamIdAndPosition(association.getTeam().getId(), newPosition)) {
-            throw new InvalidFilterValueException(
-                "Position " + newPosition + " is already occupied in this team.");
-        }
+        PokemonTeamValidator.validatePositionAvailable(
+            pokemonTeamRepo.existsByTeamIdAndPosition(association.getTeam().getId(), newPosition), newPosition, null);
 
         association.setPosition(newPosition);
         return pokemonTeamRepo.save(association);
@@ -173,10 +148,7 @@ public class PokemonTeamService {
         teamService.findById(teamId);
 
         List<PokemonTeam> result = pokemonTeamRepo.findByTeamIdOrderByPositionAsc(teamId);
-
-        if (result.isEmpty()) {
-            throw new PokemonTeamNotFoundException("No Pokemon-Team associations found for team with id: " + teamId + ".");
-        }
+        PokemonTeamValidator.validateByTeamResult(result, teamId);
         
         return result;
     }
@@ -191,15 +163,10 @@ public class PokemonTeamService {
      * @throws AuthenticationCredentialsNotFoundException when no authenticated trainer is available.
      */
     public List<PokemonTeam> findByPokemonId(Long pokemonId) {
-        if (!pokemonService.existsById(pokemonId)) {
-            throw new PokemonNotFoundException(pokemonId);
-        }
+        PokemonTeamValidator.validatePokemonExists(pokemonService.existsById(pokemonId), pokemonId);
         
         List<PokemonTeam> result = filterAccessible(pokemonTeamRepo.findByPokemonId(pokemonId));
-
-        if (result.isEmpty()) {
-            throw new PokemonTeamNotFoundException("No team-pokemon association found with pokemon id: " + pokemonId + ".");
-        }
+        PokemonTeamValidator.validateByPokemonResult(result, pokemonId);
         
         return result;
     }
@@ -214,13 +181,10 @@ public class PokemonTeamService {
      * @throws AuthenticationCredentialsNotFoundException when no authenticated trainer is available.
      */
     public List<PokemonTeam> findByPosition(int position) {
-        validatePositionRange(position);
+        PokemonTeamValidator.validatePosition(position);
         
         List<PokemonTeam> result = filterAccessible(pokemonTeamRepo.findByPosition(position));
-
-        if (result.isEmpty()) {
-            throw new PokemonTeamNotFoundException("No team-pokemon association found with position: " + position + ".");
-        }
+        PokemonTeamValidator.validateByPositionResult(result, position);
 
         return result;
     }
