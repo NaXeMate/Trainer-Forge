@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import dev.trainerforge.exception.InvalidFilterValueException;
 import dev.trainerforge.exception.notfound.MoveNotFoundException;
 import dev.trainerforge.exception.notfound.MoveSecondaryEffectNotFoundException;
 import dev.trainerforge.exception.notfound.MoveTargetNotFoundException;
@@ -16,17 +15,11 @@ import dev.trainerforge.model.enumerated.MoveClass;
 import dev.trainerforge.repository.MoveRepository;
 import dev.trainerforge.repository.MoveSecondaryEffectRepository;
 import dev.trainerforge.repository.MoveTargetRepository;
+import dev.trainerforge.validator.MoveValidator;
 
 @Transactional(readOnly = true)
 @Service
 public class MoveService {
-
-    private static final Long MAX_TYPE_ID = 18L;
-
-    private static final Long GENERATION_MAX_ID = 10L;
-
-    private static final int MAX_PP = 40;
-    private static final int MIN_PP = 5;
 
     private final MoveRepository moveRepo;
     private final MoveTargetRepository moveTargetRepo;
@@ -61,27 +54,18 @@ public class MoveService {
      * @throws MoveNotFoundException when no moves exist for the provided type.
      */
     public List<Move> findByTypeId(Long typeId) {
-        
-        if (typeId < 1 || typeId > MAX_TYPE_ID) {
-            throw new InvalidFilterValueException("Type ID must be between 1 and " + MAX_TYPE_ID + ".");
-        }
+        MoveValidator.validateTypeId(typeId);
 
         List<Move> result = moveRepo.findByTypeId(typeId);
+        MoveValidator.validateByTypeResult(result, typeId);
 
-        if (result.isEmpty()) {
-            throw new MoveNotFoundException("Move not found with type ID: " + typeId + ".");
-        }
-        
         return result;
     }
 
     public List<Move> findByMoveClass(MoveClass moveClass) {
         List<Move> result = moveRepo.findByMoveClass(moveClass);
+        MoveValidator.validateByMoveClassResult(result, moveClass);
 
-        if (result.isEmpty()) {
-            throw new MoveNotFoundException("Move not found with move class: " + moveClass + ".");
-        }
-        
         return result;
     }
 
@@ -94,19 +78,10 @@ public class MoveService {
      * @throws MoveNotFoundException when no moves match the provided power value.
      */
     public List<Move> findByPower(int power) {
-        if (power < 0) {
-            throw new InvalidFilterValueException("Power cannot be negative. If you want to filter by STATUS moves, use 0 as the power value.");
-        }
-        
-        if (power % 5 != 0) {
-            throw new InvalidFilterValueException("Power must be a multiple of 5.");
-        }
+        MoveValidator.validatePower(power);
         List<Move> result = moveRepo.findByPower(power);
+        MoveValidator.validateByPowerResult(result, power);
 
-        if (result.isEmpty()) {
-            throw new MoveNotFoundException("Move not found with power: " + power + ".");
-        }
-        
         return result;
     }
 
@@ -120,40 +95,20 @@ public class MoveService {
      * @throws MoveNotFoundException when no moves are found inside the provided power range.
      */
     public List<Move> findByPowerBetween(int minPower, int maxPower) {
-        if (minPower < 0 || maxPower < 0) {
-            throw new InvalidFilterValueException("Power values must not be negative. If you want to filter by STATUS moves, use 0 as the power value.");
-        }
+        MoveValidator.validatePowerBetween(minPower, maxPower);
 
-        if (maxPower % 5 != 0 || minPower % 5 != 0) {
-            throw new InvalidFilterValueException("Power must be a multiple of 5.");
-        }
-
-        if (minPower > maxPower) {
-            throw new InvalidFilterValueException("Minimum power (" + minPower + ") cannot be greater than maximum power (" + maxPower + ").");
-        }
-        
         List<Move> result = moveRepo.findByPowerBetween(minPower, maxPower);
+        MoveValidator.validateByPowerRangeResult(result, minPower, maxPower);
 
-        if (result.isEmpty()) {
-            throw new MoveNotFoundException("Move not found with power between: " + minPower + " and " + maxPower + ".");
-        }
-        
         return result;
     }
 
     public List<Move> findByAccuracy(int accuracy) {
-        if (accuracy < 0 || accuracy > 100) {
-            throw new InvalidFilterValueException("Accuracy must be between 0 and 100.");
-        } else if (accuracy % 5 != 0) {
-            throw new InvalidFilterValueException("Accuracy must be a multiple of 5.");
-        }
-        
-        List<Move> result = moveRepo.findByAccuracy(accuracy);
+        MoveValidator.validateAccuracy(accuracy);
 
-        if (result.isEmpty()) {
-            throw new MoveNotFoundException("Move not found with accuracy: " + accuracy + ".");
-        }
-        
+        List<Move> result = moveRepo.findByAccuracy(accuracy);
+        MoveValidator.validateByAccuracyResult(result, accuracy);
+
         return result;
     }
 
@@ -167,40 +122,25 @@ public class MoveService {
      * @throws MoveNotFoundException when no moves are found inside the provided accuracy range.
      */
     public List<Move> findByAccuracyBetween(int minAccuracy, int maxAccuracy) {
-        if (minAccuracy < 0 || maxAccuracy < 0) {
-            throw new InvalidFilterValueException("Accuracy values musn't be negative. If you want to filter by moves that never miss, use 0 as the accuracy value.");
-        } else if (maxAccuracy % 5 != 0 || minAccuracy % 5 != 0) {
-            throw new InvalidFilterValueException("Accuracy must be a multiple of 5.");
-        } else if (minAccuracy > maxAccuracy) {
-            throw new InvalidFilterValueException("Minimum accuracy (" + minAccuracy + ") cannot be greater than maximum accuracy (" + maxAccuracy + ").");
-        }
-        
-        List<Move> result = moveRepo.findByAccuracyBetween(minAccuracy, maxAccuracy);
+        MoveValidator.validateAccuracyBetween(minAccuracy, maxAccuracy);
 
-        if (result.isEmpty()) {
-            throw new MoveNotFoundException("Move not found with accuracy between: " + minAccuracy + " and " + maxAccuracy + ".");
-        }
-        
+        List<Move> result = moveRepo.findByAccuracyBetween(minAccuracy, maxAccuracy);
+        MoveValidator.validateByAccuracyRangeResult(result, minAccuracy, maxAccuracy);
+
         return result;
     }
 
     public List<Move> findByContact(boolean contact) {
         List<Move> result = moveRepo.findByContact(contact);
+        MoveValidator.validateByContactResult(result, contact);
 
-        if (result.isEmpty()) {
-            throw new MoveNotFoundException("Move not found with contact: " + contact + ".");
-        }
-        
         return result;
     }
 
     public List<Move> findByPriority(int priority) {
         List<Move> result = moveRepo.findByPriority(priority);
+        MoveValidator.validateByPriorityResult(result, priority);
 
-        if (result.isEmpty()) {
-            throw new MoveNotFoundException("Move not found with priority: " + priority + ".");
-        }
-        
         return result;
     }
 
@@ -214,52 +154,34 @@ public class MoveService {
      * @throws MoveNotFoundException when no moves are found in the requested priority range.
      */
     public List<Move> findByPriorityBetween(int minPriority, int maxPriority) {
-        if (minPriority > maxPriority) {
-            throw new InvalidFilterValueException("Minimum priority (" + minPriority + ") cannot be greater than maximum priority (" + maxPriority + ").");
-        }
-        
-        List<Move> result = moveRepo.findByPriorityBetween(minPriority, maxPriority);
+        MoveValidator.validatePriorityBetween(minPriority, maxPriority);
 
-        if (result.isEmpty()) {
-            throw new MoveNotFoundException("Move not found with priority between: " + minPriority + " and " + maxPriority + ".");
-        }
-        
+        List<Move> result = moveRepo.findByPriorityBetween(minPriority, maxPriority);
+        MoveValidator.validateByPriorityRangeResult(result, minPriority, maxPriority);
+
         return result;
     }
 
     public List<Move> findByTargetId(Long targetId) {
         List<Move> result = moveRepo.findByTargetId(targetId);
+        MoveValidator.validateByTargetResult(result, targetId);
 
-        if (result.isEmpty()) {
-            throw new MoveNotFoundException("Move not found with target ID: " + targetId + ".");
-        }
-        
         return result;
     }
 
     public List<Move> findBySecondaryEffectId(Long secondaryEffectId) {
         List<Move> result = moveRepo.findBySecondaryEffectId(secondaryEffectId);
+        MoveValidator.validateBySecondaryEffectResult(result, secondaryEffectId);
 
-        if (result.isEmpty()) {
-            throw new MoveNotFoundException("Move not found with secondary effect ID: " + secondaryEffectId + ".");
-        }
-        
         return result;
     }
 
     public List<Move> findByPp(int pp) {
-        if (pp < MIN_PP || pp > MAX_PP) {
-            throw new InvalidFilterValueException("PP must be between " + MIN_PP + " and " + MAX_PP + ".");
-        } else if (pp % 5 != 0) {
-            throw new InvalidFilterValueException("PP must be a multiple of 5.");
-        }
-        
-        List<Move> result = moveRepo.findByPp(pp);
+        MoveValidator.validatePp(pp);
 
-        if (result.isEmpty()) {
-            throw new MoveNotFoundException("Move not found with PP: " + pp + ".");
-        }
-        
+        List<Move> result = moveRepo.findByPp(pp);
+        MoveValidator.validateByPpResult(result, pp);
+
         return result;
     }
 
@@ -273,20 +195,11 @@ public class MoveService {
      * @throws MoveNotFoundException when no moves are found in the provided PP interval.
      */
     public List<Move> findByPpBetween(int minPp, int maxPp) {
-        if (minPp < MIN_PP || maxPp > MAX_PP) {
-            throw new InvalidFilterValueException("PP must be between " + MIN_PP + " and " + MAX_PP + ".");
-        } else if (maxPp % 5 != 0 || minPp % 5 != 0) {
-            throw new InvalidFilterValueException("PP must be a multiple of 5.");
-        } else if (minPp > maxPp) {
-            throw new InvalidFilterValueException("Minimum PP (" + minPp + ") cannot be greater than maximum PP (" + maxPp + ").");
-        }
-        
-        List<Move> result = moveRepo.findByPpBetween(minPp, maxPp);
+        MoveValidator.validatePpBetween(minPp, maxPp);
 
-        if (result.isEmpty()) {
-            throw new MoveNotFoundException("Move not found with PP between: " + minPp + " and " + maxPp + ".");
-        }
-        
+        List<Move> result = moveRepo.findByPpBetween(minPp, maxPp);
+        MoveValidator.validateByPpRangeResult(result, minPp, maxPp);
+
         return result;
     }
 
@@ -299,16 +212,11 @@ public class MoveService {
      * @throws MoveNotFoundException when no moves are available for the provided generation.
      */
     public List<Move> findByGenerationId(Long generationId) {
-        if (generationId < 1 || generationId > GENERATION_MAX_ID) {
-            throw new InvalidFilterValueException("Generation ID must be between 1 and " + GENERATION_MAX_ID + ".");
-        }
+        MoveValidator.validateGenerationId(generationId);
 
         List<Move> result = moveRepo.findByGenerationId(generationId);
+        MoveValidator.validateByGenerationResult(result, generationId);
 
-        if (result.isEmpty()) {
-            throw new MoveNotFoundException("Move not found with generation ID: " + generationId + ".");
-        }
-        
         return result;
     }
 
