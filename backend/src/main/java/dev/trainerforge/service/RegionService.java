@@ -5,18 +5,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import dev.trainerforge.exception.InvalidFilterValueException;
 import dev.trainerforge.exception.notfound.RegionNotFoundException;
 import dev.trainerforge.model.entities.Region;
 import dev.trainerforge.repository.RegionRepository;
+import dev.trainerforge.validator.RegionValidator;
 
 @Transactional(readOnly = true)
 @Service
 public class RegionService {
 
     private final RegionRepository regionRepo;
-
-    private static final Long GENERATION_MAX_ID = 10L;
 
     public RegionService(RegionRepository regionRepo) {
         this.regionRepo = regionRepo;
@@ -45,15 +43,10 @@ public class RegionService {
      * @throws RegionNotFoundException when no regions are associated with the provided generation.
      */
     public List<Region> findByGenerationId(Long generationId) {
-        if (generationId < 1 || generationId > GENERATION_MAX_ID) {
-            throw new InvalidFilterValueException("Generation ID must be between 1 and " + GENERATION_MAX_ID + ".");
-        }
-        
-        List<Region> result = regionRepo.findByGenerationId(generationId);
+        RegionValidator.validateGenerationId(generationId);
 
-        if (result.isEmpty()) {
-            throw new RegionNotFoundException("No regions found for generation ID: " + generationId + ".");
-        }
+        List<Region> result = regionRepo.findByGenerationId(generationId);
+        RegionValidator.validateByGenerationResult(result, generationId);
 
         return result;
     }
