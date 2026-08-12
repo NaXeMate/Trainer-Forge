@@ -13,6 +13,9 @@ public final class ValidationLimits {
 
     private static final long MIN_IDENTIFIER_ID = 1L;
 
+    public static final int MIN_POWER = 0;
+    public static final int MULTIPLE_OF_FIVE = 5;
+
     private ValidationLimits() {
     }
 
@@ -80,7 +83,13 @@ public final class ValidationLimits {
     }
 
     public enum IntegerRange {
-        BASE_STAT(5, 255);
+        ACCURACY(0, 100),
+        BASE_STAT(5, 255),
+        EV(0, 32),
+        LEVEL(1, 100),
+        PP(5, 40),
+        TEAM_POSITION(1, 6),
+        TEAM_SIZE(1, 6);
 
         private final int min;
         private final int max;
@@ -92,6 +101,22 @@ public final class ValidationLimits {
 
         public int min() {
             return min;
+        }
+
+        public int max() {
+            return max;
+        }
+    }
+
+    public enum Length {
+        USERNAME(30),
+        REAL_NAME(50),
+        EMAIL(254);
+
+        private final int max;
+
+        Length(int max) {
+            this.max = max;
         }
 
         public int max() {
