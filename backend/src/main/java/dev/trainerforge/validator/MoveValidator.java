@@ -55,13 +55,18 @@ public final class MoveValidator {
     }
 
     public static void validateAccuracyBetween(int minAccuracy, int maxAccuracy) {
-        if (minAccuracy < ValidationLimits.IntegerRange.ACCURACY.min()
-                || maxAccuracy < ValidationLimits.IntegerRange.ACCURACY.min()) {
+        ValidationLimits.IntegerRange range = ValidationLimits.IntegerRange.ACCURACY;
+
+        if (minAccuracy < range.min() || maxAccuracy < range.min()) {
             throw new InvalidFilterValueException(
                 "Accuracy values musn't be negative. If you want to filter by moves that never miss, use 0 as the accuracy value.");
         }
-        if (maxAccuracy % ValidationLimits.MULTIPLE_OF_FIVE != 0
-                || minAccuracy % ValidationLimits.MULTIPLE_OF_FIVE != 0) {
+        if (minAccuracy > range.max() || maxAccuracy > range.max()) {
+            throw new InvalidFilterValueException(
+                "Accuracy values must not be greater than " + range.max() + ".");
+        }
+        if (minAccuracy % ValidationLimits.MULTIPLE_OF_FIVE != 0
+                || maxAccuracy % ValidationLimits.MULTIPLE_OF_FIVE != 0) {
             throw new InvalidFilterValueException("Accuracy must be a multiple of 5.");
         }
         if (minAccuracy > maxAccuracy) {
