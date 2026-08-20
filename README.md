@@ -111,7 +111,7 @@ Below is a table with the main technologies used to build this project:
 			<td>Frontend testing framework.</td>
 		</tr>
 		<tr>
-			<td>Thunder Client</td>
+			<td>Postman</td>
 			<td>REST API testing client.</td>
 		</tr>
 		<tr>
@@ -254,7 +254,7 @@ A continuación, se presenta una tabla con las principales tecnologías utilizad
 			<td>Framework de pruebas para frontend.</td>
 		</tr>
 		<tr>
-			<td>Thunder Client</td>
+			<td>Postman</td>
 			<td>Cliente para pruebas de APIs REST.</td>
 		</tr>
 		<tr>

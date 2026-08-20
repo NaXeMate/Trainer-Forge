@@ -28,6 +28,27 @@ First functional version of TrainerForge, focused on the backend and its REST AP
 - Corrected Meowscarada's recorded height and adjusted queries so that species without a second type or optional abilities are not lost.
 - Standardized inherited table names, values and texts to keep the database catalog and API consistent.
 
+## [0.9.5] - 2026-08-20
+
+Backend stabilization release in preparation for frontend development. It expands automated coverage, makes validation easier to maintain, reduces avoidable database work and fixes API errors without changing the existing public contracts.
+
+### Added (New Features)
+
+- **JUnit 5 regression suite:** comprehensive unit tests for the dedicated validator layer, together with PostgreSQL Testcontainers integration tests for application startup, error responses, team visibility, trainer uniqueness, DTO query performance and Pokémon updates. This provides repeatable coverage for the backend areas most exposed to regressions.
+
+### Changed (Improvements)
+
+- **Maintainable validation architecture:** validation rules were extracted from services into dedicated validators, while shared ranges, size limits and accepted inputs were centralized in `ValidationLimits`. Services can now remain focused on orchestration, persistence, mapping and authorization.
+- **More efficient DTO queries:** repository fetch strategies and Hibernate batch fetching reduce N+1 queries when related entities are converted into API responses.
+- **Database-level visibility filtering:** team and Pokémon-team queries now return public resources and only the authenticated trainer's hidden resources, avoiding unnecessary in-memory filtering while preserving ownership and authorization rules.
+- **Fewer redundant database reads:** direct repository lookups replace existence checks followed by a second read, and `existsBy...` queries validate duplicate trainer fields without loading complete entities.
+- **Clearer application configuration:** production and test settings were separated, JWT configuration is bound through the type-safe `JwtProperties` record, and MapStruct uses constructor injection. Null-safety diagnostics were also resolved without changing runtime behaviour.
+
+### Fixed (Bug Fixes)
+
+- Unknown API routes now return a structured `404 Not Found` response instead of being handled as unexpected server errors.
+- Pokémon updates preserve the identifier of the persisted entity, preventing a request DTO identifier, including a null value, from overwriting it.
+
 # Changelog (Spanish)
 
 ## [0.9] - 2026-07-30
@@ -57,3 +78,24 @@ Primera versión funcional de TrainerForge, centrada en el backend y en su API R
 - Se sincronizaron las secuencias de identificadores después de cargar datos iniciales para evitar colisiones al crear nuevos registros.
 - Se corrigió la altura registrada de Meowscarada y se ajustaron consultas para no perder especies que no tienen un segundo tipo o habilidades opcionales.
 - Se normalizaron nombres de tablas, valores y textos heredados para mantener un catálogo coherente entre la base de datos y la API.
+
+## [0.9.5] - 2026-08-20
+
+Versión de estabilización del backend como preparación para el desarrollo del frontend. Amplía la cobertura automatizada, facilita el mantenimiento de las validaciones, reduce trabajo evitable en la base de datos y corrige errores de la API sin cambiar los contratos públicos existentes.
+
+### Added (Novedades)
+
+- **Suite de regresión con JUnit 5:** pruebas unitarias completas para la capa de validadores dedicada, junto con pruebas de integración sobre PostgreSQL mediante Testcontainers para el arranque de la aplicación, las respuestas de error, la visibilidad de los equipos, la unicidad de los entrenadores, el rendimiento de las consultas de DTO y las actualizaciones de Pokémon. Esto proporciona una cobertura repetible para las áreas del backend más expuestas a regresiones.
+
+### Changed (Mejoras)
+
+- **Arquitectura de validación más mantenible:** las reglas de validación se extrajeron de los servicios a validadores específicos, mientras que los rangos, límites de tamaño y entradas aceptadas compartidos se centralizaron en `ValidationLimits`. De este modo, los servicios pueden centrarse en la orquestación, persistencia, mapeo y autorización.
+- **Consultas de DTO más eficientes:** las estrategias de carga de los repositorios y la carga por lotes de Hibernate reducen las consultas N+1 al convertir entidades relacionadas en respuestas de la API.
+- **Filtrado de visibilidad en la base de datos:** las consultas de equipos y asociaciones entre Pokémon y equipos devuelven ahora los recursos públicos y solo los recursos ocultos del entrenador autenticado, evitando filtros innecesarios en memoria y conservando las reglas de propiedad y autorización.
+- **Menos lecturas redundantes de la base de datos:** las consultas directas al repositorio sustituyen a las comprobaciones de existencia seguidas de una segunda lectura, y las consultas `existsBy...` validan los campos duplicados de los entrenadores sin cargar entidades completas.
+- **Configuración de la aplicación más clara:** se separaron los ajustes de producción y pruebas, la configuración JWT se enlaza mediante el record tipado `JwtProperties` y MapStruct utiliza inyección por constructor. También se resolvieron los diagnósticos de seguridad frente a valores nulos sin cambiar el comportamiento en ejecución.
+
+### Fixed (Correcciones)
+
+- Las rutas desconocidas de la API devuelven ahora una respuesta estructurada `404 Not Found` en lugar de tratarse como errores inesperados del servidor.
+- Las actualizaciones de Pokémon conservan el identificador de la entidad persistida, lo que impide que el identificador del DTO de la petición, incluido un valor nulo, lo sobrescriba.
