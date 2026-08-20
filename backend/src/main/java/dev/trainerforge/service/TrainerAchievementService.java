@@ -7,13 +7,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import dev.trainerforge.dto.response.TrainerAchievementDto;
-import dev.trainerforge.exception.notfound.AchievementNotFoundException;
-import dev.trainerforge.exception.InvalidFilterValueException;
 import dev.trainerforge.exception.notfound.TrainerAchievementNotFoundException;
-import dev.trainerforge.exception.notfound.TrainerNotFoundException;
+import dev.trainerforge.model.entities.Achievement;
 import dev.trainerforge.model.entities.Trainer;
 import dev.trainerforge.model.entities.TrainerAchievement;
 import dev.trainerforge.repository.TrainerAchievementRepository;
+import dev.trainerforge.validator.TrainerAchievementValidator;
 
 @Transactional(readOnly = true)
 @Service
@@ -43,25 +42,17 @@ public class TrainerAchievementService {
     public TrainerAchievement unlockAchievement(TrainerAchievementDto dto) {
         Trainer trainer = trainerService.findByUsername(dto.trainerUsername());
 
-        final Long achievementId;
-        try {
-            achievementId = Long.valueOf(dto.achievement());
-        } catch (NumberFormatException ex) {
-            throw new InvalidFilterValueException("Achievement id must be a number.");
-        }
+        Long achievementId = TrainerAchievementValidator.parseAchievementId(dto.achievement());
+        Achievement achievement = achievementService.findById(achievementId);
 
-        if (!achievementService.existsById(achievementId)) {
-            throw new AchievementNotFoundException(achievementId);
-        }
-
-        if (trainerAchievementRepo.existsByTrainerIdAndAchievementId(trainer.getId(), achievementId)) {
-            throw new InvalidFilterValueException(
-                "Trainer with id: " + trainer.getId() + " has already unlocked achievement with id: " + achievementId + ".");
-        }
+        TrainerAchievementValidator.validateNotAlreadyUnlocked(
+            trainerAchievementRepo.existsByTrainerIdAndAchievementId(trainer.getId(), achievementId),
+            trainer.getId(),
+            achievementId);
 
         TrainerAchievement trainerAchievement = new TrainerAchievement();
         trainerAchievement.setTrainer(trainer);
-        trainerAchievement.setAchievement(achievementService.findById(achievementId));
+        trainerAchievement.setAchievement(achievement);
         trainerAchievement.setDateObtained(dto.dateObtained() != null ? dto.dateObtained() : LocalDateTime.now());
 
         return trainerAchievementRepo.save(trainerAchievement);
@@ -85,15 +76,10 @@ public class TrainerAchievementService {
      * @throws TrainerAchievementNotFoundException when the trainer exists but has no unlocked achievements.
      */
     public List<TrainerAchievement> findByTrainerId(Long trainerId) {
-        if (!trainerService.existsById(trainerId)) {
-            throw new TrainerNotFoundException(trainerId);
-        }
+        TrainerAchievementValidator.validateTrainerExists(trainerService.existsById(trainerId), trainerId);
 
         List<TrainerAchievement> result = trainerAchievementRepo.findByTrainerId(trainerId);
-
-        if (result.isEmpty()) {
-            throw new TrainerAchievementNotFoundException("No achievements found for trainer with id: " + trainerId + ".");
-        }
+        TrainerAchievementValidator.validateByTrainerResult(result, trainerId);
 
         return result;
     }
@@ -107,15 +93,11 @@ public class TrainerAchievementService {
      * @throws TrainerAchievementNotFoundException when the achievement exists but has no unlock records.
      */
     public List<TrainerAchievement> findByAchievementId(Long achievementId) {
-        if (!achievementService.existsById(achievementId)) {
-            throw new AchievementNotFoundException(achievementId);
-        }
+        TrainerAchievementValidator.validateAchievementExists(
+            achievementService.existsById(achievementId), achievementId);
 
         List<TrainerAchievement> result = trainerAchievementRepo.findByAchievementId(achievementId);
-
-        if (result.isEmpty()) {
-            throw new TrainerAchievementNotFoundException("No trainers found with achievement id: " + achievementId + ".");
-        }
+        TrainerAchievementValidator.validateByAchievementResult(result, achievementId);
 
         return result;
     }
@@ -129,15 +111,10 @@ public class TrainerAchievementService {
      * @throws TrainerAchievementNotFoundException when no unlock record matches the provided timestamp.
      */
     public List<TrainerAchievement> findByDateObtained(LocalDateTime dateObtained) {
-        if (dateObtained == null) {
-            throw new InvalidFilterValueException("Date obtained cannot be null.");
-        }
+        TrainerAchievementValidator.validateDate(dateObtained);
 
         List<TrainerAchievement> result = trainerAchievementRepo.findByDateObtained(dateObtained);
-
-        if (result.isEmpty()) {
-            throw new TrainerAchievementNotFoundException("No achievements found obtained on: " + dateObtained + ".");
-        }
+        TrainerAchievementValidator.validateByDateResult(result, dateObtained);
 
         return result;
     }
@@ -152,18 +129,10 @@ public class TrainerAchievementService {
      * @throws TrainerAchievementNotFoundException when no unlock record exists in the requested interval.
      */
     public List<TrainerAchievement> findByDateObtainedBetween(LocalDateTime startDate, LocalDateTime endDate) {
-        if (startDate == null || endDate == null) {
-            throw new InvalidFilterValueException("Start date and end date cannot be null.");
-        }
-        if (startDate.isAfter(endDate)) {
-            throw new InvalidFilterValueException("Start date cannot be after end date.");
-        }
+        TrainerAchievementValidator.validateDateBetween(startDate, endDate);
 
         List<TrainerAchievement> result = trainerAchievementRepo.findByDateObtainedBetween(startDate, endDate);
-
-        if (result.isEmpty()) {
-            throw new TrainerAchievementNotFoundException("No achievements found obtained between: " + startDate + " and " + endDate + ".");
-        }
+        TrainerAchievementValidator.validateByDateRangeResult(result, startDate, endDate);
 
         return result;
     }

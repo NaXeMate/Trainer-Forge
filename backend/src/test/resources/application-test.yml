@@ -1,0 +1,7 @@
+trainerforge:
+  jwt:
+    secret: "VHJhaW5lckZvcmdlLTAuOS41LXRlc3Qtb25seS1KV1Qta2V5"
+
+spring:
+  jpa:
+    show-sql: false

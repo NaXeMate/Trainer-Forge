@@ -1,3 +1,23 @@
 spring:
   application:
     name: trainerforge
+
+  jpa:
+    hibernate:
+      ddl-auto: validate                # schema is controlled by migrations, not hibernate
+    properties:
+      hibernate:
+        "[default_batch_fetch_size]": 25  # load lazy relations in batches to avoid N+1 queries
+
+  sql:
+    init:
+      mode: never                       # no data.sql, in order to avoid conflicts with flyway
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+trainerforge:
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration-ms: ${JWT_EXPIRATION_MS:86400000}

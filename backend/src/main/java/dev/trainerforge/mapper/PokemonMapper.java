@@ -1,6 +1,7 @@
 package dev.trainerforge.mapper;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
 
@@ -14,5 +15,6 @@ public interface PokemonMapper {
 
     PokemonDto toDto(Pokemon pokemon);
 
+    @Mapping(target = "id", ignore = true)
     void updateEntityFromDto(PokemonDto pokemonDto, @MappingTarget Pokemon pokemon);
 }

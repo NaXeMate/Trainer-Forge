@@ -44,7 +44,6 @@ public class Pokedex {
     @Column(name = "class", nullable = false)
     private PokemonClass pokemonClass;
 
-    // TODO: Consider changing this to a array or list of types.
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "type_1_id", nullable = false)
     private PokemonType type1;
@@ -53,7 +52,6 @@ public class Pokedex {
     @JoinColumn(name = "type_2_id")
     private PokemonType type2;
 
-    // TODO: Consider changing this to a array or list of abilities.
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "ability_1_id", nullable = false)
     private Ability ability1;
@@ -78,8 +76,6 @@ public class Pokedex {
     @Column (nullable = false, precision = 5, scale = 2)
     private BigDecimal height;
 
-    // TODO: Consider changing this to a array or list of base-stats.
-    // TODO: Consider changing the data type of these base stats to something more appropriate, such as short or byte (max: 255).
     @Column(name = "hp_base", nullable = false)
     private int hpBase;
 

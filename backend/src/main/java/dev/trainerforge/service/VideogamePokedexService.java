@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import dev.trainerforge.exception.notfound.VideogamePokedexNotFoundException;
 import dev.trainerforge.model.entities.VideogamePokedex;
 import dev.trainerforge.repository.VideogamePokedexRepository;
+import dev.trainerforge.validator.VideogamePokedexValidator;
 
 @Transactional
 @Service
@@ -40,15 +41,10 @@ public class VideogamePokedexService {
      * @throws VideogamePokedexNotFoundException when the species does not exist or has no associations.
      */
     public List<VideogamePokedex> findByPokedexId(Long pokedexId) {
-        if (!pokedexService.existsById(pokedexId)) {
-            throw new VideogamePokedexNotFoundException("No videogame-pokedex associations found for pokedex with id: " + pokedexId + ".");
-        }
+        VideogamePokedexValidator.validatePokedexExists(pokedexService.existsById(pokedexId), pokedexId);
 
         List<VideogamePokedex> result = videogamePokedexRepo.findByPokedexId(pokedexId);
-
-        if (result.isEmpty()) {
-            throw new VideogamePokedexNotFoundException("No videogame-pokedex associations found for pokedex with id: " + pokedexId + ".");
-        }
+        VideogamePokedexValidator.validateByPokedexResult(result, pokedexId);
 
         return result;
     }
@@ -61,15 +57,10 @@ public class VideogamePokedexService {
      * @throws VideogamePokedexNotFoundException when the videogame does not exist or has no associations.
      */
     public List<VideogamePokedex> findByVideogameId(Long videogameId) {
-        if (!videogameService.existsById(videogameId)) {
-            throw new VideogamePokedexNotFoundException("No videogame-pokedex associations found for videogame with id: " + videogameId + ".");
-        }
+        VideogamePokedexValidator.validateVideogameExists(videogameService.existsById(videogameId), videogameId);
 
         List<VideogamePokedex> result = videogamePokedexRepo.findByVideogameId(videogameId);
-
-        if (result.isEmpty()) {
-            throw new VideogamePokedexNotFoundException("No videogame-pokedex associations found for videogame with id: " + videogameId + ".");
-        }
+        VideogamePokedexValidator.validateByVideogameResult(result, videogameId);
 
         return result;
     }

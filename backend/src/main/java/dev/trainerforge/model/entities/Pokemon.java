@@ -45,7 +45,6 @@ public class Pokemon {
     @JoinColumn(name = "ability_id", nullable = false)
     private Ability ability;
 
-    // TODO: Consider changing this to an array or list of moves.
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "move_1_id", nullable = false)
     private Move move1;
@@ -70,8 +69,6 @@ public class Pokemon {
     @JoinColumn(name = "nature_id", nullable = false)
     private Nature nature;
 
-    // TODO: Consider changing this to an array or list of EVs.
-    // TODO: Consider changing the data type of these base stats to something more appropriate, such as short or byte (max: 32).
     @Column(name = "hp_ev", nullable = false)
     private int hpEv;
     

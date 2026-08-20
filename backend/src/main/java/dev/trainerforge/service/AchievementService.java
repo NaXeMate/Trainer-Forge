@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import dev.trainerforge.exception.notfound.AchievementNotFoundException;
 import dev.trainerforge.model.entities.Achievement;
 import dev.trainerforge.repository.AchievementRepository;
+import dev.trainerforge.validator.AchievementValidator;
 
 @Transactional(readOnly = true)
 @Service
@@ -41,11 +42,8 @@ public class AchievementService {
      */
     public List<Achievement> findVisibleAchievements() {
         List<Achievement> result = achievementRepo.findByHiddenFalse();
-        
-        if (result.isEmpty()) {
-            throw new AchievementNotFoundException("No visible achievements found.");
-        }
-        
+        AchievementValidator.validateVisibleResult(result);
+
         return result;
     }
 
