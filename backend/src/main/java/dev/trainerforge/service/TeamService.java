@@ -97,7 +97,7 @@ public class TeamService {
      * @throws AuthenticationCredentialsNotFoundException when no authenticated trainer is available.
      */
     public List<Team> findAll() {
-        return filterAccessibleTeams(teamRepo.findAll());
+        return teamRepo.findAllAccessibleTo(getCurrentUsername());
     }
 
     /**
@@ -110,14 +110,8 @@ public class TeamService {
      * @throws AuthenticationCredentialsNotFoundException when no authenticated trainer is available.
      */
     public Team findById(Long id) {
-        Team team = teamRepo.findById(id)
+        return teamRepo.findAccessibleById(id, getCurrentUsername())
                 .orElseThrow(() -> new TeamNotFoundException(id));
-
-        if (!isAccessibleTo(team, getCurrentUsername())) {
-            throw new TeamNotFoundException(id);
-        }
-
-        return team;
     }
 
     /**
@@ -149,7 +143,7 @@ public class TeamService {
         TeamValidator.validateTrainerId(trainerId);
         TeamValidator.validateTrainerExists(trainerService.existsById(trainerId), trainerId);
         
-        List<Team> result = filterAccessibleTeams(teamRepo.findByTrainerId(trainerId));
+        List<Team> result = teamRepo.findAccessibleByTrainerId(trainerId, getCurrentUsername());
         TeamValidator.validateByTrainerResult(result, trainerId);
 
         return result;
@@ -168,7 +162,7 @@ public class TeamService {
         TeamValidator.validateVideogameId(videogameId);
         TeamValidator.validateVideogameExists(videogameService.existsById(videogameId), videogameId);
         
-        List<Team> result = filterAccessibleTeams(teamRepo.findByVideogameId(videogameId));
+        List<Team> result = teamRepo.findAccessibleByVideogameId(videogameId, getCurrentUsername());
         TeamValidator.validateByVideogameResult(result, videogameId);
 
         return result;
@@ -186,7 +180,7 @@ public class TeamService {
     public List<Team> findByModality(TeamModality modality) {
         TeamValidator.validateModality(modality);
 
-        List<Team> result = filterAccessibleTeams(teamRepo.findByModality(modality));
+        List<Team> result = teamRepo.findAccessibleByModality(modality, getCurrentUsername());
         TeamValidator.validateByModalityResult(result, modality);
         return result;
     }
@@ -200,7 +194,7 @@ public class TeamService {
      * @throws AuthenticationCredentialsNotFoundException when no authenticated trainer is available.
      */
     public List<Team> findByIsHidden(boolean isHidden) {
-        List<Team> result = filterAccessibleTeams(teamRepo.findByIsHidden(isHidden));
+        List<Team> result = teamRepo.findAccessibleByIsHidden(isHidden, getCurrentUsername());
         TeamValidator.validateByVisibilityResult(result, isHidden);
 
         return result;
@@ -217,18 +211,6 @@ public class TeamService {
         return teamRepo.existsById(id);
     }
 
-    private List<Team> filterAccessibleTeams(List<Team> teams) {
-        String currentUsername = getCurrentUsername();
-
-        return teams.stream()
-                .filter(team -> isAccessibleTo(team, currentUsername))
-                .toList();
-    }
-
-    private boolean isAccessibleTo(Team team, String username) {
-        return !team.isHidden() || isOwnedBy(team, username);
-    }
-
     private boolean isOwnedBy(Team team, String username) {
         return team.getTrainer().getUsername().equals(username);
     }
@@ -239,7 +221,7 @@ public class TeamService {
      * @return the authenticated trainer username.
      * @throws AuthenticationCredentialsNotFoundException when the context has no usable authentication.
      */
-    private String getCurrentUsername() {
+    String getCurrentUsername() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return TeamValidator.getAuthenticatedUsername(authentication);
     }

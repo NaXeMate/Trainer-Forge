@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import dev.trainerforge.dto.response.TrainerAchievementDto;
 import dev.trainerforge.exception.notfound.TrainerAchievementNotFoundException;
+import dev.trainerforge.model.entities.Achievement;
 import dev.trainerforge.model.entities.Trainer;
 import dev.trainerforge.model.entities.TrainerAchievement;
 import dev.trainerforge.repository.TrainerAchievementRepository;
@@ -42,9 +43,7 @@ public class TrainerAchievementService {
         Trainer trainer = trainerService.findByUsername(dto.trainerUsername());
 
         Long achievementId = TrainerAchievementValidator.parseAchievementId(dto.achievement());
-
-        TrainerAchievementValidator.validateAchievementExists(
-            achievementService.existsById(achievementId), achievementId);
+        Achievement achievement = achievementService.findById(achievementId);
 
         TrainerAchievementValidator.validateNotAlreadyUnlocked(
             trainerAchievementRepo.existsByTrainerIdAndAchievementId(trainer.getId(), achievementId),
@@ -53,7 +52,7 @@ public class TrainerAchievementService {
 
         TrainerAchievement trainerAchievement = new TrainerAchievement();
         trainerAchievement.setTrainer(trainer);
-        trainerAchievement.setAchievement(achievementService.findById(achievementId));
+        trainerAchievement.setAchievement(achievement);
         trainerAchievement.setDateObtained(dto.dateObtained() != null ? dto.dateObtained() : LocalDateTime.now());
 
         return trainerAchievementRepo.save(trainerAchievement);

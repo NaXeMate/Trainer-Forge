@@ -2,6 +2,7 @@ package dev.trainerforge.service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +35,14 @@ public class PokedexService {
     public Pokedex findById(Long id) {
         return pokedexRepo.findById(id)
         .orElseThrow(() -> new PokedexNotFoundException(id));
+    }
+
+    /**
+     * Retrieves a species without imposing a caller-specific missing-resource exception.
+     * Package-private visibility keeps this variant inside the service layer.
+     */
+    Optional<Pokedex> findOptionalById(Long id) {
+        return pokedexRepo.findById(id);
     }
 
     /**

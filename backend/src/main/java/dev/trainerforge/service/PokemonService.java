@@ -1,6 +1,7 @@
 package dev.trainerforge.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,6 +10,7 @@ import dev.trainerforge.dto.response.PokemonDto;
 import dev.trainerforge.exception.notfound.PokemonNotFoundException;
 import dev.trainerforge.mapper.PokemonMapper;
 import dev.trainerforge.model.entities.Nature;
+import dev.trainerforge.model.entities.Pokedex;
 import dev.trainerforge.model.entities.Pokemon;
 import dev.trainerforge.model.enumerated.Gender;
 import dev.trainerforge.repository.PokemonRepository;
@@ -50,9 +52,10 @@ public class PokemonService {
      *
      * @param dto payload containing relation identifiers and names to resolve.
      * @param pokemon pokemon entity that receives resolved relation references.
+     * @param species species already resolved while validating the payload.
      */
-    private void updateRelationsFromDto(PokemonDto dto, Pokemon pokemon) {
-        pokemon.setSpecies(pokedexService.findById(dto.species()));
+    private void updateRelationsFromDto(PokemonDto dto, Pokemon pokemon, Pokedex species) {
+        pokemon.setSpecies(species);
         pokemon.setAbility(abilityService.findByName(dto.ability()));
         pokemon.setMove1(moveService.findByName(dto.move1()));
         pokemon.setNature(natureService.findByName(dto.nature()));
@@ -71,6 +74,12 @@ public class PokemonService {
         }
     }
 
+    private Pokedex validateAndResolveSpecies(PokemonDto dto) {
+        Optional<Pokedex> species = pokedexService.findOptionalById(dto.species());
+        PokemonValidator.validatePokemonFromDto(dto, species.isPresent());
+        return species.orElseThrow();
+    }
+
     /**
      * Creates a pokemon from DTO data, validating business rules and resolving entity relations.
      *
@@ -82,17 +91,15 @@ public class PokemonService {
      */
     @Transactional
     public Pokemon createPokemon(PokemonDto dto) {
-
-        PokemonValidator.validatePokemonFromDto(dto, pokedexService.existsById(dto.species()));
+        Pokedex species = validateAndResolveSpecies(dto);
 
         Pokemon newPokemon = new Pokemon();
         pokemonMapper.updateEntityFromDto(dto, newPokemon);
-        updateRelationsFromDto(dto, newPokemon);
+        updateRelationsFromDto(dto, newPokemon, species);
         
         // The Pokemon species name will be used as default "nickname" if it's not provided
         if (dto.nickname() == null || dto.nickname().isBlank()) {
-            String speciesName = pokedexService.findById(dto.species()).getName();
-            newPokemon.setNickname(speciesName);
+            newPokemon.setNickname(species.getName());
         }
 
         return pokemonRepo.save(newPokemon);
@@ -110,11 +117,10 @@ public class PokemonService {
     @Transactional
     public Pokemon updatePokemon(Long id, PokemonDto dto) {
         Pokemon pokemon = this.findById(id);
-
-        PokemonValidator.validatePokemonFromDto(dto, pokedexService.existsById(dto.species()));
+        Pokedex species = validateAndResolveSpecies(dto);
 
         pokemonMapper.updateEntityFromDto(dto, pokemon);
-        updateRelationsFromDto(dto, pokemon);
+        updateRelationsFromDto(dto, pokemon, species);
 
         return pokemonRepo.save(pokemon);
     }
