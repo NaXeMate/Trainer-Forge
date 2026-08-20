@@ -52,16 +52,16 @@ public class TrainerService {
     @Transactional
     public Trainer createTrainer(TrainerInputDto dto) {
         TrainerValidator.validateUsername(dto.username());
-        TrainerValidator.validateUsernameUniqueness(trainerRepo.findByUsername(dto.username()).isPresent());
+        TrainerValidator.validateUsernameUniqueness(trainerRepo.existsByUsername(dto.username()));
         TrainerValidator.validateEmail(dto.email());
-        TrainerValidator.validateEmailUniqueness(trainerRepo.findByEmail(dto.email()).isPresent());
+        TrainerValidator.validateEmailUniqueness(trainerRepo.existsByEmail(dto.email()));
         TrainerValidator.validateRealName(dto.realName());
         TrainerValidator.validatePassword(dto.password());
         
         String friendCode;
         do {
             friendCode = generateFriendCode();
-        } while (trainerRepo.findByFriendCode(friendCode).isPresent());
+        } while (trainerRepo.existsByFriendCode(friendCode));
         
         Trainer newTrainer = new Trainer();
         trainerMapper.updateEntityFromDto(dto, newTrainer);
@@ -89,10 +89,10 @@ public class TrainerService {
         TrainerValidator.validateRealName(dto.realName());
 
         if (!trainer.getUsername().equals(dto.username())) {
-            TrainerValidator.validateUsernameUniqueness(trainerRepo.findByUsername(dto.username()).isPresent());
+            TrainerValidator.validateUsernameUniqueness(trainerRepo.existsByUsername(dto.username()));
         }
         if (!trainer.getEmail().equals(dto.email())) {
-            TrainerValidator.validateEmailUniqueness(trainerRepo.findByEmail(dto.email()).isPresent());
+            TrainerValidator.validateEmailUniqueness(trainerRepo.existsByEmail(dto.email()));
         }
         
         trainerMapper.updateEntityFromDto(dto, trainer);
