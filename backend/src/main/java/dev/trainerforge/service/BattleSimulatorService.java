@@ -8,12 +8,13 @@ import java.util.Objects;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import dev.trainerforge.exception.InvalidFilterValueException;
 import dev.trainerforge.model.entities.Pokedex;
 import dev.trainerforge.model.entities.Pokemon;
 import dev.trainerforge.model.entities.PokemonType;
 import dev.trainerforge.model.entities.Team;
 import dev.trainerforge.repository.TypeEffectivenessRepository;
+import dev.trainerforge.validator.BattleSimulatorValidator;
+import dev.trainerforge.validator.ValidationLimits;
 
 @Transactional(readOnly = true)
 @Service
@@ -25,11 +26,8 @@ public class BattleSimulatorService {
     private static final double LEVEL_WEIGHT      = 0.6;
     private static final double BASE_STATS_WEIGHT = 0.4;
     private static final double EV_BONUS_MAX      = 0.2;
-    private static final int    STAT_EV_MAX       = 32; // Pokemon Champions EV system
     private static final int    EV_STATS_COUNT    = 6;
     private static final double DRAW_EPSILON      = 0.01;
-    private static final int    TEAM_MAX_SIZE     = 6;
-    private static final int    TEAM_MIN_SIZE     = 1;
     private static final double TYPE_ADVANTAGE_BONUS = 0.2;
 
     public BattleSimulatorService(TeamService teamService, TypeEffectivenessRepository typeEffectivenessRepo) {
@@ -50,8 +48,8 @@ public class BattleSimulatorService {
      * @throws InvalidFilterValueException when a team identifier is null or team structures are incompatible for simulation.
      */
     public String simulateBattle(Long teamId1, Long teamId2) {
-        validateTeamId(teamId1, "team one");
-        validateTeamId(teamId2, "team two");
+        BattleSimulatorValidator.validateTeamId(teamId1, "team one");
+        BattleSimulatorValidator.validateTeamId(teamId2, "team two");
 
         Team teamOne = teamService.findById(teamId1);
         Team teamTwo = teamService.findById(teamId2);
@@ -59,7 +57,7 @@ public class BattleSimulatorService {
         List<Pokemon> teamOnePokemons = extractTeamPokemons(teamOne);
         List<Pokemon> teamTwoPokemons = extractTeamPokemons(teamTwo);
 
-        validateTeamStructure(teamOnePokemons, teamTwoPokemons);
+        BattleSimulatorValidator.validateTeamStructure(teamOnePokemons, teamTwoPokemons);
 
         int teamSize = teamOnePokemons.size();
         String battleMode = teamSize + " vs. " + teamSize;
@@ -143,7 +141,8 @@ public class BattleSimulatorService {
 
     private double calculateEvFactor(Pokemon pokemon) {
         int totalEVs = calculateTotalEVs(pokemon);
-        double evRatio = totalEVs / (double) (STAT_EV_MAX * EV_STATS_COUNT);
+        double evRatio = totalEVs
+            / (double) (ValidationLimits.IntegerRange.EV.max() * EV_STATS_COUNT);
 
         return 1.0 + (EV_BONUS_MAX * evRatio);
     }
@@ -281,47 +280,6 @@ public class BattleSimulatorService {
             .map(slot -> slot.getPokemon())
             .toList();
     }
-
-    /**
-     * Validates team size bounds and enforces equal roster sizes for both sides.
-     *
-     * @param teamOne pokemon list for the first side.
-     * @param teamTwo pokemon list for the second side.
-     * @throws InvalidFilterValueException when either team is out of bounds or both team sizes differ.
-     */
-    private void validateTeamStructure(List<Pokemon> teamOne, List<Pokemon> teamTwo) {
-        validateTeamSize(teamOne, "Team one");
-        validateTeamSize(teamTwo, "Team two");
-
-        int sizeOne = teamOne.size();
-        int sizeTwo = teamTwo.size();
-
-        if (sizeOne != sizeTwo) {
-            throw new InvalidFilterValueException(
-                "Both teams must have the same number of Pokemon to simulate a battle."
-            );
-        }
-    }
-
-    private void validateTeamSize(List<Pokemon> team, String label) {
-        int teamSize = team.size();
-
-        if (teamSize < TEAM_MIN_SIZE || teamSize > TEAM_MAX_SIZE) {
-            throw new InvalidFilterValueException(
-                label + " must have between " + TEAM_MIN_SIZE + " and " + TEAM_MAX_SIZE + " Pokemon."
-            );
-        }
-    }
-
-    // BASIC VALIDATION
-
-    private void validateTeamId(Long id, String label) {
-        if (id == null) {
-            throw new InvalidFilterValueException("Invalid team ID for " + label + ".");
-        }
-    }
-
-    // UTILITIES
 
     private double roundTwo(double value) {
         return Math.round(value * 100.0) / 100.0;

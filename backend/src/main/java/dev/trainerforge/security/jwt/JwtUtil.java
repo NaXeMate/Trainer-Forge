@@ -3,7 +3,6 @@ package dev.trainerforge.security.jwt;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -16,10 +15,9 @@ public class JwtUtil {
     private final SecretKey key;
     private final long expirationMs;
 
-    public JwtUtil(@Value("${JWT_SECRET}") String secret,
-                   @Value("${JWT_EXPIRATION_MS:86400000}") long expirationMs) {
-        this.key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(secret));
-        this.expirationMs = expirationMs;
+    public JwtUtil(JwtProperties properties) {
+        this.key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(properties.secret()));
+        this.expirationMs = properties.expirationMs();
     }
 
     public String generate(String username) {

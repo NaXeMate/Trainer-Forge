@@ -9,6 +9,7 @@ import dev.trainerforge.exception.notfound.MovePokedexNotFoundException;
 import dev.trainerforge.model.entities.MovePokedex;
 import dev.trainerforge.model.enumerated.LearningMethod;
 import dev.trainerforge.repository.MovePokedexRepository;
+import dev.trainerforge.validator.MovePokedexValidator;
 
 @Transactional(readOnly = true)
 @Service
@@ -41,16 +42,11 @@ public class MovePokedexService {
      * @throws MovePokedexNotFoundException when the move does not exist or has no learning entries.
      */
     public List<MovePokedex> findByMoveId(Long moveId) {
-        if (!moveService.existsById(moveId)) {
-            throw new MovePokedexNotFoundException("MovePokedex entry not found with move id: " + moveId + ".");
-        }
-        
-        List<MovePokedex> result = movePokedexRepo.findByMoveId(moveId);
+        MovePokedexValidator.validateMoveExists(moveService.existsById(moveId), moveId);
 
-        if (result.isEmpty()) {
-            throw new MovePokedexNotFoundException("MovePokedex entry not found with move id: " + moveId + ".");
-        }
-        
+        List<MovePokedex> result = movePokedexRepo.findByMoveId(moveId);
+        MovePokedexValidator.validateByMoveResult(result, moveId);
+
         return result;
     }
 
@@ -62,16 +58,11 @@ public class MovePokedexService {
      * @throws MovePokedexNotFoundException when the species does not exist or has no learning entries.
      */
     public List<MovePokedex> findByPokedexId(Long pokedexId) {
-        if (!pokedexService.existsById(pokedexId)) {
-            throw new MovePokedexNotFoundException("MovePokedex entry not found with pokedex id: " + pokedexId + ".");
-        }
-        
-        List<MovePokedex> result = movePokedexRepo.findByPokedexId(pokedexId);
+        MovePokedexValidator.validatePokedexExists(pokedexService.existsById(pokedexId), pokedexId);
 
-        if (result.isEmpty()) {
-            throw new MovePokedexNotFoundException("MovePokedex entry not found with pokedex id: " + pokedexId + ".");
-        }
-        
+        List<MovePokedex> result = movePokedexRepo.findByPokedexId(pokedexId);
+        MovePokedexValidator.validateByPokedexResult(result, pokedexId);
+
         return result;
     }
 
@@ -84,11 +75,8 @@ public class MovePokedexService {
      */
     public List<MovePokedex> findByLearningMethod(LearningMethod learningMethod) {
         List<MovePokedex> result = movePokedexRepo.findByLearningMethod(learningMethod);
+        MovePokedexValidator.validateByLearningMethodResult(result, learningMethod);
 
-        if (result.isEmpty()) {
-            throw new MovePokedexNotFoundException("MovePokedex entry not found with learning method: " + learningMethod + ".");
-        }
-        
         return result;
     }
 }

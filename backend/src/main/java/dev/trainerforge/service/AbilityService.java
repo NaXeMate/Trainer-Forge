@@ -8,14 +8,13 @@ import org.springframework.transaction.annotation.Transactional;
 import dev.trainerforge.exception.notfound.AbilityNotFoundException;
 import dev.trainerforge.model.entities.Ability;
 import dev.trainerforge.repository.AbilityRepository;
+import dev.trainerforge.validator.AbilityValidator;
 
 @Transactional(readOnly = true)
 @Service
 public class AbilityService {
 
     private final AbilityRepository abilityRepo;
-
-    private static final Long GENERATION_MAX_ID = 10L;
 
     public AbilityService(AbilityRepository abilityRepo) {
         this.abilityRepo = abilityRepo;
@@ -44,16 +43,11 @@ public class AbilityService {
      * @throws AbilityNotFoundException when no abilities exist for the provided generation.
      */
     public List<Ability> findByGenerationId(Long generationId) {
-        if (generationId < 1 || generationId > GENERATION_MAX_ID) {
-            throw new IllegalArgumentException("Generation ID must be between 1 and " + GENERATION_MAX_ID + ".");
-        }
+        AbilityValidator.validateGenerationId(generationId);
 
         List<Ability> result = abilityRepo.findByGenerationId(generationId);
-        
-        if (result.isEmpty()) {
-            throw new AbilityNotFoundException("No abilities found for Generation ID: " + generationId + ".");
-        }
-        
+        AbilityValidator.validateByGenerationResult(result, generationId);
+
         return result;
     }
 }

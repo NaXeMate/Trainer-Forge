@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import dev.trainerforge.exception.notfound.GenerationNotFoundException;
 import dev.trainerforge.model.entities.Generation;
 import dev.trainerforge.repository.GenerationRepository;
+import dev.trainerforge.validator.GenerationValidator;
 
 @Service
 @Transactional(readOnly = true)
@@ -36,20 +37,8 @@ public class GenerationService {
      * @throws GenerationNotFoundException when the numeric index is unsupported or no matching generation exists in storage.
      */
     public Generation findByName(int number) {
-        String generation = switch (number) {
-            case 1 -> "Generation I";
-            case 2 -> "Generation II";
-            case 3 -> "Generation III";
-            case 4 -> "Generation IV";
-            case 5 -> "Generation V";
-            case 6 -> "Generation VI";
-            case 7 -> "Generation VII";
-            case 8 -> "Generation VIII";
-            case 9 -> "Generation IX";
-            case 10 -> "Generation X";
-            default -> throw new GenerationNotFoundException("Generation not found with number: " + number + ".");
-        };
-        
+        String generation = GenerationValidator.resolveGenerationName(number);
+
         return generationRepo.findByName(generation)
         .orElseThrow(() -> new GenerationNotFoundException("Generation not found with name: " + generation + "."));
     }

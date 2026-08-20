@@ -9,6 +9,7 @@ import dev.trainerforge.exception.notfound.NatureNotFoundException;
 import dev.trainerforge.model.entities.Nature;
 import dev.trainerforge.model.enumerated.NatureRiseLower;
 import dev.trainerforge.repository.NatureRepository;
+import dev.trainerforge.validator.NatureValidator;
 
 @Transactional(readOnly = true)
 @Service
@@ -43,10 +44,7 @@ public class NatureService {
      */
     public List<Nature> findByRise(NatureRiseLower rise) {
         List<Nature> result = natureRepo.findByRise(rise);
-
-        if (result.isEmpty()) {
-            throw new NatureNotFoundException("No natures found with rise: " + rise + ".");
-        }
+        NatureValidator.validateByRiseResult(result, rise);
 
         return result;
     }
@@ -60,10 +58,7 @@ public class NatureService {
      */
     public List<Nature> findByLower(NatureRiseLower lower) {
         List<Nature> result = natureRepo.findByLower(lower);
-
-        if (result.isEmpty()) {
-            throw new NatureNotFoundException("No natures found with lower: " + lower + ".");
-        }
+        NatureValidator.validateByLowerResult(result, lower);
 
         return result;
     }

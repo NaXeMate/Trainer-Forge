@@ -1,18 +1,20 @@
 package dev.trainerforge.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import dev.trainerforge.dto.response.PokemonDto;
-import dev.trainerforge.exception.InvalidFilterValueException;
 import dev.trainerforge.exception.notfound.PokemonNotFoundException;
 import dev.trainerforge.mapper.PokemonMapper;
 import dev.trainerforge.model.entities.Nature;
+import dev.trainerforge.model.entities.Pokedex;
 import dev.trainerforge.model.entities.Pokemon;
 import dev.trainerforge.model.enumerated.Gender;
 import dev.trainerforge.repository.PokemonRepository;
+import dev.trainerforge.validator.PokemonValidator;
 
 @Transactional(readOnly = true)
 @Service
@@ -26,110 +28,6 @@ public class PokemonService {
     private final PokemonItemService pokemonItemService;
 
     private final PokemonMapper pokemonMapper;
-
-    private static final int LEVEL_MIN = 1;
-    private static final int LEVEL_MAX = 100;
-
-    private static final int EV_MIN = 0;
-    private static final int EV_MAX = 32; // This uses the new Pokemon Champions system for EVs.
-
-    private void validateEvRange(int value, String statName) {
-        if (value < EV_MIN || value > EV_MAX) {
-            throw new InvalidFilterValueException(statName + " EVs must be between " + EV_MIN + " and " + EV_MAX + ".");
-        }
-    }
-
-    private void validateEvRangeBetween(int minValue, int maxValue, String statName) {
-        if (minValue < EV_MIN) {
-            throw new InvalidFilterValueException("Minimum " + statName + " EVs cannot be less than " + EV_MIN + ".");
-        }
-
-        if (maxValue > EV_MAX) {
-            throw new InvalidFilterValueException("Maximum " + statName + " EVs cannot be greater than " + EV_MAX + ".");
-        }
-
-        if (minValue > maxValue) {
-            throw new InvalidFilterValueException("Minimum " + statName + " EVs (" + minValue + ") cannot be greater than maximum " + statName + " EVs (" + maxValue + ").");
-        }
-    }
-
-    private void validateSpecies(Long speciesId) {
-        if (!pokedexService.existsById(speciesId)) {
-            throw new InvalidFilterValueException("No Pokemon found with species id: " + speciesId + ".");
-        }
-    }
-
-    private void validateLocationFound(String locationFound) {
-        if (locationFound == null || locationFound.isBlank()) {
-            throw new InvalidFilterValueException("The location found cannot be empty.");
-        }
-    }
-
-    private void validateLevel(int level) {
-        if (level < LEVEL_MIN || level > LEVEL_MAX) {
-            throw new InvalidFilterValueException("Levels must be between " + LEVEL_MIN + " and " + LEVEL_MAX + ".");
-        }
-    }
-
-    private void validateAbility(String ability) {
-        if (ability == null || ability.isBlank()) {
-            throw new InvalidFilterValueException("The ability cannot be empty.");
-        }
-    }
-
-    private void validateMove(String move) {
-        if (move == null || move.isBlank()) {
-            throw new InvalidFilterValueException("The move cannot be empty.");
-        }
-    }
-
-    private void validateEquippedItem(String equippedItem) {
-        if (equippedItem == null || equippedItem.isBlank()) {
-            throw new InvalidFilterValueException("The equipped item cannot be empty.");
-        }
-    }
-
-    private void validateNature(String nature) {
-        if (nature == null || nature.isBlank()) {
-            throw new InvalidFilterValueException("The nature cannot be empty.");
-        }
-    }
-
-    private void validatePokemonFromDto(PokemonDto dto) {
-        validateSpecies(dto.species());
-        validateLocationFound(dto.locationFound());
-        validateLevel(dto.level());
-        validateAbility(dto.ability());
-        validateMove(dto.move1());
-
-        if (dto.move2() != null && !dto.move2().isBlank()) {
-            validateMove(dto.move2());
-        }
-        if (dto.move3() != null && !dto.move3().isBlank()) {
-            validateMove(dto.move3());
-        }
-        if (dto.move4() != null && !dto.move4().isBlank()) {
-            validateMove(dto.move4());
-        }
-        if (dto.equippedItem() != null && !dto.equippedItem().isBlank()) {
-            validateEquippedItem(dto.equippedItem());
-        }
-
-        validateNature(dto.nature());
-        validateEvRange(dto.hpEv(), "HP");
-        validateEvRange(dto.attackEv(), "Attack");
-        validateEvRange(dto.defenseEv(), "Defense");
-        validateEvRange(dto.specialAttackEv(), "Special Attack");
-        validateEvRange(dto.specialDefenseEv(), "Special Defense");
-        validateEvRange(dto.speedEv(), "Speed");
-
-        java.util.List<String> moves = java.util.stream.Stream.of(dto.move1(), dto.move2(), dto.move3(), dto.move4())
-            .filter(m -> m != null && !m.isBlank())
-            .toList();
-        if (moves.size() != new java.util.HashSet<>(moves).size()) {
-            throw new InvalidFilterValueException("All moves must be different from each other.");
-        }
-    }
 
     public PokemonService(
         PokemonRepository pokemonRepo,
@@ -154,9 +52,10 @@ public class PokemonService {
      *
      * @param dto payload containing relation identifiers and names to resolve.
      * @param pokemon pokemon entity that receives resolved relation references.
+     * @param species species already resolved while validating the payload.
      */
-    private void updateRelationsFromDto(PokemonDto dto, Pokemon pokemon) {
-        pokemon.setSpecies(pokedexService.findById(dto.species()));
+    private void updateRelationsFromDto(PokemonDto dto, Pokemon pokemon, Pokedex species) {
+        pokemon.setSpecies(species);
         pokemon.setAbility(abilityService.findByName(dto.ability()));
         pokemon.setMove1(moveService.findByName(dto.move1()));
         pokemon.setNature(natureService.findByName(dto.nature()));
@@ -175,6 +74,12 @@ public class PokemonService {
         }
     }
 
+    private Pokedex validateAndResolveSpecies(PokemonDto dto) {
+        Optional<Pokedex> species = pokedexService.findOptionalById(dto.species());
+        PokemonValidator.validatePokemonFromDto(dto, species.isPresent());
+        return species.orElseThrow();
+    }
+
     /**
      * Creates a pokemon from DTO data, validating business rules and resolving entity relations.
      *
@@ -186,17 +91,15 @@ public class PokemonService {
      */
     @Transactional
     public Pokemon createPokemon(PokemonDto dto) {
-
-        validatePokemonFromDto(dto);
+        Pokedex species = validateAndResolveSpecies(dto);
 
         Pokemon newPokemon = new Pokemon();
         pokemonMapper.updateEntityFromDto(dto, newPokemon);
-        updateRelationsFromDto(dto, newPokemon);
+        updateRelationsFromDto(dto, newPokemon, species);
         
         // The Pokemon species name will be used as default "nickname" if it's not provided
         if (dto.nickname() == null || dto.nickname().isBlank()) {
-            String speciesName = pokedexService.findById(dto.species()).getName();
-            newPokemon.setNickname(speciesName);
+            newPokemon.setNickname(species.getName());
         }
 
         return pokemonRepo.save(newPokemon);
@@ -214,11 +117,10 @@ public class PokemonService {
     @Transactional
     public Pokemon updatePokemon(Long id, PokemonDto dto) {
         Pokemon pokemon = this.findById(id);
-
-        validatePokemonFromDto(dto);
+        Pokedex species = validateAndResolveSpecies(dto);
 
         pokemonMapper.updateEntityFromDto(dto, pokemon);
-        updateRelationsFromDto(dto, pokemon);
+        updateRelationsFromDto(dto, pokemon, species);
 
         return pokemonRepo.save(pokemon);
     }
@@ -240,7 +142,7 @@ public class PokemonService {
     }
 
     public List<Pokemon> findBySpeciesId(Long speciesId) {
-        validateSpecies(speciesId);
+        PokemonValidator.validateSpecies(pokedexService.existsById(speciesId), speciesId);
         return pokemonRepo.findBySpeciesId(speciesId);
     }
 
@@ -253,16 +155,11 @@ public class PokemonService {
      * @throws PokemonNotFoundException when no pokemon match the provided nickname.
      */
     public List<Pokemon> findByNickname(String nickname) {
-        if (nickname == null || nickname.isBlank()) {
-            throw new InvalidFilterValueException("The nickname cannot be empty.");
-        }
-        
-        List<Pokemon> result = pokemonRepo.findByNickname(nickname);
+        PokemonValidator.validateNickname(nickname);
 
-        if (result.isEmpty()) {
-            throw new PokemonNotFoundException("No Pokemon/s found with nickname: " + nickname + ".");
-        }
-        
+        List<Pokemon> result = pokemonRepo.findByNickname(nickname);
+        PokemonValidator.validateByNicknameResult(result, nickname);
+
         return result;
     }
 
@@ -275,21 +172,16 @@ public class PokemonService {
      * @throws PokemonNotFoundException when no pokemon are registered at the provided location.
      */
     public List<Pokemon> findByLocationFound(String locationFound) {
-        if (locationFound == null || locationFound.isBlank()) {
-            throw new InvalidFilterValueException("The location found cannot be empty.");
-        }
+        PokemonValidator.validateLocationFound(locationFound);
 
         List<Pokemon> result = pokemonRepo.findByLocationFound(locationFound);
+        PokemonValidator.validateByLocationResult(result, locationFound);
 
-        if (result.isEmpty()) {
-            throw new PokemonNotFoundException("No Pokemon/s found captured at location " + locationFound + " were found.");
-        }
-        
         return result;
     }
 
     public List<Pokemon> findByLevel(int level) {
-        validateLevel(level);
+        PokemonValidator.validateLevel(level);
 
         return pokemonRepo.findByLevel(level);
     }
@@ -305,14 +197,9 @@ public class PokemonService {
      * @throws InvalidFilterValueException when a bound is outside allowed levels or interval order is invalid.
      */
     public List<Pokemon> findByLevelBetween(int minLevel, int maxLevel) {
-        validateLevel(minLevel);
-        validateLevel(maxLevel);
-
-        if (minLevel > maxLevel) {
-            throw new InvalidFilterValueException("Minimum level (" + minLevel + ") cannot be greater than maximum level (" + maxLevel + ").");
-        }
+        PokemonValidator.validateLevelBetween(minLevel, maxLevel);
         
-        if (minLevel == maxLevel) {
+        if (PokemonValidator.isExactRange(minLevel, maxLevel)) {
             return findByLevel(minLevel);
         }
 
@@ -321,232 +208,177 @@ public class PokemonService {
 
     public List<Pokemon> findByShiny(boolean shiny) {
         List<Pokemon> result = pokemonRepo.findByShiny(shiny);
+        PokemonValidator.validateByShinyResult(result);
 
-        if (result.isEmpty()) {
-            throw new PokemonNotFoundException("No shiny Pokemon were found.");
-        }
-        
         return result;
     }
 
 
     public List<Pokemon> findByGender(Gender gender) {
-        if (gender == null) {
-            throw new InvalidFilterValueException("The gender filter cannot be null.");
-        }
+        PokemonValidator.validateGender(gender);
 
         List<Pokemon> result = pokemonRepo.findByGender(gender);
-
-        if (result.isEmpty()) {
-            throw new PokemonNotFoundException("No Pokemon found with gender: " + gender + ".");
-        }
+        PokemonValidator.validateByGenderResult(result, gender);
 
         return result;
     }
 
     public List<Pokemon> findByAbilityId(Long abilityId) {
         List<Pokemon> result = pokemonRepo.findByAbilityId(abilityId);
+        PokemonValidator.validateByAbilityResult(result, abilityId);
 
-        if (result.isEmpty()) {
-            throw new PokemonNotFoundException("No Pokemon found with ability id: " + abilityId + ".");
-        }
-        
         return result;
     }
 
     public List<Pokemon> findByMoveId(Long moveId) {
         List<Pokemon> result = pokemonRepo.findByMoveId(moveId);
+        PokemonValidator.validateByMoveResult(result, moveId);
 
-        if (result.isEmpty()) {
-            throw new PokemonNotFoundException("No Pokemon found with move id: " + moveId + ".");
-        }
-        
         return result;
     }
 
     public List<Pokemon> findByEquippedItemId(Long itemId) {
         List<Pokemon> result = pokemonRepo.findByEquippedItemId(itemId);
+        PokemonValidator.validateByEquippedItemResult(result, itemId);
 
-        if (result.isEmpty()) {
-            throw new PokemonNotFoundException("No Pokemon found with equipped item id: " + itemId + ".");
-        }
-        
         return result;
     }
 
     public List<Pokemon> findByNature(Nature nature) {
         List<Pokemon> result = pokemonRepo.findByNature(nature);
+        PokemonValidator.validateByNatureResult(result, nature);
 
-        if (result.isEmpty()) {
-            throw new PokemonNotFoundException("No Pokemon found with nature: " + nature + ".");
-        }
         return result;
     }
 
     public List<Pokemon> findByHpEv(int hpEv) {
-        validateEvRange(hpEv, "HP");
+        PokemonValidator.validateEvRange(hpEv, "HP");
 
         List<Pokemon> result = pokemonRepo.findByHpEv(hpEv);
-
-        if (result.isEmpty()) {
-            throw new PokemonNotFoundException("No Pokemon found with HP EVs: " + hpEv + ".");
-        }
+        PokemonValidator.validateByEvResult(result, "HP", hpEv);
 
         return result;
     }
 
     public List<Pokemon> findByHpEvBetween(int minHpEv, int maxHpEv) {
-        validateEvRangeBetween(minHpEv, maxHpEv, "HP");
+        PokemonValidator.validateEvRangeBetween(minHpEv, maxHpEv, "HP");
 
-        if (minHpEv == maxHpEv) {
+        if (PokemonValidator.isExactRange(minHpEv, maxHpEv)) {
             return findByHpEv(minHpEv);
         }
 
         List<Pokemon> result = pokemonRepo.findByHpEvBetween(minHpEv, maxHpEv);
-
-        if (result.isEmpty()) {
-            throw new PokemonNotFoundException("No Pokemon found with HP EVs between " + minHpEv + " and " + maxHpEv + ".");
-        }
+        PokemonValidator.validateByEvRangeResult(result, "HP", minHpEv, maxHpEv);
 
         return result;
     }
 
     public List<Pokemon> findByAttackEv(int attackEv) {
-        validateEvRange(attackEv, "Attack");
+        PokemonValidator.validateEvRange(attackEv, "Attack");
 
         List<Pokemon> result = pokemonRepo.findByAttackEv(attackEv);
-
-        if (result.isEmpty()) {
-            throw new PokemonNotFoundException("No Pokemon found with Attack EVs: " + attackEv + ".");
-        }
+        PokemonValidator.validateByEvResult(result, "Attack", attackEv);
 
         return result;
     }
 
     public List<Pokemon> findByAttackEvBetween(int minAttackEv, int maxAttackEv) {
-        validateEvRangeBetween(minAttackEv, maxAttackEv, "Attack");
+        PokemonValidator.validateEvRangeBetween(minAttackEv, maxAttackEv, "Attack");
 
-        if (minAttackEv == maxAttackEv) {
+        if (PokemonValidator.isExactRange(minAttackEv, maxAttackEv)) {
             return findByAttackEv(minAttackEv);
         }
 
         List<Pokemon> result = pokemonRepo.findByAttackEvBetween(minAttackEv, maxAttackEv);
-
-        if (result.isEmpty()) {
-            throw new PokemonNotFoundException("No Pokemon found with Attack EVs between " + minAttackEv + " and " + maxAttackEv + ".");
-        }
+        PokemonValidator.validateByEvRangeResult(result, "Attack", minAttackEv, maxAttackEv);
 
         return result;
     }
 
     public List<Pokemon> findByDefenseEv(int defenseEv) {
-        validateEvRange(defenseEv, "Defense");
+        PokemonValidator.validateEvRange(defenseEv, "Defense");
 
         List<Pokemon> result = pokemonRepo.findByDefenseEv(defenseEv);
-
-        if (result.isEmpty()) {
-            throw new PokemonNotFoundException("No Pokemon found with Defense EVs: " + defenseEv + ".");
-        }
+        PokemonValidator.validateByEvResult(result, "Defense", defenseEv);
 
         return result;
     }
 
     public List<Pokemon> findByDefenseEvBetween(int minDefenseEv, int maxDefenseEv) {
-        validateEvRangeBetween(minDefenseEv, maxDefenseEv, "Defense");
+        PokemonValidator.validateEvRangeBetween(minDefenseEv, maxDefenseEv, "Defense");
 
-        if (minDefenseEv == maxDefenseEv) {
+        if (PokemonValidator.isExactRange(minDefenseEv, maxDefenseEv)) {
             return findByDefenseEv(minDefenseEv);
         }
 
         List<Pokemon> result = pokemonRepo.findByDefenseEvBetween(minDefenseEv, maxDefenseEv);
-
-        if (result.isEmpty()) {
-            throw new PokemonNotFoundException("No Pokemon found with Defense EVs between " + minDefenseEv + " and " + maxDefenseEv + ".");
-        }
+        PokemonValidator.validateByEvRangeResult(result, "Defense", minDefenseEv, maxDefenseEv);
 
         return result;
     }
 
     public List<Pokemon> findBySpecialAttackEv(int specialAttackEv) {
-        validateEvRange(specialAttackEv, "Special Attack");
+        PokemonValidator.validateEvRange(specialAttackEv, "Special Attack");
 
         List<Pokemon> result = pokemonRepo.findBySpecialAttackEv(specialAttackEv);
-
-        if (result.isEmpty()) {
-            throw new PokemonNotFoundException("No Pokemon found with Special Attack EVs: " + specialAttackEv + ".");
-        }
+        PokemonValidator.validateByEvResult(result, "Special Attack", specialAttackEv);
 
         return result;
     }
 
     public List<Pokemon> findBySpecialAttackEvBetween(int minSpecialAttackEv, int maxSpecialAttackEv) {
-        validateEvRangeBetween(minSpecialAttackEv, maxSpecialAttackEv, "Special Attack");
+        PokemonValidator.validateEvRangeBetween(minSpecialAttackEv, maxSpecialAttackEv, "Special Attack");
 
-        if (minSpecialAttackEv == maxSpecialAttackEv) {
+        if (PokemonValidator.isExactRange(minSpecialAttackEv, maxSpecialAttackEv)) {
             return findBySpecialAttackEv(minSpecialAttackEv);
         }
 
         List<Pokemon> result = pokemonRepo.findBySpecialAttackEvBetween(minSpecialAttackEv, maxSpecialAttackEv);
-
-        if (result.isEmpty()) {
-            throw new PokemonNotFoundException("No Pokemon found with Special Attack EVs between " + minSpecialAttackEv + " and " + maxSpecialAttackEv + ".");
-        }
+        PokemonValidator.validateByEvRangeResult(result, "Special Attack", minSpecialAttackEv, maxSpecialAttackEv);
 
         return result;
     }
 
     public List<Pokemon> findBySpecialDefenseEv(int specialDefenseEv) {
-        validateEvRange(specialDefenseEv, "Special Defense");
+        PokemonValidator.validateEvRange(specialDefenseEv, "Special Defense");
 
         List<Pokemon> result = pokemonRepo.findBySpecialDefenseEv(specialDefenseEv);
-
-        if (result.isEmpty()) {
-            throw new PokemonNotFoundException("No Pokemon found with Special Defense EVs: " + specialDefenseEv + ".");
-        }
+        PokemonValidator.validateByEvResult(result, "Special Defense", specialDefenseEv);
 
         return result;
     }
 
     public List<Pokemon> findBySpecialDefenseEvBetween(int minSpecialDefenseEv, int maxSpecialDefenseEv) {
-        validateEvRangeBetween(minSpecialDefenseEv, maxSpecialDefenseEv, "Special Defense");
+        PokemonValidator.validateEvRangeBetween(minSpecialDefenseEv, maxSpecialDefenseEv, "Special Defense");
 
-        if (minSpecialDefenseEv == maxSpecialDefenseEv) {
+        if (PokemonValidator.isExactRange(minSpecialDefenseEv, maxSpecialDefenseEv)) {
             return findBySpecialDefenseEv(minSpecialDefenseEv);
         }
 
         List<Pokemon> result = pokemonRepo.findBySpecialDefenseEvBetween(minSpecialDefenseEv, maxSpecialDefenseEv);
-
-        if (result.isEmpty()) {
-            throw new PokemonNotFoundException("No Pokemon found with Special Defense EVs between " + minSpecialDefenseEv + " and " + maxSpecialDefenseEv + ".");
-        }
+        PokemonValidator.validateByEvRangeResult(result, "Special Defense", minSpecialDefenseEv, maxSpecialDefenseEv);
 
         return result;
     }
 
     public List<Pokemon> findBySpeedEv(int speedEv) {
-        validateEvRange(speedEv, "Speed");
+        PokemonValidator.validateEvRange(speedEv, "Speed");
 
         List<Pokemon> result = pokemonRepo.findBySpeedEv(speedEv);
-
-        if (result.isEmpty()) {
-            throw new PokemonNotFoundException("No Pokemon found with Speed EVs: " + speedEv + ".");
-        }
+        PokemonValidator.validateByEvResult(result, "Speed", speedEv);
 
         return result;
     }
 
     public List<Pokemon> findBySpeedEvBetween(int minSpeedEv, int maxSpeedEv) {
-        validateEvRangeBetween(minSpeedEv, maxSpeedEv, "Speed");
+        PokemonValidator.validateEvRangeBetween(minSpeedEv, maxSpeedEv, "Speed");
 
-        if (minSpeedEv == maxSpeedEv) {
+        if (PokemonValidator.isExactRange(minSpeedEv, maxSpeedEv)) {
             return findBySpeedEv(minSpeedEv);
         }
 
         List<Pokemon> result = pokemonRepo.findBySpeedEvBetween(minSpeedEv, maxSpeedEv);
-
-        if (result.isEmpty()) {
-            throw new PokemonNotFoundException("No Pokemon found with Speed EVs between " + minSpeedEv + " and " + maxSpeedEv + ".");
-        }
+        PokemonValidator.validateByEvRangeResult(result, "Speed", minSpeedEv, maxSpeedEv);
 
         return result;
     }

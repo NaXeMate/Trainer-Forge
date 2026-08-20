@@ -111,7 +111,7 @@ Below is a table with the main technologies used to build this project:
 			<td>Frontend testing framework.</td>
 		</tr>
 		<tr>
-			<td>Thunder Client</td>
+			<td>Postman</td>
 			<td>REST API testing client.</td>
 		</tr>
 		<tr>
@@ -165,7 +165,7 @@ A continuación, se detalla el *roadmap* de actualizaciones previstas, junto a s
 * **1.0 (finales de agosto - principios de septiembre):** actualización que incorpora la interfaz gráfica (*frontend*).
 
 > [!NOTE]
-**Hay más funciones y versiones en camino.** Se comparte más información hacia el final del desarrollo de la 1.0.
+**Hay más funciones y versiones en camino.** Se compartirá más información hacia el final del desarrollo de la 1.0.
 
 ### Stack tecnológico
 
@@ -254,7 +254,7 @@ A continuación, se presenta una tabla con las principales tecnologías utilizad
 			<td>Framework de pruebas para frontend.</td>
 		</tr>
 		<tr>
-			<td>Thunder Client</td>
+			<td>Postman</td>
 			<td>Cliente para pruebas de APIs REST.</td>
 		</tr>
 		<tr>

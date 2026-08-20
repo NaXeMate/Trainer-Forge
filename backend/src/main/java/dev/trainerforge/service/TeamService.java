@@ -2,19 +2,18 @@ package dev.trainerforge.service;
 
 import java.util.List;
 
-import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import dev.trainerforge.dto.response.TeamDto;
-import dev.trainerforge.exception.InvalidFilterValueException;
 import dev.trainerforge.exception.notfound.TeamNotFoundException;
 import dev.trainerforge.mapper.TeamMapper;
 import dev.trainerforge.model.entities.Team;
 import dev.trainerforge.model.enumerated.TeamModality;
 import dev.trainerforge.repository.TeamRepository;
+import dev.trainerforge.validator.TeamValidator;
 
 @Transactional(readOnly = true)
 @Service
@@ -45,7 +44,7 @@ public class TeamService {
     @Transactional
     public Team createTeam(TeamDto dto) {
         String currentUsername = getCurrentUsername();
-        validateTrainerAssignment(dto, currentUsername);
+        TeamValidator.validateTrainerAssignment(dto, currentUsername);
 
         Team newTeam = new Team();
         teamMapper.updateEntityFromDto(dto, newTeam);
@@ -70,7 +69,7 @@ public class TeamService {
         Team team = this.findOwnedById(id);
         String currentUsername = getCurrentUsername();
 
-        validateTrainerAssignment(dto, currentUsername);
+        TeamValidator.validateTrainerAssignment(dto, currentUsername);
         teamMapper.updateEntityFromDto(dto, team);
 
         return teamRepo.save(team);
@@ -98,7 +97,7 @@ public class TeamService {
      * @throws AuthenticationCredentialsNotFoundException when no authenticated trainer is available.
      */
     public List<Team> findAll() {
-        return filterAccessibleTeams(teamRepo.findAll());
+        return teamRepo.findAllAccessibleTo(getCurrentUsername());
     }
 
     /**
@@ -111,14 +110,8 @@ public class TeamService {
      * @throws AuthenticationCredentialsNotFoundException when no authenticated trainer is available.
      */
     public Team findById(Long id) {
-        Team team = teamRepo.findById(id)
+        return teamRepo.findAccessibleById(id, getCurrentUsername())
                 .orElseThrow(() -> new TeamNotFoundException(id));
-
-        if (!isAccessibleTo(team, getCurrentUsername())) {
-            throw new TeamNotFoundException(id);
-        }
-
-        return team;
     }
 
     /**
@@ -133,7 +126,7 @@ public class TeamService {
      */
     public Team findOwnedById(Long id) {
         Team team = this.findById(id);
-        validateOwnership(team, getCurrentUsername());
+        TeamValidator.validateOwnership(isOwnedBy(team, getCurrentUsername()), team.getId());
         return team;
     }
 
@@ -147,20 +140,12 @@ public class TeamService {
      * @throws AuthenticationCredentialsNotFoundException when no authenticated trainer is available.
      */
     public List<Team> findByTrainerId(Long trainerId) {
-        if (trainerId == null) {
-            throw new InvalidFilterValueException("The trainer ID cannot be null.");
-        }
+        TeamValidator.validateTrainerId(trainerId);
+        TeamValidator.validateTrainerExists(trainerService.existsById(trainerId), trainerId);
+        
+        List<Team> result = teamRepo.findAccessibleByTrainerId(trainerId, getCurrentUsername());
+        TeamValidator.validateByTrainerResult(result, trainerId);
 
-        if (!trainerService.existsById(trainerId)) {
-            throw new InvalidFilterValueException("No trainer found with id: " + trainerId + ".");
-        }
-        
-        List<Team> result = filterAccessibleTeams(teamRepo.findByTrainerId(trainerId));
-        
-        if (result.isEmpty()) {
-            throw new TeamNotFoundException("No teams found for trainer with id: " + trainerId + ".");
-        }
-        
         return result;
     }
 
@@ -174,20 +159,12 @@ public class TeamService {
      * @throws AuthenticationCredentialsNotFoundException when no authenticated trainer is available.
      */
     public List<Team> findByVideogameId(Long videogameId) {
-        if (videogameId == null) {
-            throw new InvalidFilterValueException("The videogame ID cannot be null.");
-        }
+        TeamValidator.validateVideogameId(videogameId);
+        TeamValidator.validateVideogameExists(videogameService.existsById(videogameId), videogameId);
         
-        if (!videogameService.existsById(videogameId)) {
-            throw new InvalidFilterValueException("No videogame found with id: " + videogameId + ".");
-        }
-        
-        List<Team> result = filterAccessibleTeams(teamRepo.findByVideogameId(videogameId));
-        
-        if (result.isEmpty()) {
-            throw new TeamNotFoundException("No teams found for videogame with id: " + videogameId + ".");
-        }
-        
+        List<Team> result = teamRepo.findAccessibleByVideogameId(videogameId, getCurrentUsername());
+        TeamValidator.validateByVideogameResult(result, videogameId);
+
         return result;
     }
 
@@ -201,15 +178,10 @@ public class TeamService {
      * @throws AuthenticationCredentialsNotFoundException when no authenticated trainer is available.
      */
     public List<Team> findByModality(TeamModality modality) {
-        if (modality == null) {
-            throw new InvalidFilterValueException("The modality cannot be null.");
-        }
+        TeamValidator.validateModality(modality);
 
-        List<Team> result = filterAccessibleTeams(teamRepo.findByModality(modality));
-        
-        if (result.isEmpty()) {
-            throw new TeamNotFoundException("No teams found for modality: " + modality + ".");
-        }
+        List<Team> result = teamRepo.findAccessibleByModality(modality, getCurrentUsername());
+        TeamValidator.validateByModalityResult(result, modality);
         return result;
     }
 
@@ -222,13 +194,9 @@ public class TeamService {
      * @throws AuthenticationCredentialsNotFoundException when no authenticated trainer is available.
      */
     public List<Team> findByIsHidden(boolean isHidden) {
-        List<Team> result = filterAccessibleTeams(teamRepo.findByIsHidden(isHidden));
-        
-        if (result.isEmpty()) {
-            String visibility = isHidden ? "hidden" : "public";
-            throw new TeamNotFoundException("No " + visibility + " teams were found.");
-        }
-    
+        List<Team> result = teamRepo.findAccessibleByIsHidden(isHidden, getCurrentUsername());
+        TeamValidator.validateByVisibilityResult(result, isHidden);
+
         return result;
     }
 
@@ -243,46 +211,8 @@ public class TeamService {
         return teamRepo.existsById(id);
     }
 
-    private List<Team> filterAccessibleTeams(List<Team> teams) {
-        String currentUsername = getCurrentUsername();
-
-        return teams.stream()
-                .filter(team -> isAccessibleTo(team, currentUsername))
-                .toList();
-    }
-
-    private boolean isAccessibleTo(Team team, String username) {
-        return !team.isHidden() || isOwnedBy(team, username);
-    }
-
     private boolean isOwnedBy(Team team, String username) {
         return team.getTrainer().getUsername().equals(username);
-    }
-
-    /**
-     * Enforces ownership for mutating operations.
-     * A non-owned team is reported as not found so its ownership is not disclosed through the API.
-     *
-     * @param team team whose ownership must be checked.
-     * @param username authenticated trainer username.
-     */
-    private void validateOwnership(Team team, String username) {
-        if (!isOwnedBy(team, username)) {
-            throw new TeamNotFoundException(team.getId());
-        }
-    }
-
-    /**
-     * Prevents the shared response DTO from assigning a team to a trainer other than the authenticated user.
-     *
-     * @param dto payload whose trainer assignment must be checked.
-     * @param username authenticated trainer username.
-     * @throws InvalidFilterValueException when the payload names another trainer.
-     */
-    private void validateTrainerAssignment(TeamDto dto, String username) {
-        if (dto.trainerUsername() != null && !dto.trainerUsername().equals(username)) {
-            throw new InvalidFilterValueException("A team cannot be assigned to another trainer.");
-        }
     }
 
     /**
@@ -291,14 +221,8 @@ public class TeamService {
      * @return the authenticated trainer username.
      * @throws AuthenticationCredentialsNotFoundException when the context has no usable authentication.
      */
-    private String getCurrentUsername() {
+    String getCurrentUsername() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication == null || !authentication.isAuthenticated()
-                || authentication.getName() == null || authentication.getName().isBlank()) {
-            throw new AuthenticationCredentialsNotFoundException("Authentication is required.");
-        }
-
-        return authentication.getName();
+        return TeamValidator.getAuthenticatedUsername(authentication);
     }
 }
