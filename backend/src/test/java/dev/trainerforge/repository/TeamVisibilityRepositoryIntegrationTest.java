@@ -123,11 +123,11 @@ class TeamVisibilityRepositoryIntegrationTest {
     }
 
     private List<Long> teamIds(List<Team> teams) {
-        return teams.stream().map(Team::getId).sorted().toList();
+        return teams.stream().map(team -> team.getId()).sorted().toList();
     }
 
     private List<Long> associationIds(List<PokemonTeam> associations) {
-        return associations.stream().map(PokemonTeam::getId).sorted().toList();
+        return associations.stream().map(association -> association.getId()).sorted().toList();
     }
 
     private List<Long> associationTeamIds(List<PokemonTeam> associations) {

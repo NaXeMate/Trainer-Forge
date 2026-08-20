@@ -163,6 +163,16 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>default-compile</id>
+						<configuration>
+							<compilerArgs>
+								<arg>-Amapstruct.defaultInjectionStrategy=constructor</arg>
+							</compilerArgs>
+						</configuration>
+					</execution>
+				</executions>
 				<configuration>
 					<annotationProcessorPaths>
 						<path>
