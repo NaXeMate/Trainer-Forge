@@ -5,6 +5,9 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate                # schema is controlled by migrations, not hibernate
+    properties:
+      hibernate:
+        "[default_batch_fetch_size]": 25  # load lazy relations in batches to avoid N+1 queries
 
   sql:
     init:
