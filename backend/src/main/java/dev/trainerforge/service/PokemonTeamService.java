@@ -1,14 +1,13 @@
 package dev.trainerforge.service;
 
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import dev.trainerforge.dto.response.PokemonTeamDto;
 import dev.trainerforge.exception.notfound.PokemonTeamNotFoundException;
+import dev.trainerforge.model.entities.Pokemon;
 import dev.trainerforge.model.entities.PokemonTeam;
 import dev.trainerforge.model.entities.Team;
 import dev.trainerforge.repository.PokemonTeamRepository;
@@ -45,7 +44,7 @@ public class PokemonTeamService {
         Long pokemonId = identifiers[1];
 
         Team team = teamService.findOwnedById(teamId);
-        PokemonTeamValidator.validatePokemonExists(pokemonService.existsById(pokemonId), pokemonId);
+        Pokemon pokemon = pokemonService.findById(pokemonId);
 
         PokemonTeamValidator.validatePosition(dto.position());
 
@@ -57,7 +56,7 @@ public class PokemonTeamService {
 
         PokemonTeam newAssociation = new PokemonTeam();
         newAssociation.setTeam(team);
-        newAssociation.setPokemon(pokemonService.findById(pokemonId));
+        newAssociation.setPokemon(pokemon);
         newAssociation.setPosition(dto.position());
 
         return pokemonTeamRepo.save(newAssociation);
@@ -117,7 +116,9 @@ public class PokemonTeamService {
      * @throws AuthenticationCredentialsNotFoundException when no authenticated trainer is available.
      */
     public List<PokemonTeam> findAll() {
-        return filterAccessible(pokemonTeamRepo.findAllByOrderByTeamIdAscPositionAsc());
+        return pokemonTeamRepo.findAllAccessibleToOrderByTeamIdAscPositionAsc(
+                teamService.getCurrentUsername()
+        );
     }
 
     /**
@@ -165,7 +166,10 @@ public class PokemonTeamService {
     public List<PokemonTeam> findByPokemonId(Long pokemonId) {
         PokemonTeamValidator.validatePokemonExists(pokemonService.existsById(pokemonId), pokemonId);
         
-        List<PokemonTeam> result = filterAccessible(pokemonTeamRepo.findByPokemonId(pokemonId));
+        List<PokemonTeam> result = pokemonTeamRepo.findAccessibleByPokemonId(
+                pokemonId,
+                teamService.getCurrentUsername()
+        );
         PokemonTeamValidator.validateByPokemonResult(result, pokemonId);
         
         return result;
@@ -183,7 +187,7 @@ public class PokemonTeamService {
     public List<PokemonTeam> findByPosition(int position) {
         PokemonTeamValidator.validatePosition(position);
         
-        List<PokemonTeam> result = filterAccessible(pokemonTeamRepo.findByPosition(position));
+        List<PokemonTeam> result = pokemonTeamRepo.findAccessibleByPosition(position,teamService.getCurrentUsername());
         PokemonTeamValidator.validateByPositionResult(result, position);
 
         return result;
@@ -196,22 +200,6 @@ public class PokemonTeamService {
     private PokemonTeam findStoredById(Long id) {
         return pokemonTeamRepo.findById(id)
             .orElseThrow(() -> new PokemonTeamNotFoundException(id));
-    }
-
-    /**
-     * Removes associations whose teams are not visible to the current trainer while preserving input order.
-     *
-     * @param associations associations already retrieved from persistence.
-     * @return associations belonging to public teams or owned hidden teams.
-     */
-    private List<PokemonTeam> filterAccessible(List<PokemonTeam> associations) {
-        Set<Long> accessibleTeamIds = teamService.findAll().stream()
-            .map(team -> team.getId())
-            .collect(Collectors.toSet());
-
-        return associations.stream()
-            .filter(association -> accessibleTeamIds.contains(association.getTeam().getId()))
-            .toList();
     }
 
 }

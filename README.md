@@ -165,7 +165,7 @@ A continuación, se detalla el *roadmap* de actualizaciones previstas, junto a s
 * **1.0 (finales de agosto - principios de septiembre):** actualización que incorpora la interfaz gráfica (*frontend*).
 
 > [!NOTE]
-**Hay más funciones y versiones en camino.** Se comparte más información hacia el final del desarrollo de la 1.0.
+**Hay más funciones y versiones en camino.** Se compartirá más información hacia el final del desarrollo de la 1.0.
 
 ### Stack tecnológico
 
