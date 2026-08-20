@@ -8,6 +8,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import dev.trainerforge.dto.response.ErrorDTO;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,9 +16,9 @@ import jakarta.servlet.http.HttpServletRequest;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(ResourceNotFoundException.class)
+    @ExceptionHandler({ResourceNotFoundException.class, NoResourceFoundException.class})
     public ResponseEntity<ErrorDTO> handleResourceNotFound(
-            ResourceNotFoundException ex, HttpServletRequest request) {
+            Exception ex, HttpServletRequest request) {
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
             new ErrorDTO(
