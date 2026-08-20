@@ -1,7 +1,4 @@
 spring:
-  config:
-    import: optional:file:../.env.properties
-
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
@@ -9,11 +6,12 @@ spring:
     driver-class-name: org.postgresql.Driver
 
   jpa:
-    show-sql: true
-    properties:
-      hibernate:
-        "[format_sql]": true
+    show-sql: false
+
+server:
+  port: ${PORT:8080}
 
 logging:
   level:
-    "[org.hibernate.SQL]": DEBUG
+    root: INFO
+    "[org.hibernate.SQL]": WARN
