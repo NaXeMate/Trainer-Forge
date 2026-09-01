@@ -1,7 +1,7 @@
 /* TrainerForge - Base Stylesheet */
 
 :root {
-  /* Base colours (Light Mode) + Figma's gradient */
+  /* Light theme */
   --color-background: #faf1ff;
   --color-background-end: #f4fff9;
   --color-page-background: linear-gradient(
@@ -16,7 +16,7 @@
   --color-accent-contrast: #ffffff;
   --color-focus-ring: rgb(139 90 250 / 35%);
 
-  /* Superficies y estados compartidos */
+  /* Shared surfaces and states */
   --color-glass-tint-base: #a884f3;
   --color-glass-tint: rgb(168 132 243 / 20%);
   --color-glass-border: rgb(255 255 255 / 20%);
@@ -28,7 +28,7 @@
   --color-status-warning: #e0a800;
   --color-status-info: var(--color-accent);
 
-  /* Pie y superficies oscuras presentes en los mockups */
+  /* Footer surfaces */
   --color-footer: #171d2e;
   --color-footer-surface: rgb(0 0 0 / 25%);
   --color-footer-border: rgb(255 255 255 / 6%);
@@ -37,23 +37,12 @@
   --color-footer-muted: #666666;
   --color-on-dark: #ededed;
 
-  /* Tokens oscuros de Figma. No se activan automáticamente en la 1.0. */
-  --color-dark-background: #121212;
-  --color-dark-body-text: #ededed;
-  --color-dark-secondary-text: #9ca3af;
-  --color-dark-accent: #a084f3;
-  --color-dark-accent-hover: #b297ff;
-  --color-dark-glass-tint: rgb(139 90 217 / 30%);
-  --color-dark-glass-border: rgb(255 255 255 / 10%);
-  --color-dark-status-success: #059669;
-  --color-dark-status-error: #dc2626;
-
-  /* Tipografía: Figma utiliza Inter con estos pesos */
+  /* Typography */
   --font-family-sans:
     "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
     Ubuntu, Cantarell, "Helvetica Neue", Arial, sans-serif;
-  --font-family-mono:
-    "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  --font-family-mono: "SFMono-Regular", Consolas , "Liberation Mono", Menlo, monospace;
+
   --font-weight-regular: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
@@ -72,7 +61,7 @@
   --letter-spacing-label: 0.18em;
   --letter-spacing-wide: 0.1em;
 
-  /* Escala base de espaciado. Figma todavía no formaliza tokens globales. */
+  /* Base spacing scale */
   --space-0: 0;
   --space-px: 1px;
   --space-1: 0.25rem;
@@ -88,7 +77,7 @@
   --space-20: 5rem;
   --space-24: 6rem;
 
-  /* Radios observados en cabecera, tarjetas, botones y controles de Figma. */
+  /* Radius for components */
   --radius-sm: 0.25rem;
   --radius-md: 0.75rem;
   --radius-card: 0.9375rem;
@@ -97,7 +86,7 @@
   --border-width-thin: 1px;
   --border-width-thick: 2px;
 
-  /* Sombras y movimiento para componentes que aún no tienen estilo propio. */
+  /* Shadows and motion */
   --shadow-sm: 0 1px 2px rgb(23 29 46 / 8%);
   --shadow-card: 0 0.75rem 2rem rgb(23 29 46 / 12%);
   --duration-fast: 150ms;
@@ -105,7 +94,7 @@
   --duration-slow: 300ms;
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
 
-  /* Layout común */
+  /* Shared layout */
   --content-max-width: 90rem;
   --content-gutter: 1.25rem;
   --header-height: 5.625rem;
@@ -114,15 +103,6 @@
   --z-overlay: 100;
   --z-modal: 1000;
   --z-toast: 1100;
-
-  /* Colores de las barras de estadísticas documentados en el Animus. */
-  --color-stat-lowest: #fd706b;
-  --color-stat-lower: #fcba6a;
-  --color-stat-low: #f9d96a;
-  --color-stat-medium: #f6f86a;
-  --color-stat-high: #90f66b;
-  --color-stat-higher: #63f7ba;
-  --color-stat-highest: #5ad9f6;
 
   color-scheme: light;
   font-family: var(--font-family-sans);
@@ -135,29 +115,26 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-/*
- * Preparado para 1.1: el modo oscuro solo se activa cuando la aplicación
- * establezca data-theme="dark" en html o en un contenedor superior.
- */
+/* Dark theme */
 [data-theme="dark"] {
   color-scheme: dark;
-  --color-background: var(--color-dark-background);
-  --color-background-end: var(--color-dark-background);
-  --color-page-background: var(--color-dark-background);
-  --color-body-text: var(--color-dark-body-text);
-  --color-secondary-text: var(--color-dark-secondary-text);
-  --color-accent: var(--color-dark-accent);
-  --color-accent-hover: var(--color-dark-accent-hover);
+  --color-background: #121212;
+  --color-background-end: #121212;
+  --color-page-background: #121212;
+  --color-body-text: #ededed;
+  --color-secondary-text: #9ca3af;
+  --color-accent: #a084f3;
+  --color-accent-hover: #b297ff;
   --color-focus-ring: rgb(160 132 243 / 45%);
   --color-glass-tint-base: #8b5ad9;
-  --color-glass-tint: var(--color-dark-glass-tint);
-  --color-glass-border: var(--color-dark-glass-border);
+  --color-glass-tint: rgb(139 90 217 / 30%);
+  --color-glass-border: rgb(255 255 255 / 10%);
   --color-surface: rgb(255 255 255 / 8%);
   --color-surface-elevated: rgb(255 255 255 / 12%);
   --color-border: rgb(255 255 255 / 16%);
-  --color-status-success: var(--color-dark-status-success);
-  --color-status-error: var(--color-dark-status-error);
-  --color-status-info: var(--color-dark-accent);
+  --color-status-success: #059669;
+  --color-status-error: #dc2626;
+  --color-status-info: #a084f3;
 }
 
 *,
