@@ -1,111 +1,292 @@
+/* TrainerForge - Base Stylesheet */
+
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+  /* Base colours (Light Mode) + Figma's gradient */
+  --color-background: #faf1ff;
+  --color-background-end: #f4fff9;
+  --color-page-background: linear-gradient(
+    121.46deg,
+    var(--color-background) 0%,
+    var(--color-background-end) 100%
+  );
+  --color-body-text: #1a1a1a;
+  --color-secondary-text: #6b7280;
+  --color-accent: #8b5afa;
+  --color-accent-hover: #7547e0;
+  --color-accent-contrast: #ffffff;
+  --color-focus-ring: rgb(139 90 250 / 35%);
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+  /* Superficies y estados compartidos */
+  --color-glass-tint-base: #a884f3;
+  --color-glass-tint: rgb(168 132 243 / 20%);
+  --color-glass-border: rgb(255 255 255 / 20%);
+  --color-surface: rgb(255 255 255 / 72%);
+  --color-surface-elevated: rgb(255 255 255 / 88%);
+  --color-border: rgb(107 114 128 / 22%);
+  --color-status-success: #10b981;
+  --color-status-error: #ef4444;
+  --color-status-warning: #e0a800;
+  --color-status-info: var(--color-accent);
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
+  /* Pie y superficies oscuras presentes en los mockups */
+  --color-footer: #171d2e;
+  --color-footer-surface: rgb(0 0 0 / 25%);
+  --color-footer-border: rgb(255 255 255 / 6%);
+  --color-footer-divider: rgb(255 255 255 / 8%);
+  --color-footer-text: #9a9a9a;
+  --color-footer-muted: #666666;
+  --color-on-dark: #ededed;
+
+  /* Tokens oscuros de Figma. No se activan automáticamente en la 1.0. */
+  --color-dark-background: #121212;
+  --color-dark-body-text: #ededed;
+  --color-dark-secondary-text: #9ca3af;
+  --color-dark-accent: #a084f3;
+  --color-dark-accent-hover: #b297ff;
+  --color-dark-glass-tint: rgb(139 90 217 / 30%);
+  --color-dark-glass-border: rgb(255 255 255 / 10%);
+  --color-dark-status-success: #059669;
+  --color-dark-status-error: #dc2626;
+
+  /* Tipografía: Figma utiliza Inter con estos pesos */
+  --font-family-sans:
+    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Helvetica Neue", Arial, sans-serif;
+  --font-family-mono:
+    "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-section: 1.5rem;
+  --font-size-nav: 2rem;
+  --font-size-display: 3.625rem;
+  --line-height-tight: 1.1;
+  --line-height-body: 1.5;
+  --line-height-copy: 1.625;
+  --line-height-label: 1.333333;
+  --letter-spacing-label: 0.18em;
+  --letter-spacing-wide: 0.1em;
+
+  /* Escala base de espaciado. Figma todavía no formaliza tokens globales. */
+  --space-0: 0;
+  --space-px: 1px;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+
+  /* Radios observados en cabecera, tarjetas, botones y controles de Figma. */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.75rem;
+  --radius-card: 0.9375rem;
+  --radius-header: 1.5625rem;
+  --radius-pill: 999rem;
+  --border-width-thin: 1px;
+  --border-width-thick: 2px;
+
+  /* Sombras y movimiento para componentes que aún no tienen estilo propio. */
+  --shadow-sm: 0 1px 2px rgb(23 29 46 / 8%);
+  --shadow-card: 0 0.75rem 2rem rgb(23 29 46 / 12%);
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Layout común */
+  --content-max-width: 90rem;
+  --content-gutter: 1.25rem;
+  --header-height: 5.625rem;
+  --z-base: 0;
+  --z-header: 10;
+  --z-overlay: 100;
+  --z-modal: 1000;
+  --z-toast: 1100;
+
+  /* Colores de las barras de estadísticas documentados en el Animus. */
+  --color-stat-lowest: #fd706b;
+  --color-stat-lower: #fcba6a;
+  --color-stat-low: #f9d96a;
+  --color-stat-medium: #f6f86a;
+  --color-stat-high: #90f66b;
+  --color-stat-higher: #63f7ba;
+  --color-stat-highest: #5ad9f6;
+
+  color-scheme: light;
+  font-family: var(--font-family-sans);
+  font-size: 100%;
   font-synthesis: none;
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-body);
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
+/*
+ * Preparado para 1.1: el modo oscuro solo se activa cuando la aplicación
+ * establezca data-theme="dark" en html o en un contenedor superior.
+ */
+[data-theme="dark"] {
+  color-scheme: dark;
+  --color-background: var(--color-dark-background);
+  --color-background-end: var(--color-dark-background);
+  --color-page-background: var(--color-dark-background);
+  --color-body-text: var(--color-dark-body-text);
+  --color-secondary-text: var(--color-dark-secondary-text);
+  --color-accent: var(--color-dark-accent);
+  --color-accent-hover: var(--color-dark-accent-hover);
+  --color-focus-ring: rgb(160 132 243 / 45%);
+  --color-glass-tint-base: #8b5ad9;
+  --color-glass-tint: var(--color-dark-glass-tint);
+  --color-glass-border: var(--color-dark-glass-border);
+  --color-surface: rgb(255 255 255 / 8%);
+  --color-surface-elevated: rgb(255 255 255 / 12%);
+  --color-border: rgb(255 255 255 / 16%);
+  --color-status-success: var(--color-dark-status-success);
+  --color-status-error: var(--color-dark-status-error);
+  --color-status-info: var(--color-dark-accent);
 }
 
-#root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
+*,
+*::before,
+*::after {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  min-height: 100%;
+  scroll-behavior: smooth;
 }
 
 body {
-  margin: 0;
+  min-width: 20rem;
+  min-height: 100vh;
+  background: var(--color-page-background);
+  color: var(--color-body-text);
+  font-family: var(--font-family-sans);
+  line-height: var(--line-height-body);
 }
 
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
+#root {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
 }
 
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--color-accent-hover);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+button,
+input,
+select,
+textarea {
+  color: inherit;
+  font: inherit;
+}
+
+button {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+button:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+img,
+picture,
+svg,
+video,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+img,
+video {
+  height: auto;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid var(--color-focus-ring);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: var(--color-accent);
+  color: var(--color-accent-contrast);
+}
+
+.page-container {
+  width: min(
+    calc(100% - (2 * var(--content-gutter))),
+    var(--content-max-width)
+  );
+  margin-inline: auto;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 48rem) {
+  :root {
+    --content-gutter: 1rem;
+    --header-height: 4rem;
   }
 }
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
   }
-}
-p {
-  margin: 0;
-}
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
-}
-
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
