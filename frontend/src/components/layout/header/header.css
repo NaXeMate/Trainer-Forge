@@ -1,0 +1,115 @@
+.site-header {
+  align-items: center;
+  background-color: var(--color-footer);
+  border-radius: var(--radius-header);
+  display: grid;
+  grid-template-columns: 4.6875rem minmax(0, 1fr) 7.5rem;
+  height: var(--header-height);
+  margin-inline: auto;
+  max-width: 87.5rem;
+  min-height: var(--header-height);
+  padding: 0.46875rem 1.36% 0.46875rem 1.25%;
+  width: min(100%, 87.5rem);
+}
+
+.site-header__brand {
+  block-size: 4.6875rem;
+  border-radius: 50%;
+  display: block;
+  inline-size: 4.6875rem;
+  overflow: hidden;
+}
+
+.site-header__brand img {
+  block-size: 100%;
+  inline-size: 100%;
+  object-fit: cover;
+}
+
+.site-header__navigation {
+  min-inline-size: 0;
+}
+
+.site-header__navigation-list {
+  align-items: center;
+  display: flex;
+  gap: 5rem;
+  justify-content: center;
+  list-style: none;
+}
+
+.site-header__link {
+  color: var(--color-on-dark);
+  display: block;
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-nav);
+  font-weight: var(--font-weight-bold);
+  line-height: normal;
+  white-space: nowrap;
+}
+
+.site-header__link:hover {
+  color: var(--color-on-dark);
+  text-decoration: none;
+}
+
+.site-header__login {
+  justify-self: end;
+}
+
+@media (max-width: 75rem) {
+  .site-header__navigation-list {
+    gap: 2.5rem;
+  }
+
+  .site-header__link {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 52rem) {
+  .site-header {
+    grid-template-columns: 4rem minmax(0, 1fr);
+    height: auto;
+    min-height: var(--header-height);
+    padding: 0.5rem 1rem;
+    row-gap: 0.75rem;
+  }
+
+  .site-header__brand {
+    block-size: 4rem;
+    inline-size: 4rem;
+  }
+
+  .site-header__navigation {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .site-header__navigation-list {
+    flex-wrap: wrap;
+    gap: 1rem 2rem;
+    justify-content: space-between;
+  }
+
+  .site-header__link {
+    font-size: 1.25rem;
+  }
+
+  .site-header__login {
+    grid-column: 2;
+    grid-row: 1;
+  }
+}
+
+@media (max-width: 32rem) {
+  .site-header__navigation-list {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .site-header__link {
+    text-align: center;
+  }
+}
