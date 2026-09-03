@@ -1,0 +1,39 @@
+.access-button {
+  align-items: center;
+  background-color: var(--color-accent);
+  border-radius: var(--radius-card);
+  color: var(--color-accent-contrast);
+  display: inline-flex;
+  flex: 0 0 auto;
+  font-family: var(--font-family-sans);
+  font-size: 1.125rem;
+  font-weight: var(--font-weight-bold);
+  height: 3.4375rem;
+  justify-content: space-between;
+  line-height: 1;
+  padding: 0 0.4375rem 0 0.8125rem;
+  text-align: left;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
+  width: 7.5rem;
+}
+
+.access-button:hover {
+  background-color: var(--color-accent-hover);
+}
+
+.access-button:active {
+  transform: translateY(1px);
+}
+
+.access-button__label {
+  display: block;
+  white-space: nowrap;
+}
+
+.access-button__icon {
+  block-size: 1.875rem;
+  flex: 0 0 1.875rem;
+  inline-size: 1.875rem;
+}

@@ -1,0 +1,55 @@
+.section-card {
+  background-color: var(--color-glass-tint);
+  border-radius: var(--radius-card);
+  block-size: 16.875rem;
+  color: var(--color-body-text);
+  inline-size: 16.875rem;
+  overflow: hidden;
+  position: relative;
+}
+
+.section-card__title {
+  font-family: var(--font-family-sans);
+  font-size: 1.5rem;
+  font-weight: var(--font-weight-bold);
+  inset: 0.625rem 1.125rem auto;
+  line-height: var(--line-height-tight);
+  position: absolute;
+  text-align: center;
+  z-index: 1;
+}
+
+.section-card__description {
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-regular);
+  inset: 3rem 1.125rem auto;
+  line-height: 1.3;
+  max-block-size: 3.9375rem;
+  overflow: hidden;
+  position: absolute;
+  z-index: 1;
+}
+
+.section-card__image-frame {
+  align-items: center;
+  block-size: 6rem;
+  display: flex;
+  inline-size: 8.125rem;
+  inset: 6.8125rem auto auto 50%;
+  justify-content: center;
+  position: absolute;
+  transform: translateX(-50%);
+}
+
+.section-card__image {
+  block-size: 100%;
+  inline-size: 100%;
+  object-fit: contain;
+  object-position: center;
+}
+
+.section-card__access-button {
+  inset: auto 0.5625rem 0.625rem auto;
+  position: absolute;
+}
