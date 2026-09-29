@@ -17,12 +17,12 @@ export default function AccessButton({ className, ...props }: AccessButtonProps)
         focusable="false"
         stroke="currentColor"
         viewBox="0 0 24 24">
-        {/* ArrowRightCircleIcon from Heroicons, by Tailwind Labs. */}
+        <circle cx="12" cy="12" r="9.75" strokeWidth="1.5" />
         <path
-          d="m12.75 15.75 3-3m0 0-3-3m3 3h-7.5m9.75 0a9.75 9.75 0 1 1-19.5 0 9.75 9.75 0 0 1 19.5 0Z"
+          d="m12.75 15 3-3m0 0-3-3m3 3h-7.5"
           strokeLinecap="round"
           strokeLinejoin="round"
-          strokeWidth="1.5"/>
+          strokeWidth="1.5" />
       </svg>
     </button>
   );

@@ -2,16 +2,52 @@ import { Link } from "react-router";
 
 import "./footer.css";
 
-const modeIcon =
-  "https://www.figma.com/api/mcp/asset/0309afa9-5411-4aee-9b82-ed36c89ee08b.svg";
-const warningIcon =
-  "https://www.figma.com/api/mcp/asset/a3117297-0a16-48bd-9c05-924f4a8e1263.svg";
-
 const technicalLinks = [
   { label: "Contact and Contributions", href: "/contact" },
   { label: "Terms and Conditions", href: "/terms-and-conditions" },
   { label: "AI usage", href: "/ai-usage" },
 ] as const;
+
+function WarningIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="site-footer__warning-icon"
+      fill="none"
+      focusable="false"
+      viewBox="0 0 24 24">
+      <path
+        d="m10.29 3.86-8.82 14a2 2 0 0 0 1.7 3.04h17.66a2 2 0 0 0 1.7-3.04l-8.82-14a2 2 0 0 0-3.42 0Z"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.8"
+      />
+      <path
+        d="M12 9v4m0 4h.01"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeWidth="1.8"
+      />
+    </svg>
+  );
+}
+
+function ModeIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="site-footer__mode-icon"
+      fill="none"
+      focusable="false"
+      viewBox="0 0 24 24">
+      <path
+        d="M20.7 15.3A8.5 8.5 0 0 1 8.7 3.3 8.5 8.5 0 1 0 20.7 15.3Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
 
 function Footer() {
   return (
@@ -27,7 +63,7 @@ function Footer() {
 
           <section className="site-footer__section">
             <h2 className="site-footer__title site-footer__title--warning">
-              <img className="site-footer__warning-icon" src={warningIcon} alt="" />
+              <WarningIcon />
               <span>WARNING</span>
             </h2>
             <p className="site-footer__copy">
@@ -68,7 +104,7 @@ function Footer() {
             className="site-footer__mode"
             type="button"
             aria-label="Change color mode">
-            <img src={modeIcon} alt="" />
+            <ModeIcon />
             <span>MODE</span>
           </button>
         </div>

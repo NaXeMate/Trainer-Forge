@@ -45,7 +45,8 @@
   gap: 0.5rem;
 }
 
-.site-footer__warning-icon {
+.site-footer__warning-icon,
+.site-footer__mode-icon {
   block-size: 0.9375rem;
   flex: 0 0 0.9375rem;
   inline-size: 0.9375rem;
@@ -161,7 +162,7 @@
   padding: 0.4375rem 0.8125rem;
 }
 
-.site-footer__mode img {
+.site-footer__mode-icon {
   block-size: 0.75rem;
   flex: 0 0 0.75rem;
   inline-size: 0.75rem;

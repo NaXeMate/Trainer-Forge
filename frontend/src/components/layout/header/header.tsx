@@ -1,11 +1,9 @@
 import { Link, useNavigate } from "react-router";
 
+import trainerForgeLogo from "../../../assets/brand/logo/logo_no_background.png";
 import LoginButton from "../../common/loginButton";
 
 import "./header.css";
-
-const trainerForgeLogo =
-  "https://www.figma.com/api/mcp/asset/ceb9f3db-0446-4232-8a06-7664fac62de0.png";
 
 const navigationItems = [
   { label: "PokeDex", href: "/pokedex" },
