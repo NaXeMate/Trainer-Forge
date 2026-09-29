@@ -19,7 +19,7 @@ Below is the roadmap of planned updates, together with their approximate release
 
 * **0.9.5 (early August):** update including testing and performance improvements to the code.
 
-* **1.0 (late August - early September):** update incorporating the graphical interface (*frontend*).
+* **1.0 (October):** update incorporating the graphical interface (*frontend*).
 
 > [!NOTE]
 **More features and versions are on the way.** More information will be shared toward the end of the 1.0 development.
@@ -162,7 +162,7 @@ A continuación, se detalla el *roadmap* de actualizaciones previstas, junto a s
 
 * **0.9.5 (principios de agosto):** actualización con testing y mejoras de rendimiento en el código.
 
-* **1.0 (finales de agosto - principios de septiembre):** actualización que incorpora la interfaz gráfica (*frontend*).
+* **1.0 (Octubre):** actualización que incorpora la interfaz gráfica (*frontend*).
 
 > [!NOTE]
 **Hay más funciones y versiones en camino.** Se compartirá más información hacia el final del desarrollo de la 1.0.
