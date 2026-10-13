@@ -56,6 +56,18 @@ openssl rand -base64 32
 
 The pgAdmin values are only needed when the optional `pgadmin` Docker Compose service is used. The `.env` file contains credentials and is excluded from Git; the script also restricts its permissions before reading it. Never commit this file.
 
+## PokéDex access and frontend origins
+
+`GET /api/pokedex` and the GET detail/filter routes under `/api/pokedex/**` are public: no JWT is needed. Each entry includes `id` (database identity) and `nationalPokedex` (national PokéDex number), which are distinct values. Other API routes and non-GET PokéDex requests retain their existing authentication requirements.
+
+CORS permits `http://localhost` and `http://127.0.0.1` on ports `3000`, `5173` and `5174` by default. To use other frontend origins, set `CORS_ALLOWED_ORIGINS` to a comma-separated list of exact origins (scheme, hostname and port, without a path):
+
+```bash
+CORS_ALLOWED_ORIGINS="https://trainerforge.example" ./quick_start.sh
+```
+
+This list replaces the local defaults; it does not add to them. Configure the deployed frontend origin when deploying the backend. CORS controls browser access and does not replace API authentication.
+
 ## Demo accounts and credentials
 
 After the first startup, Flyway loads five trainer profiles for API demonstrations. The following usernames, email addresses and passwords are deliberately public demo credentials. They are intended for local demonstrations only and must not be reused in production or for any real account.
@@ -217,6 +229,18 @@ openssl rand -base64 32
 `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` y `JWT_SECRET` son obligatorios para `quick_start.sh`. El usuario y la contraseña de la base de datos deben coincidir con las credenciales utilizadas por el contenedor de PostgreSQL. `JWT_SECRET` debe ser un valor Base64 válido que represente al menos 32 bytes. `JWT_EXPIRATION_MS` es opcional y utiliza de forma predeterminada `86400000` milisegundos (24 horas).
 
 Los valores de pgAdmin solo son necesarios cuando se utiliza el servicio opcional `pgadmin` de Docker Compose. El archivo `.env` contiene credenciales y está excluido de Git; el script también restringe sus permisos antes de leerlo. No subas nunca este archivo al repositorio.
+
+## Acceso a la PokéDex y orígenes del frontend
+
+`GET /api/pokedex` y las rutas GET de detalle y filtrado bajo `/api/pokedex/**` son públicas: no necesitan JWT. Cada entrada incluye `id` (identificador de la BBDD) y `nationalPokedex` (número de la PokéDex nacional), que son valores distintos. Las demás rutas de la API y las peticiones a la PokéDex con otros métodos conservan sus requisitos de autenticación.
+
+CORS permite por defecto `http://localhost` y `http://127.0.0.1` en los puertos `3000`, `5173` y `5174`. Para utilizar otros orígenes del frontend, configura `CORS_ALLOWED_ORIGINS` con una lista separada por comas de orígenes exactos (protocolo, nombre de host y puerto, sin ruta):
+
+```bash
+CORS_ALLOWED_ORIGINS="https://trainerforge.example" ./quick_start.sh
+```
+
+Esta lista sustituye los valores locales por defecto; no se añade a ellos. Al desplegar el backend, configura el origen del frontend desplegado. CORS controla el acceso desde navegadores y no sustituye la autenticación de la API.
 
 ## Cuentas demo y credenciales
 
