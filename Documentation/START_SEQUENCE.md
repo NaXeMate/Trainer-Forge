@@ -10,7 +10,7 @@ The repository includes the [`quick_start.sh`](quick_start.sh) script to automat
 
 Before starting TrainerForge, make sure the following tools are available:
 
-* **Java 26**, which is the version configured in the Maven project.
+* **Java 27**, which is the version configured in the Maven project.
 * **Docker** with Docker Compose support. On macOS, Docker Desktop is supported directly by the script; on other systems, the Docker service must already be running.
 * **OpenSSL**, used to validate the JWT signing secret.
 * **Bash**, required to run the start script.
@@ -111,7 +111,7 @@ chmod +x quick_start.sh
 
 The script performs the following sequence:
 
-1. Checks that Docker, Java, the Maven Wrapper, Docker Compose configuration and `.env` are available.
+1. Selects and validates JDK 27 (automatically on macOS when `JAVA_HOME` is unset), then checks Docker, the Maven Wrapper, Docker Compose configuration and `.env`.
 2. Loads the backend variables and validates the required values without printing the credentials.
 3. Checks that `JWT_SECRET` is valid Base64 and contains at least 32 decoded bytes.
 4. Checks the Docker service. On macOS, it attempts to start Docker Desktop automatically when necessary.
@@ -170,7 +170,7 @@ Run `./quick_start.sh` again whenever you want to restart the database and backe
 * **Docker is unavailable:** start Docker Desktop or the Docker service, then run the script again.
 * **PostgreSQL does not become healthy:** inspect its recent output with `docker compose logs --tail=30 db` and verify that port `5432` is available.
 * **Port `8080` is occupied:** stop the other process using that port before starting TrainerForge.
-* **The Java version is incorrect:** install or select Java 26 and confirm the active version with `java -version`.
+* **The Java version is incorrect:** install or select Java 27 and confirm the active version with `java -version`.
 
 # Secuencia de inicio de TrainerForge (Español)
 
@@ -184,7 +184,7 @@ El repositorio incluye el script [`quick_start.sh`](quick_start.sh), disponible 
 
 Antes de iniciar TrainerForge, asegúrate de que estén disponibles las siguientes herramientas:
 
-* **Java 26**, que es la versión configurada en el proyecto Maven.
+* **Java 27**, que es la versión configurada en el proyecto Maven.
 * **Docker** con compatibilidad con Docker Compose. En macOS, el script permite utilizar directamente Docker Desktop; en otros sistemas, el servicio de Docker debe estar ya iniciado.
 * **OpenSSL**, utilizado para validar el secreto de firma de los JWT.
 * **Bash**, necesario para ejecutar el script de inicio.
@@ -285,7 +285,7 @@ chmod +x quick_start.sh
 
 El script realiza la siguiente secuencia:
 
-1. Comprueba que estén disponibles Docker, Java, Maven Wrapper, la configuración de Docker Compose y `.env`.
+1. Selecciona y valida JDK 27 (automáticamente en macOS cuando `JAVA_HOME` no está definido) y comprueba Docker, Maven Wrapper, la configuración de Docker Compose y `.env`.
 2. Carga las variables del backend y valida los valores obligatorios sin mostrar las credenciales.
 3. Comprueba que `JWT_SECRET` sea un Base64 válido y contenga al menos 32 bytes una vez decodificado.
 4. Comprueba el servicio de Docker. En macOS, intenta iniciar Docker Desktop automáticamente cuando es necesario.
@@ -344,4 +344,4 @@ Ejecuta de nuevo `./quick_start.sh` cuando quieras reiniciar la base de datos y 
 * **Docker no está disponible:** inicia Docker Desktop o el servicio de Docker y vuelve a ejecutar el script.
 * **PostgreSQL no alcanza un estado correcto:** revisa su salida reciente mediante `docker compose logs --tail=30 db` y comprueba que el puerto `5432` esté disponible.
 * **El puerto `8080` está ocupado:** detén el otro proceso que utiliza ese puerto antes de iniciar TrainerForge.
-* **La versión de Java es incorrecta:** instala o selecciona Java 26 y confirma la versión activa mediante `java -version`.
+* **La versión de Java es incorrecta:** instala o selecciona Java 27 y confirma la versión activa mediante `java -version`.

@@ -22,6 +22,29 @@ require_command() {
     command -v "$1" >/dev/null 2>&1 || fail "'$1' was not found in PATH."
 }
 
+select_java() {
+    # macOS registers both system-wide and per-user JDK installations.
+    if [[ -z "${JAVA_HOME:-}" && "$(uname -s)" == "Darwin" ]]; then
+        JAVA_HOME="$(/usr/libexec/java_home -v 27 2>/dev/null)" ||
+            fail "JDK 27 was not found. Install it or set JAVA_HOME to its home directory."
+        export JAVA_HOME
+    fi
+
+    if [[ -n "${JAVA_HOME:-}" ]]; then
+        [[ -x "${JAVA_HOME}/bin/java" && -x "${JAVA_HOME}/bin/javac" ]] ||
+            fail "JAVA_HOME must point to a JDK 27 installation with java and javac."
+        export PATH="${JAVA_HOME}/bin:${PATH}"
+    fi
+
+    require_command java
+    require_command javac
+    local compiler_version
+    compiler_version="$(javac -version 2>&1)" || fail "Could not read the JDK version."
+    [[ "$compiler_version" =~ ^javac[[:space:]]27([.+-]|$) ]] ||
+        fail "TrainerForge requires JDK 27; found ${compiler_version}. Select JDK 27 with JAVA_HOME."
+    info "Using ${compiler_version}${JAVA_HOME:+ (${JAVA_HOME})}."
+}
+
 trim() {
     local value="$1"
     value="${value#"${value%%[![:space:]]*}"}"
@@ -143,7 +166,7 @@ check_backend_port() {
 
 main() {
     require_command docker
-    require_command java
+    select_java
     [[ -x "${BACKEND_DIR}/mvnw" ]] || fail "The executable Maven Wrapper was not found at backend/mvnw."
     [[ -f "$COMPOSE_FILE" ]] || fail "docker-compose.yml was not found."
 
