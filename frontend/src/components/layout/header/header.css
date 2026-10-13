@@ -45,11 +45,12 @@
   font-size: var(--font-size-nav);
   font-weight: var(--font-weight-bold);
   line-height: normal;
+  transition: color var(--duration-fast) var(--ease-standard);
   white-space: nowrap;
 }
 
 .site-header__link:hover {
-  color: var(--color-on-dark);
+  color: var(--color-accent);
   text-decoration: none;
 }
 

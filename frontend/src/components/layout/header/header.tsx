@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router";
 
-import trainerForgeLogo from "../../../assets/brand/logo/logo_no_background.png";
+import trainerForgeLogo from "../../../assets/brand/logo/logo_dark_header.png";
 import LoginButton from "../../common/loginButton";
 
 import "./header.css";
