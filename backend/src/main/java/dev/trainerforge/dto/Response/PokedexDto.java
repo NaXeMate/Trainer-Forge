@@ -3,6 +3,7 @@ package dev.trainerforge.dto.response;
 import dev.trainerforge.model.enumerated.PokemonClass;
 
 public record PokedexDto(
+    Long id,
     Long nationalPokedex,
     String name,
     String imageUrl,
