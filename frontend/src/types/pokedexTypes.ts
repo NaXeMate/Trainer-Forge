@@ -1,5 +1,15 @@
 export type PokemonClass = "COMMON" | "LEGENDARY" | "MYTHICAL" | "ULTRABEAST" | "PARADOX";
 
+export type PokedexStat = "hp" | "attack" | "defense" | "special-attack" | "special-defense" | "speed";
+export type StatFilterMode = "equal" | "minimum" | "maximum";
+
+export interface PokedexStatFilter {
+  stat: PokedexStat;
+  value: number;
+  mode: StatFilterMode;
+  enabled: boolean;
+}
+
 /** Response from GET /api/pokedex, using the backend field names. */
 export interface PokedexEntry {
   id: number;

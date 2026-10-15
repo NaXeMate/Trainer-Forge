@@ -2,6 +2,16 @@ export const API_BASE_URL = "http://localhost:8080/api";
 
 type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";
 
+export class ApiError extends Error {
+  readonly status: number;
+
+  constructor(status: number, statusText: string) {
+    super(`Error ${status}: ${statusText}`);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
+
 export async function apiRequest<T>(
   method: HttpMethod,
   endpoint: string,
@@ -27,7 +37,7 @@ export async function apiRequest<T>(
 
   // If the response is not OK (codes 200-299), throw an error
   if (!response.ok) {
-    throw new Error(`Error ${response.status}: ${response.statusText}`);
+    throw new ApiError(response.status, response.statusText);
   }
 
   // Parse and return the typed JSON

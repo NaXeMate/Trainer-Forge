@@ -1,1 +1,3 @@
-export { default } from "./pokedex";
+import pokedex from "./pokedex";
+
+export default pokedex;

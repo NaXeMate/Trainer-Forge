@@ -229,7 +229,8 @@ class PokedexValidatorTest {
         @Test
         void shouldAcceptStatBoundariesThroughAllOverloads() {
             assertAll(
-                () -> PokedexValidator.validateStatRange(5, "HP"),
+                () -> PokedexValidator.validateStatRange(0, "HP"),
+                () -> PokedexValidator.validateStatRange(1, ValidationLimits.BaseStat.HP),
                 () -> PokedexValidator.validateStatRange(255, ValidationLimits.BaseStat.ATTACK),
                 () -> PokedexValidator.validateStatRange(50, "Custom", 10, 100)
             );
@@ -239,11 +240,11 @@ class PokedexValidatorTest {
         void shouldRejectStatsOutsideAllowedRanges() {
             assertAll(
                 () -> assertInvalidFilter(
-                    "HP base stat must be between 5 and 255.",
-                    () -> PokedexValidator.validateStatRange(4, "HP")
+                    "HP base stat must be between 0 and 255.",
+                    () -> PokedexValidator.validateStatRange(-1, "HP")
                 ),
                 () -> assertInvalidFilter(
-                    "Attack base stat must be between 5 and 255.",
+                    "Attack base stat must be between 0 and 255.",
                     () -> PokedexValidator.validateStatRange(256, ValidationLimits.BaseStat.ATTACK)
                 ),
                 () -> assertInvalidFilter(
@@ -256,7 +257,7 @@ class PokedexValidatorTest {
         @Test
         void shouldAcceptValidStatRangesThroughAllOverloads() {
             assertAll(
-                () -> PokedexValidator.validateStatRangeBetween(5, 255, "HP"),
+                () -> PokedexValidator.validateStatRangeBetween(0, 255, "HP"),
                 () -> PokedexValidator.validateStatRangeBetween(50, 50, ValidationLimits.BaseStat.SPEED),
                 () -> PokedexValidator.validateStatRangeBetween(10, 100, "Custom", 10, 100)
             );
@@ -266,8 +267,8 @@ class PokedexValidatorTest {
         void shouldRejectInvalidStatRanges() {
             assertAll(
                 () -> assertInvalidFilter(
-                    "Minimum HP cannot be less than 5.",
-                    () -> PokedexValidator.validateStatRangeBetween(4, 100, "HP")
+                    "Minimum HP cannot be less than 0.",
+                    () -> PokedexValidator.validateStatRangeBetween(-1, 100, "HP")
                 ),
                 () -> assertInvalidFilter(
                     "Maximum Speed cannot be greater than 255.",

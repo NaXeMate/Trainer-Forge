@@ -4,17 +4,15 @@ import cardRing from "../../assets/icons/pokedex/card-ring.svg";
 import cleanIcon from "../../assets/icons/pokedex/clean.svg";
 import searchIcon from "../../assets/icons/pokedex/search.svg";
 import sortIcon from "../../assets/icons/pokedex/sort.svg";
-import statCircle from "../../assets/icons/pokedex/stat-circle.svg";
-import statHelp from "../../assets/icons/pokedex/stat-help.svg";
-import selectorCircle from "../../assets/icons/pokedex/selector-circle.svg";
-import selectorLeft from "../../assets/icons/pokedex/selector-left.svg";
-import selectorRight from "../../assets/icons/pokedex/selector-right.svg";
 import Footer from "../../components/layout/footer";
 import Header from "../../components/layout/header";
-import Pagination, { type PaginationChangeSource } from "../../components/common/pagination";
+import Pagination from "../../components/common/pagination";
+import type { PaginationChangeSource } from "../../components/common/pagination/pagination";
+import StatisticSlider from "../../components/common/statisticSlider";
 
-import { getPokedexEntries } from "../../services/pokedexService";
-import type { PokedexEntry } from "../../types/pokedexTypes";
+import { searchPokedexEntries } from "../../services/pokedexService";
+import { BASE_STAT_DEFAULT, POKEDEX_STATS } from "../../constants/pokedex";
+import type { PokedexEntry, PokedexStatFilter } from "../../types/pokedexTypes";
 import { getPokedexCardPresentation } from "./pokedexPresentation";
 import "./pokedex-colors.css";
 import "./pokedex.css";
@@ -30,39 +28,8 @@ const textFilters = [
   { name: "ability", label: "Ability", placeholder: "ABILITY", wide: true },
 ] as const;
 
-const statistics = [
-  { label: "HP", mode: "equal", icon: selectorCircle },
-  { label: "ATTACK", mode: "minimum", icon: selectorRight },
-  { label: "DEFENSE", mode: "equal", icon: selectorCircle },
-  { label: "SP. ATK.", mode: "equal", icon: selectorCircle },
-  { label: "SP. DEF.", mode: "equal", icon: selectorCircle },
-  { label: "SPEED", mode: "maximum", icon: selectorLeft },
-] as const;
-
-/** Fixed visual preview: statistics do not participate in filtering yet. */
-function StatisticPreview({ label, mode, icon }: (typeof statistics)[number]) {
-  return (
-    <div className={`pokedex-stat pokedex-stat--${mode}`}>
-      <img className="pokedex-stat__indicator" src={statCircle} alt="" />
-      <span className="pokedex-stat__label">{label}</span>
-      {label === "HP" && (
-        <img
-          className="pokedex-stat__help"
-          src={statHelp}
-          alt=""
-          title="Stat filters will be available later"
-        />
-      )}
-      <div className="pokedex-stat__scale" aria-hidden="true">
-        <span className="pokedex-stat__minimum">0</span>
-        <div className="pokedex-stat__track">
-          <img className="pokedex-stat__selector" src={icon} alt="" />
-        </div>
-        <span className="pokedex-stat__maximum">255</span>
-        <span className="pokedex-stat__value">127</span>
-      </div>
-    </div>
-  );
+function createStatFilters(): PokedexStatFilter[] {
+  return POKEDEX_STATS.map(({ stat }) => ({ stat, value: BASE_STAT_DEFAULT, mode: "equal", enabled: false }));
 }
 
 type PokedexLoadState =
@@ -75,6 +42,8 @@ export default function Pokedex() {
   const [loadState, setLoadState] = useState<PokedexLoadState>({ status: "loading" });
   const [attempt, setAttempt] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
+  const [draftFilters, setDraftFilters] = useState(createStatFilters);
+  const [appliedFilters, setAppliedFilters] = useState<PokedexStatFilter[]>([]);
   const resultsRef = useRef<HTMLElement>(null);
 
   const entries = loadState.status === "success" ? loadState.entries : [];
@@ -86,7 +55,7 @@ export default function Pokedex() {
   useEffect(() => {
     const controller = new AbortController();
 
-    getPokedexEntries(controller.signal)
+    searchPokedexEntries(appliedFilters, controller.signal)
       .then((entries) => {
         if (!controller.signal.aborted) {
           setCurrentPage(1);
@@ -100,7 +69,20 @@ export default function Pokedex() {
       });
 
     return () => controller.abort();
-  }, [attempt]);
+  }, [attempt, appliedFilters]);
+
+  function search() {
+    setLoadState({ status: "loading" });
+    setCurrentPage(1);
+    setAppliedFilters(draftFilters.map(filter => ({ ...filter })));
+  }
+
+  function clean() {
+    setDraftFilters(createStatFilters());
+    setAppliedFilters([]);
+    setLoadState({ status: "loading" });
+    setCurrentPage(1);
+  }
 
   function retry() {
     setLoadState({ status: "loading" });
@@ -131,7 +113,8 @@ export default function Pokedex() {
           <form
             className="pokedex-filters"
             aria-label="PokéDex search filters"
-            onSubmit={(event) => event.preventDefault()}>
+            onReset={clean}
+            onSubmit={event => { event.preventDefault(); search(); }}>
             <div className="pokedex-filters__text">
               {textFilters.map(({ name, label, placeholder, ...filter }) => (
                 <label
@@ -143,9 +126,14 @@ export default function Pokedex() {
               ))}
             </div>
 
-            <div className="pokedex-filters__statistics" aria-label="Stat filter design preview">
-              {statistics.map((statistic) => (
-                <StatisticPreview key={statistic.label} {...statistic} />
+            <div className="pokedex-filters__statistics" role="group" aria-label="Statistic filters">
+              {draftFilters.map(filter => (
+                <StatisticSlider
+                  key={filter.stat}
+                  label={POKEDEX_STATS.find(statistic => statistic.stat === filter.stat)!.label}
+                  filter={filter}
+                  onChange={updated => setDraftFilters(previous => previous.map(item => item.stat === updated.stat ? updated : item))}
+                />
               ))}
             </div>
 
@@ -156,9 +144,8 @@ export default function Pokedex() {
               </button>
               <button
                 className="pokedex-button pokedex-button--search"
-                type="button"
-                aria-disabled="true"
-                title="Search will be available later">
+                type="submit"
+                disabled={loadState.status === "loading"}>
                 <span>SEARCH</span>
                 <img src={searchIcon} alt="" />
               </button>
@@ -197,7 +184,9 @@ export default function Pokedex() {
             )}
 
             {loadState.status === "success" && loadState.entries.length === 0 && (
-              <p className="pokedex-results__message" role="status">No Pokémon available.</p>
+              <p className="pokedex-results__message" role="status">
+                {appliedFilters.some(filter => filter.enabled) ? "No Pokémon match the selected statistics." : "No Pokémon available."}
+              </p>
             )}
 
             {loadState.status === "success" && loadState.entries.length > 0 && (

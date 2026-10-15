@@ -84,7 +84,7 @@ public final class ValidationLimits {
 
     public enum IntegerRange {
         ACCURACY(0, 100),
-        BASE_STAT(5, 255),
+        BASE_STAT(0, 255),
         EV(0, 32),
         LEVEL(1, 100),
         PP(5, 40),

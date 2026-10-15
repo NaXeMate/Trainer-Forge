@@ -1,2 +1,3 @@
-export { default } from "./pagination";
-export type { PaginationProps, PaginationChangeSource } from "./pagination";
+import pagination from "./pagination";
+
+export default pagination;
