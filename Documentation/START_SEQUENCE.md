@@ -119,7 +119,9 @@ The script performs the following sequence:
 4. Checks the Docker service. On macOS, it attempts to start Docker Desktop automatically when necessary.
 5. Starts only the PostgreSQL service defined in `docker-compose.yml` and waits up to 90 seconds for its health check.
 6. Checks port `8080`. If TrainerForge is already healthy, the script exits successfully; if another application is using the port, it stops with an error.
-7. Activates the Spring `dev` profile and runs the backend through the Maven Wrapper.
+7. Activates the Spring `dev` profile, removes previous build output with Maven's `clean` phase and runs the backend through the Maven Wrapper.
+
+Compilation must use Maven's `javac`: the installed Eclipse compiler and Lombok combination can generate invalid Java 27 constructors (`VerifyError: Constructor must call super() or this() before return`). The local VS Code workspace disables automatic Eclipse builds (`java.autobuild.enabled` and `java.debug.settings.forceBuildBeforeLaunch` are `false`) and its Java launch configuration runs the `backend: compile (Maven)` task (`./mvnw clean compile`) before starting. These `.vscode` files are local and ignored by Git; other workstations need the equivalent configuration for their JDK path. No Java source changes are required.
 
 During backend startup, Flyway applies the pending database migrations and Hibernate validates the resulting schema. When startup finishes, the API is available at:
 
@@ -295,7 +297,9 @@ El script realiza la siguiente secuencia:
 4. Comprueba el servicio de Docker. En macOS, intenta iniciar Docker Desktop automáticamente cuando es necesario.
 5. Inicia únicamente el servicio PostgreSQL definido en `docker-compose.yml` y espera hasta 90 segundos a que supere su comprobación de estado.
 6. Comprueba el puerto `8080`. Si TrainerForge ya responde correctamente, el script finaliza con éxito; si otra aplicación está utilizando el puerto, se detiene con un error.
-7. Activa el perfil `dev` de Spring y ejecuta el backend mediante Maven Wrapper.
+7. Activa el perfil `dev` de Spring, elimina los resultados de compilaciones anteriores con la fase `clean` de Maven y ejecuta el backend mediante Maven Wrapper.
+
+La compilación debe utilizar `javac` mediante Maven: la combinación instalada del compilador de Eclipse y Lombok puede generar constructores inválidos para Java 27 (`VerifyError: Constructor must call super() or this() before return`). La configuración local de VS Code desactiva la compilación automática de Eclipse (`java.autobuild.enabled` y `java.debug.settings.forceBuildBeforeLaunch` están en `false`) y ejecuta la tarea `backend: compile (Maven)` (`./mvnw clean compile`) antes de iniciar la aplicación desde la configuración Java. Estos archivos de `.vscode` son locales y están ignorados por Git; otros equipos necesitan la configuración equivalente con la ruta de su JDK. No se requieren cambios en las clases Java.
 
 Durante el arranque del backend, Flyway aplica las migraciones pendientes de la base de datos y Hibernate valida el esquema resultante. Cuando finaliza el inicio, la API está disponible en:
 

@@ -182,7 +182,7 @@ main() {
     info "Press Ctrl+C to stop Spring Boot; PostgreSQL will remain available."
 
     cd "$BACKEND_DIR"
-    exec ./mvnw spring-boot:run
+    exec ./mvnw clean spring-boot:run
 }
 
 main "$@"
