@@ -13,7 +13,7 @@
 
 .pokedex-page__main {
   flex: 1 0 auto;
-  padding-bottom: 6.5625rem;
+  padding-bottom: 2.125rem;
 }
 
 .pokedex-page__heading {
@@ -206,6 +206,17 @@
 
 .pokedex-results {
   min-width: 0;
+  scroll-margin-top: 1.25rem;
+}
+
+.pokedex-results:focus {
+  outline: none;
+}
+
+.pokedex-results__summary {
+  color: var(--color-secondary-text);
+  font-size: var(--font-size-sm);
+  margin-top: 1rem;
 }
 
 .pokedex-results__message {
@@ -233,7 +244,7 @@
   gap: 0.5rem 2rem;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   list-style: none;
-  margin-top: 1.0625rem;
+  margin-top: 0.625rem;
 }
 
 .pokedex-results__slot {
@@ -400,7 +411,7 @@
 
 @media (max-width: 49rem) {
   .pokedex-page__main {
-    padding-bottom: 3rem;
+    padding-bottom: 2rem;
   }
 
   .pokedex-page__heading {

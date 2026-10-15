@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import pokedexIcon from "../../assets/brand/sections/pokédex_icon.png";
 import cardRing from "../../assets/icons/pokedex/card-ring.svg";
 import cleanIcon from "../../assets/icons/pokedex/clean.svg";
@@ -11,12 +11,15 @@ import selectorLeft from "../../assets/icons/pokedex/selector-left.svg";
 import selectorRight from "../../assets/icons/pokedex/selector-right.svg";
 import Footer from "../../components/layout/footer";
 import Header from "../../components/layout/header";
+import Pagination, { type PaginationChangeSource } from "../../components/common/pagination";
 
 import { getPokedexEntries } from "../../services/pokedexService";
 import type { PokedexEntry } from "../../types/pokedexTypes";
 import { getPokedexCardPresentation } from "./pokedexPresentation";
 import "./pokedex-colors.css";
 import "./pokedex.css";
+
+const POKEMON_PER_PAGE = 16;
 
 const textFilters = [
   { name: "name", label: "Name", placeholder: "NAME", wide: true },
@@ -71,6 +74,14 @@ type PokedexLoadState =
 export default function Pokedex() {
   const [loadState, setLoadState] = useState<PokedexLoadState>({ status: "loading" });
   const [attempt, setAttempt] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const resultsRef = useRef<HTMLElement>(null);
+
+  const entries = loadState.status === "success" ? loadState.entries : [];
+  const totalPages = Math.ceil(entries.length / POKEMON_PER_PAGE);
+  const page = Math.max(1, Math.min(currentPage, totalPages));
+  const firstEntryIndex = (page - 1) * POKEMON_PER_PAGE;
+  const visibleEntries = entries.slice(firstEntryIndex, firstEntryIndex + POKEMON_PER_PAGE);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -78,6 +89,7 @@ export default function Pokedex() {
     getPokedexEntries(controller.signal)
       .then((entries) => {
         if (!controller.signal.aborted) {
+          setCurrentPage(1);
           setLoadState({ status: "success", entries });
         }
       })
@@ -93,6 +105,16 @@ export default function Pokedex() {
   function retry() {
     setLoadState({ status: "loading" });
     setAttempt((previous) => previous + 1);
+  }
+
+  function changePage(nextPage: number, source: PaginationChangeSource = "keyboard") {
+    if (nextPage < 1 || nextPage > totalPages || nextPage === page) return;
+    setCurrentPage(nextPage);
+    const isLargeScreen = window.matchMedia("(min-width: 75rem)").matches;
+    // Leave desktop mouse navigation in place; keep focus management for the keyboard.
+    if (!isLargeScreen || source === "keyboard") {
+      resultsRef.current?.focus({ preventScroll: true });
+    }
   }
 
   return (
@@ -144,7 +166,10 @@ export default function Pokedex() {
           </form>
 
           <section
+            id="pokedex-results"
+            ref={resultsRef}
             className="pokedex-results"
+            tabIndex={-1}
             aria-label="Pokémon species"
             aria-busy={loadState.status === "loading"}>
             <div className="pokedex-results__toolbar">
@@ -176,36 +201,48 @@ export default function Pokedex() {
             )}
 
             {loadState.status === "success" && loadState.entries.length > 0 && (
-              <ul className="pokedex-results__grid">
-                {loadState.entries.map((pokemon) => {
-                  const presentation = getPokedexCardPresentation(pokemon);
+              <>
+                <p className="pokedex-results__summary" role="status">
+                  Page {page} of {totalPages} · {firstEntryIndex + 1}–{firstEntryIndex + visibleEntries.length} of {entries.length} Pokémon
+                </p>
+                <ul className="pokedex-results__grid">
+                  {visibleEntries.map((pokemon) => {
+                    const presentation = getPokedexCardPresentation(pokemon);
 
-                  return (
-                    <li key={pokemon.id} className="pokedex-results__slot">
-                      <article className={presentation.className} style={presentation.style}>
-                        <img className="pokedex-card__decoration" src={cardRing} alt="" />
-                        <span className="pokedex-card__regional-number">
-                          #{String(pokemon.id).padStart(3, "0")}
-                        </span>
-                        <img
-                          className="pokedex-card__image"
-                          src={pokemon.imageUrl}
-                          alt={pokemon.name}
-                          loading="lazy"
-                        />
-                        <div className="pokedex-card__caption">
-                          <span className="pokedex-card__national-number">
-                            #{String(pokemon.nationalPokedex).padStart(4, "0")}
+                    return (
+                      <li key={pokemon.id} className="pokedex-results__slot">
+                        <article className={presentation.className} style={presentation.style}>
+                          <img className="pokedex-card__decoration" src={cardRing} alt="" />
+                          <span className="pokedex-card__regional-number">
+                            #{String(pokemon.id).padStart(3, "0")}
                           </span>
-                          <h2 className={pokemon.name.length > 10 ? "pokedex-card__name--long" : undefined}>
-                            {pokemon.name}
-                          </h2>
-                        </div>
-                      </article>
-                    </li>
-                  );
-                })}
-              </ul>
+                          <img
+                            className="pokedex-card__image"
+                            src={pokemon.imageUrl}
+                            alt={pokemon.name}
+                            loading="lazy"
+                          />
+                          <div className="pokedex-card__caption">
+                            <span className="pokedex-card__national-number">
+                              #{String(pokemon.nationalPokedex).padStart(4, "0")}
+                            </span>
+                            <h2 className={pokemon.name.length > 10 ? "pokedex-card__name--long" : undefined}>
+                              {pokemon.name}
+                            </h2>
+                          </div>
+                        </article>
+                      </li>
+                    );
+                  })}
+                </ul>
+                <Pagination
+                  currentPage={page}
+                  totalPages={totalPages}
+                  onPageChange={changePage}
+                  ariaLabel="PokéDex pages"
+                  controlsId="pokedex-results"
+                />
+              </>
             )}
           </section>
         </div>

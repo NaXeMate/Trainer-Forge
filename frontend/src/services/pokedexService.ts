@@ -8,5 +8,6 @@ export async function getPokedexEntries(signal?: AbortSignal): Promise<PokedexEn
     throw new Error("Invalid PokéDex list response");
   }
 
-  return entries;
+  // Order the entries by their ID to ensure a consistent display order.
+  return entries.toSorted((left, right) => left.id - right.id);
 }
