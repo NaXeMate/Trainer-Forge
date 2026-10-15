@@ -308,7 +308,7 @@
 .pokedex-card__image {
   height: 7.1875rem;
   left: 50%;
-  object-fit: cover;
+  object-fit: contain;
   position: absolute;
   top: 1.5625rem;
   transform: translateX(-50%);
