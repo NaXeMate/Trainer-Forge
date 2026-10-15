@@ -1,5 +1,4 @@
 .pokedex-page {
-  /* Edita los colores como HEX normales. La opacidad se configura por separado. */
   --pokedex-type-normal: #9FA19F;
   --pokedex-type-fire: #E6282A;
   --pokedex-type-water: #2A80EF;

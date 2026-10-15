@@ -343,7 +343,11 @@
   font-size: var(--font-size-sm);
 }
 
+.pokedex-card--legendary .pokedex-card__regional-number,
+.pokedex-card--legendary .pokedex-card__national-number,
 .pokedex-card--legendary .pokedex-card__caption h2,
+.pokedex-card--mythical .pokedex-card__regional-number,
+.pokedex-card--mythical .pokedex-card__national-number,
 .pokedex-card--mythical .pokedex-card__caption h2 {
   background: var(--pokedex-card-finish);
   background-clip: text;
@@ -360,7 +364,11 @@
     padding: 0;
   }
 
+  .pokedex-card--legendary .pokedex-card__regional-number,
+  .pokedex-card--legendary .pokedex-card__national-number,
   .pokedex-card--legendary .pokedex-card__caption h2,
+  .pokedex-card--mythical .pokedex-card__regional-number,
+  .pokedex-card--mythical .pokedex-card__national-number,
   .pokedex-card--mythical .pokedex-card__caption h2 {
     background: none;
     color: CanvasText;
