@@ -14,6 +14,8 @@ import Header from "../../components/layout/header";
 
 import { getPokedexEntries } from "../../services/pokedexService";
 import type { PokedexEntry } from "../../types/pokedexTypes";
+import { getPokedexCardPresentation } from "./pokedexPresentation";
+import "./pokedex-colors.css";
 import "./pokedex.css";
 
 const textFilters = [
@@ -176,12 +178,11 @@ export default function Pokedex() {
             {loadState.status === "success" && loadState.entries.length > 0 && (
               <ul className="pokedex-results__grid">
                 {loadState.entries.map((pokemon) => {
-                  // Reuse the existing mockup styles; the full type palette is a separate step.
-                  const surface = [pokemon.type1, pokemon.type2].filter(Boolean).join("-").toLowerCase();
+                  const presentation = getPokedexCardPresentation(pokemon);
 
                   return (
                     <li key={pokemon.id} className="pokedex-results__slot">
-                      <article className={`pokedex-card pokedex-card--${surface}`}>
+                      <article className={presentation.className} style={presentation.style}>
                         <img className="pokedex-card__decoration" src={cardRing} alt="" />
                         <span className="pokedex-card__regional-number">
                           #{String(pokemon.id).padStart(3, "0")}

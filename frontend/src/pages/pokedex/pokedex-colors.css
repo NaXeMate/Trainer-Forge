@@ -1,0 +1,66 @@
+.pokedex-page {
+  /* Edita los colores como HEX normales. La opacidad se configura por separado. */
+  --pokedex-type-normal: #9FA19F;
+  --pokedex-type-fire: #E6282A;
+  --pokedex-type-water: #2A80EF;
+  --pokedex-type-electric: #FAC000;
+  --pokedex-type-grass: #3FA12A;
+  --pokedex-type-ice: #41D8FF;
+  --pokedex-type-fighting: #FF8000;
+  --pokedex-type-poison: #9141CB;
+  --pokedex-type-ground: #945121;
+  --pokedex-type-flying: #81B9EF;
+  --pokedex-type-psychic: #EF4179;
+  --pokedex-type-bug: #91A119;
+  --pokedex-type-rock: #AFA981;
+  --pokedex-type-ghost: #704170;
+  --pokedex-type-dragon: #5060E1;
+  --pokedex-type-dark: #50413F;
+  --pokedex-type-steel: #60A1B8;
+  --pokedex-type-fairy: #EF70EF;
+  --pokedex-type-unknown: #96A0B4;
+  
+  --pokedex-gold-shadow: #D9AD24;
+  --pokedex-gold-base: #EDC531;
+  --pokedex-gold-light: #FFDD60;
+  --pokedex-gold-highlight: #FFF0A6;
+  --pokedex-gold-finish: 
+    linear-gradient(
+      125deg,
+      var(--pokedex-gold-shadow) 0%,
+      var(--pokedex-gold-base) 20%,
+      var(--pokedex-gold-light) 40%,
+      var(--pokedex-gold-highlight) 50%,
+      var(--pokedex-gold-light) 60%,
+      var(--pokedex-gold-base) 80%,
+      var(--pokedex-gold-shadow) 100%
+      );
+    
+  --pokedex-iridescent-pink: #F04DB4;
+  --pokedex-iridescent-violet: #9959F4;
+  --pokedex-iridescent-blue: #38AEF4;
+  --pokedex-iridescent-green: #3ED9AF;
+  --pokedex-iridescent-gold: #FFD45A;
+  --pokedex-iridescent-highlight: #FFF5FF;
+  --pokedex-iridescent-finish:
+    linear-gradient(
+      115deg,
+      transparent 38%,
+      color-mix(in srgb, var(--pokedex-iridescent-highlight) 65%, transparent) 50%,
+      transparent 62%
+      ),
+      linear-gradient(
+        125deg,
+        var(--pokedex-iridescent-pink) 0%,
+        var(--pokedex-iridescent-violet) 18%,
+        var(--pokedex-iridescent-blue) 36%,
+        var(--pokedex-iridescent-green) 54%,
+        var(--pokedex-iridescent-gold) 72%,
+        var(--pokedex-iridescent-pink) 90%,
+        var(--pokedex-iridescent-violet) 100%
+        );
+        
+  --pokedex-card-gradient-angle: 133deg;
+  --pokedex-card-type-opacity: 20%;
+  --pokedex-card-frame-width: 3px;
+}
