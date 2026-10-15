@@ -3,7 +3,7 @@ package dev.trainerforge.security.core;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -30,17 +30,18 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @Configuration
 @EnableMethodSecurity
+@EnableConfigurationProperties(CorsProperties.class)
 public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
     private final ObjectMapper objectMapper;
-    private final List<String> allowedOrigins;
+    private final CorsProperties corsProperties;
 
     public SecurityConfig(JwtFilter jwtFilter, ObjectMapper objectMapper,
-            @Value("${trainerforge.cors.allowed-origins}") List<String> allowedOrigins) {
+            CorsProperties corsProperties) {
         this.jwtFilter = jwtFilter;
         this.objectMapper = objectMapper;
-        this.allowedOrigins = allowedOrigins;
+        this.corsProperties = corsProperties;
     }
 
     @Bean
@@ -66,7 +67,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(allowedOrigins);
+        config.setAllowedOrigins(corsProperties.allowedOrigins());
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of("Authorization"));

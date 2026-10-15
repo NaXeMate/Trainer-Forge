@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,9 +28,8 @@ public class PokedexService {
         this.videogamePokedexRepo = videogamePokedexRepo;
     }
 
-    /** Returns the default PokéDex listing in ascending database-ID order. */
     public List<Pokedex> findAll() {
-        return pokedexRepo.findAll(Sort.by(Sort.Direction.ASC, "id"));
+        return pokedexRepo.findAll();
     }
 
     public Pokedex findById(Long id) {

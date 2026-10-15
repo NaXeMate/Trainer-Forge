@@ -58,6 +58,8 @@ The pgAdmin values are only needed when the optional `pgadmin` Docker Compose se
 
 ## PokéDex access and frontend origins
 
+The frontend applies ascending database-ID order to the complete list after every load and retry. The API does not guarantee a list order. Run `pnpm test` from `frontend` to verify this behavior; the tests use TypeScript and Node's built-in test runner.
+
 `GET /api/pokedex` and the GET detail/filter routes under `/api/pokedex/**` are public: no JWT is needed. Each entry includes `id` (database identity) and `nationalPokedex` (national PokéDex number), which are distinct values. Other API routes and non-GET PokéDex requests retain their existing authentication requirements.
 
 CORS permits `http://localhost` and `http://127.0.0.1` on ports `3000`, `5173` and `5174` by default. To use other frontend origins, set `CORS_ALLOWED_ORIGINS` to a comma-separated list of exact origins (scheme, hostname and port, without a path):
@@ -231,6 +233,8 @@ openssl rand -base64 32
 Los valores de pgAdmin solo son necesarios cuando se utiliza el servicio opcional `pgadmin` de Docker Compose. El archivo `.env` contiene credenciales y está excluido de Git; el script también restringe sus permisos antes de leerlo. No subas nunca este archivo al repositorio.
 
 ## Acceso a la PokéDex y orígenes del frontend
+
+El frontend ordena la lista completa por ID de la BBDD ascendente después de cada carga y reintento. La API no garantiza un orden en el listado. Ejecuta `pnpm test` desde `frontend` para comprobar este comportamiento; las pruebas utilizan TypeScript y el ejecutor de tests incluido en Node.
 
 `GET /api/pokedex` y las rutas GET de detalle y filtrado bajo `/api/pokedex/**` son públicas: no necesitan JWT. Cada entrada incluye `id` (identificador de la BBDD) y `nationalPokedex` (número de la PokéDex nacional), que son valores distintos. Las demás rutas de la API y las peticiones a la PokéDex con otros métodos conservan sus requisitos de autenticación.
 
