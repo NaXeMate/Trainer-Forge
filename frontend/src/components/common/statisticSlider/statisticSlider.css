@@ -75,7 +75,17 @@
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
+  transition: filter 160ms ease, opacity 160ms ease;
   width: calc(100% + 2.125rem);
+}
+
+.statistic-slider--inactive .statistic-slider__range {
+  filter: saturate(0.15);
+  opacity: 0.65;
+}
+
+.statistic-slider--inactive .statistic-slider__range:focus-visible {
+  opacity: 1;
 }
 
 .statistic-slider__range::-webkit-slider-runnable-track {
@@ -130,7 +140,18 @@
   white-space: nowrap;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .statistic-slider__range {
+    transition: none;
+  }
+}
+
 @media (forced-colors: active) {
+  .statistic-slider--inactive .statistic-slider__range {
+    filter: none;
+    opacity: 1;
+  }
+
   .statistic-slider__enabled {
     border-color: ButtonText;
   }

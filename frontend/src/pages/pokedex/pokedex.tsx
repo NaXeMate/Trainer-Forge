@@ -92,8 +92,9 @@ export default function Pokedex() {
   function changePage(nextPage: number, source: PaginationChangeSource = "keyboard") {
     if (nextPage < 1 || nextPage > totalPages || nextPage === page) return;
     setCurrentPage(nextPage);
+
     const isLargeScreen = window.matchMedia("(min-width: 75rem)").matches;
-    // Leave desktop mouse navigation in place; keep focus management for the keyboard.
+    
     if (!isLargeScreen || source === "keyboard") {
       resultsRef.current?.focus({ preventScroll: true });
     }
@@ -192,7 +193,7 @@ export default function Pokedex() {
             {loadState.status === "success" && loadState.entries.length > 0 && (
               <>
                 <p className="pokedex-results__summary" role="status">
-                  Page {page} of {totalPages} · {firstEntryIndex + 1}–{firstEntryIndex + visibleEntries.length} of {entries.length} Pokémon
+                  {firstEntryIndex + 1}–{firstEntryIndex + visibleEntries.length} of {entries.length} Pokémon
                 </p>
                 <ul className="pokedex-results__grid">
                   {visibleEntries.map((pokemon) => {

@@ -53,7 +53,7 @@ export default function StatisticSlider({ label, filter, onChange }: StatisticSl
   }
 
   return (
-    <div className="statistic-slider" style={style}>
+    <div className={`statistic-slider${filter.enabled ? "" : " statistic-slider--inactive"}`} style={style}>
       <label className="statistic-slider__label">
         <input
           className="statistic-slider__enabled"
