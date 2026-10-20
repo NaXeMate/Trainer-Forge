@@ -1,0 +1,92 @@
+.pokedex-type-filter {
+  min-width: 0;
+  position: relative;
+}
+
+.pokedex-type-filter__control {
+  position: relative;
+}
+
+.pokedex-type-filter__control input {
+  padding-inline: 1.1875rem 1.75rem;
+}
+
+.pokedex-type-filter__toggle {
+  align-items: center;
+  color: var(--color-secondary-text);
+  display: flex;
+  height: 100%;
+  justify-content: center;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 1.75rem;
+}
+
+.pokedex-type-filter__toggle[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+
+.pokedex-type-filter__dropdown {
+  background: color-mix(in srgb, var(--color-background) 96%, var(--color-accent));
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  inset-inline: 0;
+  margin-top: 0.375rem;
+  position: absolute;
+  top: 1.875rem;
+  z-index: var(--z-overlay);
+}
+
+.pokedex-type-filter__dropdown ul {
+  list-style: none;
+  max-height: 14rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0.25rem;
+  scrollbar-width: thin;
+}
+
+.pokedex-type-filter__dropdown [role="option"] {
+  border-radius: var(--radius-sm);
+  color: var(--pokedex-option-color);
+  cursor: pointer;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  padding: 0.375rem 0.5rem;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard),
+    opacity var(--duration-fast) var(--ease-standard);
+}
+
+.pokedex-type-filter__dropdown [role="option"]:hover,
+.pokedex-type-filter__dropdown [aria-selected="true"],
+.pokedex-type-filter__dropdown .pokedex-type-filter__option--active {
+  background: var(--color-glass-tint);
+}
+
+.pokedex-type-filter__dropdown [data-selection-phase="dimmed"] {
+  background: transparent;
+  opacity: 0.55;
+}
+
+.pokedex-type-filter__dropdown [data-selection-phase="highlighted"] {
+  background: var(--color-accent);
+  color: var(--color-accent-contrast);
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pokedex-type-filter__dropdown [role="option"] {
+    transition: none;
+  }
+}
+
+.pokedex-type-filter__dropdown p,
+.pokedex-type-filter__error {
+  color: var(--color-secondary-text);
+  font-size: var(--font-size-xs);
+  padding: 0.375rem 0.5rem;
+}

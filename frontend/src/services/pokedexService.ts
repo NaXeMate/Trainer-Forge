@@ -1,5 +1,5 @@
 import { ApiError, apiRequest } from "./api";
-import { BASE_STAT_MIN, BASE_STAT_MAX } from "../constants/pokedex";
+import { BASE_STAT_MIN, BASE_STAT_MAX, findPokemonType } from "../constants/pokedex";
 import type { PokedexEntry, PokedexStatFilter } from "../types/pokedexTypes";
 
 async function requestEntries(endpoint: string, signal?: AbortSignal): Promise<PokedexEntry[]> {
@@ -17,13 +17,13 @@ export function getPokedexEntries(signal?: AbortSignal): Promise<PokedexEntry[]>
   return requestEntries("/pokedex", signal);
 }
 
-/** Reuse the individual stat endpoints and combine their results with AND semantics. */
+/** Combine the existing statistic and type endpoints with AND semantics. */
 export async function searchPokedexEntries(
   filters: readonly PokedexStatFilter[],
   signal?: AbortSignal,
+  typeFilters: readonly string[] = [],
 ): Promise<PokedexEntry[]> {
   const active = filters.filter(filter => filter.enabled);
-  if (active.length === 0) return getPokedexEntries(signal);
 
   for (const filter of active) {
     if (!Number.isInteger(filter.value) || filter.value < BASE_STAT_MIN || filter.value > BASE_STAT_MAX) {
@@ -31,14 +31,29 @@ export async function searchPokedexEntries(
     }
   }
 
-  const results = await Promise.all(active.map(async filter => {
+  const selectedTypes = typeFilters.map(value => {
+    const type = findPokemonType(value);
+    if (!type) throw new Error(`Invalid Pokémon type: ${value}`);
+    return type;
+  });
+  if (selectedTypes.length > 2 || new Set(selectedTypes.map(type => type.id)).size !== selectedTypes.length) {
+    throw new Error("Choose at most two different Pokémon types");
+  }
+
+  const endpoints = active.map(filter => {
     const min = filter.mode === "maximum" ? BASE_STAT_MIN : filter.value;
     const max = filter.mode === "minimum" ? BASE_STAT_MAX : filter.value;
     const query = new URLSearchParams({ min: String(min), max: String(max) });
+    return `/pokedex/stats/${filter.stat}?${query}`;
+  });
+  endpoints.push(...selectedTypes.map(type => `/pokedex/type/${type.id}`));
+  if (endpoints.length === 0) return getPokedexEntries(signal);
+
+  const results = await Promise.all(endpoints.map(async endpoint => {
     try {
-      return await requestEntries(`/pokedex/stats/${filter.stat}?${query}`, signal);
+      return await requestEntries(endpoint, signal);
     } catch (error) {
-      // The existing backend reports an empty stat result as HTTP 404.
+      // The existing backend reports an empty filtered result as HTTP 404.
       if (error instanceof ApiError && error.status === 404) return [];
       throw error;
     }

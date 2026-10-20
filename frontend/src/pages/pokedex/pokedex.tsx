@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import pokedexIcon from "../../assets/brand/sections/pokédex_icon.png";
-import cardRing from "../../assets/icons/pokedex/card-ring.svg";
 import cleanIcon from "../../assets/icons/pokedex/clean.svg";
 import searchIcon from "../../assets/icons/pokedex/search.svg";
 import sortIcon from "../../assets/icons/pokedex/sort.svg";
@@ -13,9 +12,11 @@ import StatisticSlider from "../../components/common/statisticSlider";
 import { searchPokedexEntries } from "../../services/pokedexService";
 import { BASE_STAT_DEFAULT, POKEDEX_STATS } from "../../constants/pokedex";
 import type { PokedexEntry, PokedexStatFilter } from "../../types/pokedexTypes";
-import { getPokedexCardPresentation } from "./pokedexPresentation";
+import { uppercaseInput } from "../../utils/uppercaseInput";
 import "./pokedex-colors.css";
 import "./pokedex.css";
+import PokemonTypeCombobox from "../../components/common/pokemonTypeCombobox";
+import PokedexCard from "../../components/cards/pokedexCard";
 
 const POKEMON_PER_PAGE = 16;
 
@@ -23,7 +24,7 @@ const textFilters = [
   { name: "name", label: "Name", placeholder: "NAME", wide: true },
   { name: "type1", label: "Primary type", placeholder: "TYPE" },
   { name: "type2", label: "Secondary type", placeholder: "TYPE" },
-  { name: "generation", label: "Generation", placeholder: "GEN." },
+  { name: "generation", label: "Generation", placeholder: "GENER." },
   { name: "region", label: "Region", placeholder: "REGION" },
   { name: "ability", label: "Ability", placeholder: "ABILITY", wide: true },
 ] as const;
@@ -44,6 +45,9 @@ export default function Pokedex() {
   const [currentPage, setCurrentPage] = useState(1);
   const [draftFilters, setDraftFilters] = useState(createStatFilters);
   const [appliedFilters, setAppliedFilters] = useState<PokedexStatFilter[]>([]);
+  const [typeFilters, setTypeFilters] = useState({ type1: "", type2: "" });
+  const [appliedTypeFilters, setAppliedTypeFilters] = useState<string[]>([]);
+  const [typeFilterReset, setTypeFilterReset] = useState(0);
   const resultsRef = useRef<HTMLElement>(null);
 
   const entries = loadState.status === "success" ? loadState.entries : [];
@@ -51,11 +55,12 @@ export default function Pokedex() {
   const page = Math.max(1, Math.min(currentPage, totalPages));
   const firstEntryIndex = (page - 1) * POKEMON_PER_PAGE;
   const visibleEntries = entries.slice(firstEntryIndex, firstEntryIndex + POKEMON_PER_PAGE);
+  const hasAppliedFilters = appliedTypeFilters.length > 0 || appliedFilters.some(filter => filter.enabled);
 
   useEffect(() => {
     const controller = new AbortController();
 
-    searchPokedexEntries(appliedFilters, controller.signal)
+    searchPokedexEntries(appliedFilters, controller.signal, appliedTypeFilters)
       .then((entries) => {
         if (!controller.signal.aborted) {
           setCurrentPage(1);
@@ -69,17 +74,21 @@ export default function Pokedex() {
       });
 
     return () => controller.abort();
-  }, [attempt, appliedFilters]);
+  }, [attempt, appliedFilters, appliedTypeFilters]);
 
   function search() {
     setLoadState({ status: "loading" });
     setCurrentPage(1);
     setAppliedFilters(draftFilters.map(filter => ({ ...filter })));
+    setAppliedTypeFilters(Object.values(typeFilters).filter(type => type.trim()));
   }
 
   function clean() {
     setDraftFilters(createStatFilters());
     setAppliedFilters([]);
+    setTypeFilters({ type1: "", type2: "" });
+    setAppliedTypeFilters([]);
+    setTypeFilterReset(previous => previous + 1);
     setLoadState({ status: "loading" });
     setCurrentPage(1);
   }
@@ -106,24 +115,52 @@ export default function Pokedex() {
 
       <main className="pokedex-page__main">
         <div className="pokedex-page__heading">
-          <img className="pokedex-page__logo" src={pokedexIcon} alt="" />
-          <h1>Poké<span>Dex</span></h1>
+          <h1 aria-label="PokéDex">
+            <button
+              className="pokedex-page__reset"
+              type="reset"
+              form="pokedex-filters"
+              aria-label="Reset PokéDex search"
+              title="Reset PokéDex search">
+              <img className="pokedex-page__logo" src={pokedexIcon} alt="" />
+              Poké<span>Dex</span>
+            </button>
+          </h1>
         </div>
 
         <div className="pokedex-page__workspace">
           <form
+            id="pokedex-filters"
             className="pokedex-filters"
             aria-label="PokéDex search filters"
             onReset={clean}
             onSubmit={event => { event.preventDefault(); search(); }}>
             <div className="pokedex-filters__text">
               {textFilters.map(({ name, label, placeholder, ...filter }) => (
-                <label
-                  key={name}
-                  className={"wide" in filter ? "pokedex-filters__field--wide" : undefined}>
-                  <span className="visually-hidden">{label}</span>
-                  <input name={name} type="text" placeholder={placeholder} autoComplete="off" />
-                </label>
+                name === "type1" || name === "type2" ? (
+                  <PokemonTypeCombobox
+                    key={`${name}-${typeFilterReset}`}
+                    name={name}
+                    label={label}
+                    value={typeFilters[name]}
+                    excludedValue={typeFilters[name === "type1" ? "type2" : "type1"]}
+                    onChange={value => setTypeFilters(previous => ({ ...previous, [name]: value }))}
+                  />
+                ) : (
+                  <label
+                    key={name}
+                    className={"wide" in filter ? "pokedex-filters__field--wide" : undefined}>
+                    <span className="visually-hidden">{label}</span>
+                    <input
+                      name={name}
+                      type="text"
+                      placeholder={placeholder}
+                      autoComplete="off"
+                      autoCapitalize="characters"
+                      onChange={event => uppercaseInput(event.currentTarget)}
+                    />
+                  </label>
+                )
               ))}
             </div>
 
@@ -186,7 +223,7 @@ export default function Pokedex() {
 
             {loadState.status === "success" && loadState.entries.length === 0 && (
               <p className="pokedex-results__message" role="status">
-                {appliedFilters.some(filter => filter.enabled) ? "No Pokémon match the selected statistics." : "No Pokémon available."}
+                {hasAppliedFilters ? "No Pokémon match the selected filters." : "No Pokémon available."}
               </p>
             )}
 
@@ -196,34 +233,11 @@ export default function Pokedex() {
                   {firstEntryIndex + 1}–{firstEntryIndex + visibleEntries.length} of {entries.length} Pokémon
                 </p>
                 <ul className="pokedex-results__grid">
-                  {visibleEntries.map((pokemon) => {
-                    const presentation = getPokedexCardPresentation(pokemon);
-
-                    return (
-                      <li key={pokemon.id} className="pokedex-results__slot">
-                        <article className={presentation.className} style={presentation.style}>
-                          <img className="pokedex-card__decoration" src={cardRing} alt="" />
-                          <span className="pokedex-card__regional-number">
-                            #{String(pokemon.id).padStart(3, "0")}
-                          </span>
-                          <img
-                            className="pokedex-card__image"
-                            src={pokemon.imageUrl}
-                            alt={pokemon.name}
-                            loading="lazy"
-                          />
-                          <div className="pokedex-card__caption">
-                            <span className="pokedex-card__national-number">
-                              #{String(pokemon.nationalPokedex).padStart(4, "0")}
-                            </span>
-                            <h2 className={pokemon.name.length > 10 ? "pokedex-card__name--long" : undefined}>
-                              {pokemon.name}
-                            </h2>
-                          </div>
-                        </article>
-                      </li>
-                    );
-                  })}
+                  {visibleEntries.map((pokemon) => (
+                    <li key={pokemon.id} className="pokedex-results__slot">
+                      <PokedexCard pokemon={pokemon} />
+                    </li>
+                  ))}
                 </ul>
                 <Pagination
                   currentPage={page}
