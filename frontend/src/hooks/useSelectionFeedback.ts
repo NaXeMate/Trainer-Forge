@@ -1,10 +1,18 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { CSSProperties } from "react";
+import "../styles/selectionFeedback.css";
 
 const BLINK_STEP_DURATION_MS = 90;
 
-export type PendingMenuSelection = Readonly<{
+export type PendingSelection = Readonly<{
   itemKey: string;
   phase: "dimmed" | "highlighted";
+}>;
+
+export type SelectionFeedbackProps = Readonly<{
+  className: "selection-feedback";
+  "data-selection-phase": PendingSelection["phase"] | undefined;
+  style: CSSProperties | undefined;
 }>;
 
 function waitForBlink(signal: AbortSignal): Promise<boolean> {
@@ -23,8 +31,8 @@ function waitForBlink(signal: AbortSignal): Promise<boolean> {
   });
 }
 
-export function useMenuSelectionFeedback() {
-  const [pendingSelection, setPendingSelection] = useState<PendingMenuSelection | null>(null);
+export function useSelectionFeedback() {
+  const [pendingSelection, setPendingSelection] = useState<PendingSelection | null>(null);
   const selectionRef = useRef<AbortController | null>(null);
 
   useEffect(() => () => {
@@ -64,5 +72,25 @@ export function useMenuSelectionFeedback() {
     }
   }, []);
 
-  return { pendingSelection, selectWithFeedback, cancelSelection };
+  const getFeedbackProps = useCallback((itemKey: string): SelectionFeedbackProps => {
+    const phase = pendingSelection?.itemKey === itemKey ? pendingSelection.phase : undefined;
+    let style: CSSProperties | undefined;
+
+    if (phase === "dimmed") {
+      style = {
+        background: "var(--selection-feedback-dimmed-background, transparent)",
+        opacity: "var(--selection-feedback-dimmed-opacity, 0.55)",
+      };
+    } else if (phase === "highlighted") {
+      style = {
+        background: "var(--selection-feedback-highlighted-background, var(--color-accent))",
+        color: "var(--selection-feedback-highlighted-color, var(--color-accent-contrast))",
+        opacity: 1,
+      };
+    }
+
+    return { className: "selection-feedback", "data-selection-phase": phase, style };
+  }, [pendingSelection]);
+
+  return { pendingSelection, selectWithFeedback, cancelSelection, getFeedbackProps };
 }

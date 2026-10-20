@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState } from "react";
 import type { CSSProperties, KeyboardEvent } from "react";
-import { useMenuSelectionFeedback } from "../../../hooks/useMenuSelectionFeedback";
+import { useSelectionFeedback } from "../../../hooks/useSelectionFeedback";
 import { findPokemonType, POKEMON_TYPES } from "../../../constants/pokedex";
 import { getTypeColor } from "../../../utils/pokemonPresentation";
 import { uppercaseInput } from "../../../utils/uppercaseInput";
@@ -23,7 +23,7 @@ export default function PokemonTypeCombobox({ name, label, value, excludedValue,
   const [editing, setEditing] = useState(false);
   const [activeId, setActiveId] = useState<number | null>(null);
   const [error, setError] = useState("");
-  const { pendingSelection, selectWithFeedback, cancelSelection } = useMenuSelectionFeedback();
+  const { pendingSelection, selectWithFeedback, cancelSelection, getFeedbackProps } = useSelectionFeedback();
   const selectedType = findPokemonType(value);
   const excludedType = findPokemonType(excludedValue);
   const query = editing ? value.trim().toLowerCase() : "";
@@ -158,21 +158,24 @@ export default function PokemonTypeCombobox({ name, label, value, excludedValue,
       {open && (
         <div className="pokedex-type-filter__dropdown">
           <ul ref={listRef} id={`${id}-options`} role="listbox" aria-label={`${label} options`}>
-            {options.map(type => (
-              <li
-                key={type.id}
-                id={`${id}-option-${type.id}`}
-                data-type-id={type.id}
-                role="option"
-                style={{ "--pokedex-option-color": getTypeColor(type.name) } as CSSProperties}
-                data-selection-phase={pendingSelection?.itemKey === type.name ? pendingSelection.phase : undefined}
-                aria-selected={selectedType?.id === type.id}
-                className={activeType?.id === type.id ? "pokedex-type-filter__option--active" : undefined}
-                onPointerDown={event => event.preventDefault()}
-                onClick={() => choose(type)}>
-                {type.name}
-              </li>
-            ))}
+            {options.map(type => {
+              const feedback = getFeedbackProps(type.name);
+              return (
+                <li
+                  {...feedback}
+                  key={type.id}
+                  id={`${id}-option-${type.id}`}
+                  data-type-id={type.id}
+                  role="option"
+                  style={{ "--pokedex-option-color": getTypeColor(type.name), ...feedback.style } as CSSProperties}
+                  aria-selected={selectedType?.id === type.id}
+                  className={[feedback.className, activeType?.id === type.id && "pokedex-type-filter__option--active"].filter(Boolean).join(" ")}
+                  onPointerDown={event => event.preventDefault()}
+                  onClick={() => choose(type)}>
+                  {type.name}
+                </li>
+              );
+            })}
           </ul>
           {options.length === 0 && <p role="status">No matching types.</p>}
         </div>

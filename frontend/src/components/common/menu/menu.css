@@ -1,0 +1,110 @@
+.recursive-menu,
+.recursive-menu__item {
+  position: relative;
+}
+
+.recursive-menu__list {
+  list-style: none;
+}
+
+.recursive-menu > .recursive-menu__list {
+  align-items: center;
+  display: flex;
+}
+
+.recursive-menu[data-orientation="vertical"] > .recursive-menu__list {
+  align-items: stretch;
+  flex-direction: column;
+}
+
+.recursive-menu__list[data-level]:not([data-level="0"]) {
+  background: var(--color-footer);
+  border: var(--border-width-thin) solid var(--color-footer-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  display: grid;
+  inline-size: max-content;
+  inset: calc(100% + var(--space-2)) auto auto 0;
+  min-inline-size: 12rem;
+  overflow: hidden;
+  padding: var(--space-2);
+  position: absolute;
+  z-index: var(--z-overlay);
+}
+
+.recursive-menu__list[data-level]:not([data-level="0"])
+  .recursive-menu__list {
+  inset: calc(-1 * var(--space-2)) auto auto calc(100% + var(--space-2));
+}
+
+.recursive-menu__control {
+  align-items: center;
+  border-radius: var(--radius-sm);
+  color: var(--color-on-dark);
+  display: flex;
+  font-family: var(--font-family-sans);
+  font-weight: var(--font-weight-semibold);
+  gap: var(--space-2);
+  inline-size: 100%;
+  justify-content: space-between;
+  line-height: var(--line-height-label);
+  padding: var(--space-3) var(--space-4);
+  text-align: start;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.recursive-menu__control:hover,
+.recursive-menu__control:focus-visible,
+.recursive-menu__trigger[aria-expanded="true"] {
+  background: rgb(255 255 255 / 12%);
+  color: var(--color-on-dark);
+  text-decoration: none;
+}
+
+.recursive-menu__control[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.recursive-menu__chevron {
+  block-size: 1rem;
+  flex: 0 0 auto;
+  inline-size: 1rem;
+  transition: transform var(--duration-fast) var(--ease-standard);
+}
+
+.recursive-menu__list[data-level="0"]
+  > .recursive-menu__item
+  > .recursive-menu__trigger
+  > .recursive-menu__chevron {
+  transform: rotate(90deg);
+}
+
+.recursive-menu__list[data-level="0"]
+  > .recursive-menu__item
+  > .recursive-menu__trigger[aria-expanded="true"]
+  > .recursive-menu__chevron {
+  transform: rotate(-90deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .recursive-menu__chevron {
+    transition: none;
+  }
+}
+
+@media (max-width: 48rem) {
+  .recursive-menu__list[data-level]:not([data-level="0"]) {
+    box-shadow: none;
+    inline-size: 100%;
+    margin-top: var(--space-1);
+    min-inline-size: 0;
+    position: static;
+  }
+
+  .recursive-menu__list[data-level]:not([data-level="0"])
+    .recursive-menu__control {
+    padding-inline-start: var(--space-6);
+  }
+}

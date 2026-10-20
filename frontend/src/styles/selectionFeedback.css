@@ -1,0 +1,12 @@
+.selection-feedback {
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard),
+    opacity var(--duration-fast) var(--ease-standard);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .selection-feedback {
+    transition: none;
+  }
+}

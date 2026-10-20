@@ -55,33 +55,12 @@
   font-size: var(--font-size-md);
   font-weight: var(--font-weight-bold);
   padding: 0.375rem 0.5rem;
-  transition:
-    background-color var(--duration-fast) var(--ease-standard),
-    color var(--duration-fast) var(--ease-standard),
-    opacity var(--duration-fast) var(--ease-standard);
 }
 
 .pokedex-type-filter__dropdown [role="option"]:hover,
 .pokedex-type-filter__dropdown [aria-selected="true"],
 .pokedex-type-filter__dropdown .pokedex-type-filter__option--active {
   background: var(--color-glass-tint);
-}
-
-.pokedex-type-filter__dropdown [data-selection-phase="dimmed"] {
-  background: transparent;
-  opacity: 0.55;
-}
-
-.pokedex-type-filter__dropdown [data-selection-phase="highlighted"] {
-  background: var(--color-accent);
-  color: var(--color-accent-contrast);
-  opacity: 1;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .pokedex-type-filter__dropdown [role="option"] {
-    transition: none;
-  }
 }
 
 .pokedex-type-filter__dropdown p,
