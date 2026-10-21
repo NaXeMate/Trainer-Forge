@@ -174,3 +174,4 @@ temp/
 dist/
 release/
 Documentation/GITHUB_SECURITY.md
+Documentation/JAVA_27_MIGRATION.md
