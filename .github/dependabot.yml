@@ -1,0 +1,51 @@
+version: 2
+updates:
+  - package-ecosystem: maven
+    directory: /backend
+    schedule:
+      interval: weekly
+      day: monday
+      time: '08:00'
+      timezone: Europe/Madrid
+    open-pull-requests-limit: 5
+    groups:
+      backend-security:
+        applies-to: security-updates
+        patterns: ['*']
+      backend-maintenance:
+        applies-to: version-updates
+        patterns: ['*']
+        update-types: [minor, patch]
+
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule:
+      interval: weekly
+      day: monday
+      time: '08:00'
+      timezone: Europe/Madrid
+    open-pull-requests-limit: 5
+    groups:
+      frontend-security:
+        applies-to: security-updates
+        patterns: ['*']
+      frontend-maintenance:
+        applies-to: version-updates
+        patterns: ['*']
+        update-types: [minor, patch]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '08:00'
+      timezone: Europe/Madrid
+    open-pull-requests-limit: 3
+    groups:
+      actions-security:
+        applies-to: security-updates
+        patterns: ['*']
+      actions-maintenance:
+        applies-to: version-updates
+        patterns: ['*']

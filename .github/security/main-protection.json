@@ -1,0 +1,22 @@
+{
+  "required_status_checks": {
+    "strict": true,
+    "checks": [
+      { "context": "Frontend lint and build", "app_id": 15368 },
+      { "context": "Backend tests", "app_id": 15368 },
+      { "context": "CodeQL (java-kotlin)", "app_id": 15368 },
+      { "context": "CodeQL (javascript-typescript)", "app_id": 15368 },
+      { "context": "CodeQL (actions)", "app_id": 15368 }
+    ]
+  },
+  "enforce_admins": true,
+  "required_pull_request_reviews": {
+    "required_approving_review_count": 0,
+    "dismiss_stale_reviews": true,
+    "require_code_owner_reviews": false
+  },
+  "restrictions": null,
+  "allow_force_pushes": false,
+  "allow_deletions": false,
+  "required_conversation_resolution": true
+}
