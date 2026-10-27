@@ -33,7 +33,11 @@ jobs:
           node-version: '24'
           package-manager-cache: false
       - name: Install pnpm
-        run: npm install --global pnpm@12.11.2 --ignore-scripts
+        uses: pnpm/setup@fa36a5ef7dcdefc3a7cb25655c122e00cf6e636e # v3.1.2
+        with:
+          version: '12.11.2'
+          working-directory: frontend
+          install: false
       - name: Install locked dependencies
         run: pnpm install --frozen-lockfile
       - name: Lint
