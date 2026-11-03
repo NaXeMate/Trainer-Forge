@@ -11,7 +11,7 @@ import StatisticSlider from "../../components/common/statisticSlider";
 
 import { searchPokedexEntries } from "../../services/pokedexService";
 import { BASE_STAT_DEFAULT, POKEDEX_STATS } from "../../constants/pokedex";
-import type { PokedexEntry, PokedexStatFilter } from "../../types/pokedexTypes";
+import type { PokedexEntry, PokedexStatFilter, PokedexTextFilters } from "../../types/pokedexTypes";
 import { uppercaseInput } from "../../utils/uppercaseInput";
 import "./pokedex-colors.css";
 import "./pokedex.css";
@@ -33,6 +33,10 @@ function createStatFilters(): PokedexStatFilter[] {
   return POKEDEX_STATS.map(({ stat }) => ({ stat, value: BASE_STAT_DEFAULT, mode: "equal", enabled: false }));
 }
 
+function createTextFilters(): PokedexTextFilters {
+  return { name: "", generation: "", region: "", ability: "" };
+}
+
 type PokedexLoadState =
   | { status: "loading" }
   | { status: "success"; entries: PokedexEntry[] }
@@ -45,6 +49,8 @@ export default function Pokedex() {
   const [currentPage, setCurrentPage] = useState(1);
   const [draftFilters, setDraftFilters] = useState(createStatFilters);
   const [appliedFilters, setAppliedFilters] = useState<PokedexStatFilter[]>([]);
+  const [draftTextFilters, setDraftTextFilters] = useState(createTextFilters);
+  const [appliedTextFilters, setAppliedTextFilters] = useState(createTextFilters);
   const [typeFilters, setTypeFilters] = useState({ type1: "", type2: "" });
   const [appliedTypeFilters, setAppliedTypeFilters] = useState<string[]>([]);
   const [typeFilterReset, setTypeFilterReset] = useState(0);
@@ -55,12 +61,13 @@ export default function Pokedex() {
   const page = Math.max(1, Math.min(currentPage, totalPages));
   const firstEntryIndex = (page - 1) * POKEMON_PER_PAGE;
   const visibleEntries = entries.slice(firstEntryIndex, firstEntryIndex + POKEMON_PER_PAGE);
-  const hasAppliedFilters = appliedTypeFilters.length > 0 || appliedFilters.some(filter => filter.enabled);
+  const hasAppliedFilters = appliedTypeFilters.length > 0 || appliedFilters.some(filter => filter.enabled) ||
+    Object.values(appliedTextFilters).some(value => value.trim());
 
   useEffect(() => {
     const controller = new AbortController();
 
-    searchPokedexEntries(appliedFilters, controller.signal, appliedTypeFilters)
+    searchPokedexEntries(appliedFilters, controller.signal, appliedTypeFilters, appliedTextFilters)
       .then((entries) => {
         if (!controller.signal.aborted) {
           setCurrentPage(1);
@@ -74,18 +81,21 @@ export default function Pokedex() {
       });
 
     return () => controller.abort();
-  }, [attempt, appliedFilters, appliedTypeFilters]);
+  }, [attempt, appliedFilters, appliedTypeFilters, appliedTextFilters]);
 
   function search() {
     setLoadState({ status: "loading" });
     setCurrentPage(1);
     setAppliedFilters(draftFilters.map(filter => ({ ...filter })));
+    setAppliedTextFilters({ ...draftTextFilters });
     setAppliedTypeFilters(Object.values(typeFilters).filter(type => type.trim()));
   }
 
   function clean() {
     setDraftFilters(createStatFilters());
     setAppliedFilters([]);
+    setDraftTextFilters(createTextFilters());
+    setAppliedTextFilters(createTextFilters());
     setTypeFilters({ type1: "", type2: "" });
     setAppliedTypeFilters([]);
     setTypeFilterReset(previous => previous + 1);
@@ -157,7 +167,11 @@ export default function Pokedex() {
                       placeholder={placeholder}
                       autoComplete="off"
                       autoCapitalize="characters"
-                      onChange={event => uppercaseInput(event.currentTarget)}
+                      value={draftTextFilters[name]}
+                      onChange={event => {
+                        const value = uppercaseInput(event.currentTarget);
+                        setDraftTextFilters(previous => ({ ...previous, [name]: value }));
+                      }}
                     />
                   </label>
                 )

@@ -10,6 +10,13 @@ export interface PokedexStatFilter {
   enabled: boolean;
 }
 
+export interface PokedexTextFilters {
+  name: string;
+  generation: string;
+  region: string;
+  ability: string;
+}
+
 /** Response from GET /api/pokedex, using the backend field names. */
 export interface PokedexEntry {
   id: number;

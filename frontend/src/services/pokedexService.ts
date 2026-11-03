@@ -1,6 +1,26 @@
 import { ApiError, apiRequest } from "./api";
 import { BASE_STAT_MIN, BASE_STAT_MAX, findPokemonType } from "../constants/pokedex";
-import type { PokedexEntry, PokedexStatFilter } from "../types/pokedexTypes";
+import type { PokedexEntry, PokedexStatFilter, PokedexTextFilters } from "../types/pokedexTypes";
+
+const GENERATION_NUMERALS = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"];
+
+function normalize(value: string): string {
+  return value.trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
+}
+
+export function filterPokedexEntries(entries: PokedexEntry[], filters: PokedexTextFilters): PokedexEntry[] {
+  const name = normalize(filters.name);
+  const generation = normalize(filters.generation).replace(/^GENERATION\s+/, "");
+  const region = normalize(filters.region);
+  const ability = normalize(filters.ability);
+
+  return entries.filter(entry =>
+    normalize(entry.name).includes(name) &&
+    (!generation || generation === String(entry.generation) || generation === GENERATION_NUMERALS[entry.generation - 1]) &&
+    normalize(entry.region).includes(region) &&
+    (!ability || [entry.ability1, entry.ability2, entry.hiddenAbility].some(value => value && normalize(value).includes(ability)))
+  );
+}
 
 async function requestEntries(endpoint: string, signal?: AbortSignal): Promise<PokedexEntry[]> {
   const entries = await apiRequest<PokedexEntry[]>("GET", endpoint, undefined, signal);
@@ -17,11 +37,12 @@ export function getPokedexEntries(signal?: AbortSignal): Promise<PokedexEntry[]>
   return requestEntries("/pokedex", signal);
 }
 
-/** Combine the existing statistic and type endpoints with AND semantics. */
+/** Combine the existing statistic and type endpoints and text filters with AND semantics. */
 export async function searchPokedexEntries(
   filters: readonly PokedexStatFilter[],
   signal?: AbortSignal,
   typeFilters: readonly string[] = [],
+  textFilters: PokedexTextFilters = { name: "", generation: "", region: "", ability: "" },
 ): Promise<PokedexEntry[]> {
   const active = filters.filter(filter => filter.enabled);
 
@@ -47,7 +68,7 @@ export async function searchPokedexEntries(
     return `/pokedex/stats/${filter.stat}?${query}`;
   });
   endpoints.push(...selectedTypes.map(type => `/pokedex/type/${type.id}`));
-  if (endpoints.length === 0) return getPokedexEntries(signal);
+  if (endpoints.length === 0) return filterPokedexEntries(await getPokedexEntries(signal), textFilters);
 
   const results = await Promise.all(endpoints.map(async endpoint => {
     try {
@@ -61,5 +82,5 @@ export async function searchPokedexEntries(
 
   const [first, ...rest] = results;
   const matchingIds = rest.map(entries => new Set(entries.map(entry => entry.id)));
-  return first.filter(entry => matchingIds.every(ids => ids.has(entry.id)));
+  return filterPokedexEntries(first.filter(entry => matchingIds.every(ids => ids.has(entry.id))), textFilters);
 }
