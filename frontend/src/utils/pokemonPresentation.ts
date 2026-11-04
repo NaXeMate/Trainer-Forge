@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
 import type { PokedexEntry } from "../types/pokedexTypes";
 
-// The API provides type names; all editable colors live in pokedex-colors.css.
+// The API provides type names; all the editable colors are in pokedex-colors.css.
 const typeColors = new Map<string, string>([
   ["normal", "var(--pokedex-type-normal)"],
   ["fire", "var(--pokedex-type-fire)"],

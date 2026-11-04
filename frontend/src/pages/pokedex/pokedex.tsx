@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import pokedexIcon from "../../assets/brand/sections/pokédex_icon.png";
+import { useEffect, useMemo, useRef, useState } from "react";
+import pokedexIcon from "../../assets/brand/sections/Pokedex_icon.png";
 import cleanIcon from "../../assets/icons/pokedex/clean.svg";
 import searchIcon from "../../assets/icons/pokedex/search.svg";
 import sortIcon from "../../assets/icons/pokedex/sort.svg";
@@ -17,6 +17,8 @@ import "./pokedex-colors.css";
 import "./pokedex.css";
 import PokemonTypeCombobox from "../../components/common/pokemonTypeCombobox";
 import PokedexCard from "../../components/cards/pokedexCard";
+import { POKEDEX_SORT_GROUPS, sortPokedexEntries } from "../../utils/pokedexSort";
+import type { PokedexSortCriterion, PokedexSortKey } from "../../utils/pokedexSort";
 
 const POKEMON_PER_PAGE = 16;
 
@@ -42,7 +44,7 @@ type PokedexLoadState =
   | { status: "success"; entries: PokedexEntry[] }
   | { status: "error" };
 
-/** General PokéDex: server data with loading, retry and empty states. */
+/** General Pokedex: server data with loading, retry and empty states. */
 export default function Pokedex() {
   const [loadState, setLoadState] = useState<PokedexLoadState>({ status: "loading" });
   const [attempt, setAttempt] = useState(0);
@@ -54,13 +56,18 @@ export default function Pokedex() {
   const [typeFilters, setTypeFilters] = useState({ type1: "", type2: "" });
   const [appliedTypeFilters, setAppliedTypeFilters] = useState<string[]>([]);
   const [typeFilterReset, setTypeFilterReset] = useState(0);
+  const [sortCriteria, setSortCriteria] = useState<PokedexSortCriterion[]>([]);
+  const [sortOpen, setSortOpen] = useState(false);
   const resultsRef = useRef<HTMLElement>(null);
+  const sortContainerRef = useRef<HTMLDivElement>(null);
+  const sortButtonRef = useRef<HTMLButtonElement>(null);
 
   const entries = loadState.status === "success" ? loadState.entries : [];
+  const sortedEntries = useMemo(() => sortPokedexEntries(entries, sortCriteria), [entries, sortCriteria]);
   const totalPages = Math.ceil(entries.length / POKEMON_PER_PAGE);
   const page = Math.max(1, Math.min(currentPage, totalPages));
   const firstEntryIndex = (page - 1) * POKEMON_PER_PAGE;
-  const visibleEntries = entries.slice(firstEntryIndex, firstEntryIndex + POKEMON_PER_PAGE);
+  const visibleEntries = sortedEntries.slice(firstEntryIndex, firstEntryIndex + POKEMON_PER_PAGE);
   const hasAppliedFilters = appliedTypeFilters.length > 0 || appliedFilters.some(filter => filter.enabled) ||
     Object.values(appliedTextFilters).some(value => value.trim());
 
@@ -82,6 +89,45 @@ export default function Pokedex() {
 
     return () => controller.abort();
   }, [attempt, appliedFilters, appliedTypeFilters, appliedTextFilters]);
+
+  useEffect(() => {
+    if (!sortOpen) return;
+
+    function closeOnOutsideClick(event: PointerEvent) {
+      if (!sortContainerRef.current?.contains(event.target as Node)) setSortOpen(false);
+    }
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setSortOpen(false);
+        sortButtonRef.current?.focus();
+      }
+    }
+    document.addEventListener("pointerdown", closeOnOutsideClick);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeOnOutsideClick);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [sortOpen]);
+
+  function toggleCriterion(key: PokedexSortKey) {
+    setSortCriteria(previous => previous.some(criterion => criterion.key === key)
+      ? previous.filter(criterion => criterion.key !== key)
+      : [...previous, { key, direction: "ascending" }]);
+    setCurrentPage(1);
+  }
+
+  function toggleDirection(key: PokedexSortKey) {
+    setSortCriteria(previous => previous.map(criterion => criterion.key === key
+      ? { ...criterion, direction: criterion.direction === "ascending" ? "descending" : "ascending" }
+      : criterion));
+    setCurrentPage(1);
+  }
+
+  function resetSort() {
+    setSortCriteria([]);
+    setCurrentPage(1);
+  }
 
   function search() {
     setLoadState({ status: "loading" });
@@ -125,13 +171,13 @@ export default function Pokedex() {
 
       <main className="pokedex-page__main">
         <div className="pokedex-page__heading">
-          <h1 aria-label="PokéDex">
+          <h1 aria-label="Pokedex">
             <button
               className="pokedex-page__reset"
               type="reset"
               form="pokedex-filters"
-              aria-label="Reset PokéDex search"
-              title="Reset PokéDex search">
+              aria-label="Reset Pokedex search"
+              title="Reset Pokedex search">
               <img className="pokedex-page__logo" src={pokedexIcon} alt="" />
               Poké<span>Dex</span>
             </button>
@@ -142,7 +188,7 @@ export default function Pokedex() {
           <form
             id="pokedex-filters"
             className="pokedex-filters"
-            aria-label="PokéDex search filters"
+            aria-label="Pokedex search filters"
             onReset={clean}
             onSubmit={event => { event.preventDefault(); search(); }}>
             <div className="pokedex-filters__text">
@@ -212,14 +258,68 @@ export default function Pokedex() {
             aria-label="Pokémon species"
             aria-busy={loadState.status === "loading"}>
             <div className="pokedex-results__toolbar">
-              <button
-                className="pokedex-button pokedex-button--sort"
-                type="button"
-                aria-disabled="true"
-                title="Sorting will be available later">
-                <span>SORT</span>
-                <img src={sortIcon} alt="" />
-              </button>
+              <div className="pokedex-sort" ref={sortContainerRef}>
+                <button
+                  ref={sortButtonRef}
+                  className="pokedex-button pokedex-button--sort"
+                  type="button"
+                  aria-expanded={sortOpen}
+                  aria-controls="pokedex-sort-panel"
+                  onClick={() => setSortOpen(previous => !previous)}>
+                  <span>SORT</span>
+                  <img src={sortIcon} alt="" />
+                </button>
+
+                {sortOpen && (
+                  <div className="pokedex-sort__panel" id="pokedex-sort-panel" role="region" aria-label="Sort Pokémon">
+                    <button className="pokedex-sort__reset" type="button" disabled={sortCriteria.length === 0} onClick={resetSort}>Reset order</button>
+                    <div className="pokedex-sort__content">
+                      {POKEDEX_SORT_GROUPS.map(group => (
+                        <fieldset className="pokedex-sort__group" key={group.label}>
+                          <legend>{group.label}</legend>
+                          <div className="pokedex-sort__options">
+                            {group.options.map(option => {
+                              const index = sortCriteria.findIndex(criterion => criterion.key === option.key);
+                              const selected = index !== -1;
+                              const direction = selected ? sortCriteria[index].direction : "ascending";
+                              const directionLabel = option.kind === "text"
+                                ? direction === "ascending" ? "A → Z" : "Z → A"
+                                : direction === "ascending" ? "Low → High" : "High → Low";
+                              const directionText = option.kind === "text"
+                                ? direction === "ascending" ? "A-Z" : "Z-A"
+                                : direction === "ascending" ? "LOW-HIGH" : "HIGH-LOW";
+                              return (
+                                <div className={`pokedex-sort__option${selected ? " pokedex-sort__option--selected" : ""}`} key={option.key}>
+                                  <label className="pokedex-sort__label">
+                                    <input type="checkbox" checked={selected} onChange={() => toggleCriterion(option.key)} />
+                                    <span>{option.label}</span>
+                                  </label>
+                                  {selected && (
+                                    <div className="pokedex-sort__selection">
+                                      <span className="pokedex-sort__priority" aria-label={`Priority ${index + 1}`}>{index + 1}</span>
+                                      <button
+                                        type="button"
+                                        className="pokedex-sort__direction"
+                                        aria-label={`${option.label}: ${directionLabel}. Change direction`}
+                                        title={`${directionLabel} · Change direction`}
+                                        onClick={() => toggleDirection(option.key)}>
+                                        <span>{directionText}</span>
+                                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
+                                          <path d="M4 8h15m0 0-4-4m4 4-4 4M20 16H5m0 0 4-4m-4 4 4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                        </svg>
+                                      </button>
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </fieldset>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             {loadState.status === "loading" && (
@@ -244,7 +344,7 @@ export default function Pokedex() {
             {loadState.status === "success" && loadState.entries.length > 0 && (
               <>
                 <p className="pokedex-results__summary" role="status">
-                  {firstEntryIndex + 1}–{firstEntryIndex + visibleEntries.length} of {entries.length} Pokémon
+                  {firstEntryIndex + 1}-{firstEntryIndex + visibleEntries.length} of {entries.length} Pokémon
                 </p>
                 <ul className="pokedex-results__grid">
                   {visibleEntries.map((pokemon) => (
@@ -257,7 +357,7 @@ export default function Pokedex() {
                   currentPage={page}
                   totalPages={totalPages}
                   onPageChange={changePage}
-                  ariaLabel="PokéDex pages"
+                  ariaLabel="Pokedex pages"
                   controlsId="pokedex-results"
                 />
               </>
@@ -265,7 +365,6 @@ export default function Pokedex() {
           </section>
         </div>
       </main>
-
       <Footer />
     </div>
   );

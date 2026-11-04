@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router";
 
 import heroLogo from "../../assets/brand/logo/logo_extended_no_background.png";
-import pokedexIcon from "../../assets/brand/sections/pokédex_icon.png";
+import pokedexIcon from "../../assets/brand/sections/pokedex_icon.png";
 import simulatorIcon from "../../assets/brand/sections/simulator_icon.png";
 import teamsIcon from "../../assets/brand/sections/teams_icon.png";
 import trainerIcon from "../../assets/brand/sections/trainer_icon.png";
