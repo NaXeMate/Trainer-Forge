@@ -1,4 +1,5 @@
 import { useLayoutEffect, useRef } from "react";
+import { Link } from "react-router";
 import cardRing from "../../../assets/icons/pokedex/card-ring.svg";
 import type { PokedexEntry } from "../../../types/pokedexTypes";
 import { getPokedexCardPresentation } from "../../../utils/pokemonPresentation";
@@ -54,23 +55,25 @@ export default function PokedexCard({ pokemon }: { pokemon: PokedexEntry }) {
   }, [pokemon.name]);
 
   return (
-    <article className={presentation.className} style={presentation.style}>
-      <img className="pokedex-card__decoration" src={cardRing} alt="" />
-      <span className="pokedex-card__regional-number">
-        #{String(pokemon.id).padStart(3, "0")}
-      </span>
-      <img
-        className="pokedex-card__image"
-        src={pokemon.imageUrl}
-        alt={pokemon.name}
-        loading="lazy"
-      />
-      <div className="pokedex-card__caption">
-        <span className="pokedex-card__national-number">
-          #{String(pokemon.nationalPokedex).padStart(4, "0")}
+    <Link className="pokedex-card-link" to={`/pokedex/${pokemon.id}`} aria-label={`View ${pokemon.name} details`}>
+      <article className={presentation.className} style={presentation.style}>
+        <img className="pokedex-card__decoration" src={cardRing} alt="" />
+        <span className="pokedex-card__regional-number">
+          #{String(pokemon.id).padStart(3, "0")}
         </span>
-        <h2 ref={nameRef}>{pokemon.name}</h2>
-      </div>
-    </article>
+        <img
+          className="pokedex-card__image"
+          src={pokemon.imageUrl}
+          alt={pokemon.name}
+          loading="lazy"
+        />
+        <div className="pokedex-card__caption">
+          <span className="pokedex-card__national-number">
+            #{String(pokemon.nationalPokedex).padStart(4, "0")}
+          </span>
+          <h2 ref={nameRef}>{pokemon.name}</h2>
+        </div>
+      </article>
+    </Link>
   );
 }

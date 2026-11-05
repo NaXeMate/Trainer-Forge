@@ -1,3 +1,20 @@
+.pokedex-card-link {
+  color: inherit;
+  display: block;
+  width: 100%;
+}
+
+.pokedex-card-link:hover {
+  color: inherit;
+  text-decoration: none;
+}
+
+.pokedex-card-link:focus-visible {
+  border-radius: var(--radius-card);
+  outline: 3px solid var(--color-accent);
+  outline-offset: 4px;
+}
+
 .pokedex-card {
   background: linear-gradient(
     var(--pokedex-card-gradient-angle),
