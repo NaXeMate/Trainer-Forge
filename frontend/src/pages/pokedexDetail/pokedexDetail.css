@@ -248,6 +248,11 @@
   color: var(--color-body-text);
 }
 
+.pokedex-detail__fact:nth-child(4n + 1) dd,
+.pokedex-detail__fact:nth-child(4n + 2) dd {
+  background: var(--color-background);
+}
+
 .pokedex-detail__fact:nth-child(2n) {
   border-left: 2px solid var(--color-body-text);
   grid-template-columns: 10rem minmax(0, 1fr);
@@ -480,6 +485,14 @@
 
   .pokedex-detail__fact:nth-child(5) {
     border-bottom: 2px solid var(--color-body-text);
+  }
+
+  .pokedex-detail__fact:nth-child(odd) dd {
+    background: var(--color-background);
+  }
+
+  .pokedex-detail__fact:nth-child(even) dd {
+    background: #fff;
   }
 
   .pokedex-detail__stat-list::before {
