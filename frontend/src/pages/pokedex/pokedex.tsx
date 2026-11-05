@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useLocation } from "react-router";
 import pokedexIcon from "../../assets/brand/sections/pokedex_icon.png";
 import cleanIcon from "../../assets/icons/pokedex/clean.svg";
 import searchIcon from "../../assets/icons/pokedex/search.svg";
@@ -22,6 +23,10 @@ import type { PokedexSortCriterion, PokedexSortKey } from "../../utils/pokedexSo
 
 const POKEMON_PER_PAGE = 16;
 const EMPTY_POKEDEX_ENTRIES: PokedexEntry[] = [];
+const POKEDEX_VIEW_STATE_KEY = "trainerforge:pokedex-view:";
+const POKEDEX_SORT_KEYS = new Set<string>(
+  POKEDEX_SORT_GROUPS.flatMap(group => group.options.map(option => option.key)),
+);
 
 const textFilters = [
   { name: "name", label: "Name", placeholder: "NAME", wide: true },
@@ -45,23 +50,131 @@ type PokedexLoadState =
   | { status: "success"; entries: PokedexEntry[] }
   | { status: "error" };
 
+interface PokedexViewState {
+  currentPage: number;
+  draftFilters: PokedexStatFilter[];
+  appliedFilters: PokedexStatFilter[];
+  draftTextFilters: PokedexTextFilters;
+  appliedTextFilters: PokedexTextFilters;
+  typeFilters: { type1: string; type2: string };
+  appliedTypeFilters: string[];
+  sortCriteria: PokedexSortCriterion[];
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isPokedexStatFilter(value: unknown): value is PokedexStatFilter {
+  return isRecord(value) &&
+    POKEDEX_STATS.some(({ stat }) => stat === value.stat) &&
+    typeof value.value === "number" && Number.isFinite(value.value) && value.value >= 0 && value.value <= 255 &&
+    (value.mode === "equal" || value.mode === "minimum" || value.mode === "maximum") &&
+    typeof value.enabled === "boolean";
+}
+
+function readStatFilters(value: unknown): PokedexStatFilter[] | undefined {
+  if (!Array.isArray(value) || !value.every(isPokedexStatFilter)) return undefined;
+
+  const filtersByStat = new Map(value.map(filter => [filter.stat, filter]));
+  if (POKEDEX_STATS.some(({ stat }) => !filtersByStat.has(stat))) return undefined;
+
+  return POKEDEX_STATS.flatMap(({ stat }) => {
+    const filter = filtersByStat.get(stat);
+    return filter ? [filter] : [];
+  });
+}
+
+function isPokedexTextFilters(value: unknown): value is PokedexTextFilters {
+  return isRecord(value) &&
+    typeof value.name === "string" &&
+    typeof value.generation === "string" &&
+    typeof value.region === "string" &&
+    typeof value.ability === "string";
+}
+
+function isSortCriterion(value: unknown): value is PokedexSortCriterion {
+  return isRecord(value) && typeof value.key === "string" && POKEDEX_SORT_KEYS.has(value.key) &&
+    (value.direction === "ascending" || value.direction === "descending");
+}
+
+function readSavedViewState(entryKey: string): Partial<PokedexViewState> {
+  try {
+    const serialized = window.sessionStorage.getItem(`${POKEDEX_VIEW_STATE_KEY}${entryKey}`);
+    if (!serialized) return {};
+
+    const saved: unknown = JSON.parse(serialized);
+    if (!isRecord(saved)) return {};
+
+    const state: Partial<PokedexViewState> = {};
+    if (typeof saved.currentPage === "number" && Number.isSafeInteger(saved.currentPage) && saved.currentPage > 0) {
+      state.currentPage = saved.currentPage;
+    }
+
+    const draftFilters = readStatFilters(saved.draftFilters);
+    const appliedFilters = readStatFilters(saved.appliedFilters);
+    if (draftFilters) state.draftFilters = draftFilters;
+    if (appliedFilters) state.appliedFilters = appliedFilters;
+    if (isPokedexTextFilters(saved.draftTextFilters)) state.draftTextFilters = saved.draftTextFilters;
+    if (isPokedexTextFilters(saved.appliedTextFilters)) state.appliedTextFilters = saved.appliedTextFilters;
+    if (isRecord(saved.typeFilters) && typeof saved.typeFilters.type1 === "string" && typeof saved.typeFilters.type2 === "string") {
+      state.typeFilters = { type1: saved.typeFilters.type1, type2: saved.typeFilters.type2 };
+    }
+    if (Array.isArray(saved.appliedTypeFilters) && saved.appliedTypeFilters.every(type => typeof type === "string")) {
+      state.appliedTypeFilters = saved.appliedTypeFilters;
+    }
+    if (Array.isArray(saved.sortCriteria) && saved.sortCriteria.every(isSortCriterion)) {
+      state.sortCriteria = saved.sortCriteria;
+    }
+
+    return state;
+  } catch {
+    return {};
+  }
+}
+
 /** General Pokedex: server data with loading, retry and empty states. */
 export default function Pokedex() {
+  const location = useLocation();
+  const [savedViewState] = useState(() => readSavedViewState(location.key));
   const [loadState, setLoadState] = useState<PokedexLoadState>({ status: "loading" });
   const [attempt, setAttempt] = useState(0);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [draftFilters, setDraftFilters] = useState(createStatFilters);
-  const [appliedFilters, setAppliedFilters] = useState<PokedexStatFilter[]>([]);
-  const [draftTextFilters, setDraftTextFilters] = useState(createTextFilters);
-  const [appliedTextFilters, setAppliedTextFilters] = useState(createTextFilters);
-  const [typeFilters, setTypeFilters] = useState({ type1: "", type2: "" });
-  const [appliedTypeFilters, setAppliedTypeFilters] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(savedViewState.currentPage ?? 1);
+  const [draftFilters, setDraftFilters] = useState(() => savedViewState.draftFilters ?? createStatFilters());
+  const [appliedFilters, setAppliedFilters] = useState<PokedexStatFilter[]>(() => savedViewState.appliedFilters ?? []);
+  const [draftTextFilters, setDraftTextFilters] = useState(() => savedViewState.draftTextFilters ?? createTextFilters());
+  const [appliedTextFilters, setAppliedTextFilters] = useState(() => savedViewState.appliedTextFilters ?? createTextFilters());
+  const [typeFilters, setTypeFilters] = useState(() => savedViewState.typeFilters ?? { type1: "", type2: "" });
+  const [appliedTypeFilters, setAppliedTypeFilters] = useState<string[]>(() => savedViewState.appliedTypeFilters ?? []);
   const [typeFilterReset, setTypeFilterReset] = useState(0);
-  const [sortCriteria, setSortCriteria] = useState<PokedexSortCriterion[]>([]);
+  const [sortCriteria, setSortCriteria] = useState<PokedexSortCriterion[]>(() => savedViewState.sortCriteria ?? []);
   const [sortOpen, setSortOpen] = useState(false);
   const resultsRef = useRef<HTMLElement>(null);
   const sortContainerRef = useRef<HTMLDivElement>(null);
   const sortButtonRef = useRef<HTMLButtonElement>(null);
+  const viewStateRef = useRef<PokedexViewState>({
+    currentPage,
+    draftFilters,
+    appliedFilters,
+    draftTextFilters,
+    appliedTextFilters,
+    typeFilters,
+    appliedTypeFilters,
+    sortCriteria,
+  });
+
+  useLayoutEffect(() => {
+    viewStateRef.current = {
+      currentPage,
+      draftFilters,
+      appliedFilters,
+      draftTextFilters,
+      appliedTextFilters,
+      typeFilters,
+      appliedTypeFilters,
+      sortCriteria,
+    };
+  }, [currentPage, draftFilters, appliedFilters, draftTextFilters, appliedTextFilters, typeFilters, appliedTypeFilters, sortCriteria]);
 
   const entries = loadState.status === "success" ? loadState.entries : EMPTY_POKEDEX_ENTRIES;
   const sortedEntries = useMemo(() => sortPokedexEntries(entries, sortCriteria), [entries, sortCriteria]);
@@ -78,7 +191,8 @@ export default function Pokedex() {
     searchPokedexEntries(appliedFilters, controller.signal, appliedTypeFilters, appliedTextFilters)
       .then((entries) => {
         if (!controller.signal.aborted) {
-          setCurrentPage(1);
+          const lastPage = Math.max(1, Math.ceil(entries.length / POKEMON_PER_PAGE));
+          setCurrentPage(previous => Math.min(previous, lastPage));
           setLoadState({ status: "success", entries });
         }
       })
@@ -90,6 +204,17 @@ export default function Pokedex() {
 
     return () => controller.abort();
   }, [attempt, appliedFilters, appliedTypeFilters, appliedTextFilters]);
+
+  useEffect(() => () => {
+    try {
+      window.sessionStorage.setItem(
+        `${POKEDEX_VIEW_STATE_KEY}${location.key}`,
+        JSON.stringify(viewStateRef.current),
+      );
+    } catch {
+      // The page can still work when browser storage is unavailable.
+    }
+  }, [location.key]);
 
   useEffect(() => {
     if (!sortOpen) return;
@@ -148,6 +273,7 @@ export default function Pokedex() {
     setTypeFilterReset(previous => previous + 1);
     setLoadState({ status: "loading" });
     setCurrentPage(1);
+    setSortCriteria([]);
   }
 
   function retry() {
