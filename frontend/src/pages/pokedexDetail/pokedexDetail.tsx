@@ -118,6 +118,11 @@ export default function PokedexDetail() {
     setRetryKey(previous => previous + 1);
   }
 
+  const pokemonTypes = loadState.status === "success"
+    ? [loadState.pokemon.type1, loadState.pokemon.type2]
+      .filter((type): type is string => Boolean(type?.trim()))
+    : [];
+
   const content = loadState.status === "loading" ? (
     <p className="pokedex-detail__message" role="status">Loading Pokémon…</p>
   ) : loadState.status === "not-found" ? (
@@ -139,10 +144,12 @@ export default function PokedexDetail() {
         <div className="pokedex-detail__image-frame">
           <img src={loadState.pokemon.imageUrl} alt={loadState.pokemon.name} />
         </div>
-        <ul className="pokedex-detail__types" aria-label="Pokémon types">
-          {[loadState.pokemon.type1, loadState.pokemon.type2]
-            .filter((type): type is string => Boolean(type?.trim()))
-            .map(type => <TypeBadge key={type} type={type} />)}
+        <ul
+          className={pokemonTypes.length === 1
+            ? "pokedex-detail__types pokedex-detail__types--single"
+            : "pokedex-detail__types"}
+          aria-label="Pokémon types">
+          {pokemonTypes.map(type => <TypeBadge key={type} type={type} />)}
         </ul>
       </section>
 
