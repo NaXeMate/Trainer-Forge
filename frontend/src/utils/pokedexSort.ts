@@ -53,6 +53,8 @@ function sortValue(entry: PokedexEntry, key: PokedexSortKey): string | number | 
 }
 
 export function sortPokedexEntries(entries: readonly PokedexEntry[], criteria: readonly PokedexSortCriterion[]): PokedexEntry[] {
+  if (criteria.length === 0) return [...entries].sort((left, right) => left.id - right.id);
+
   const nameCriterion = criteria.find(criterion => criterion.key === "name");
   return [...entries].sort((left, right) => {
     for (const { key, direction } of criteria) {
@@ -65,7 +67,7 @@ export function sortPokedexEntries(entries: readonly PokedexEntry[], criteria: r
       }
       const comparison = typeof a === "number" && typeof b === "number"  ? a - b : collator.compare(String(a), String(b));
       
-        if (comparison !== 0) return direction === "ascending" ? comparison : -comparison;
+      if (comparison !== 0) return direction === "ascending" ? comparison : -comparison;
     }
 
     if (nameCriterion) {
@@ -73,6 +75,6 @@ export function sortPokedexEntries(entries: readonly PokedexEntry[], criteria: r
       if (comparison !== 0) return nameCriterion.direction === "ascending" ? comparison : -comparison;
     }
     
-    return left.id - right.id;
+    return 0;
   });
 }

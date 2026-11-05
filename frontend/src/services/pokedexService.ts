@@ -29,8 +29,7 @@ async function requestEntries(endpoint: string, signal?: AbortSignal): Promise<P
     throw new Error("Invalid PokeDex list response");
   }
 
-  // Order the entries by their ID to ensure a consistent display order.
-  return entries.toSorted((left, right) => left.id - right.id);
+  return entries;
 }
 
 export function getPokedexEntries(signal?: AbortSignal): Promise<PokedexEntry[]> {
