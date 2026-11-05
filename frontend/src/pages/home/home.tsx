@@ -17,7 +17,7 @@ const sections = [
     description:
       "The greatest Pokemon enciclopedia that reunites all its available knowledge",
     image: pokedexIcon,
-    imageAlt: "PokéDex",
+    imageAlt: "PokeDex",
     href: "/pokedex",
   },
   {

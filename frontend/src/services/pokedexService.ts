@@ -26,7 +26,7 @@ async function requestEntries(endpoint: string, signal?: AbortSignal): Promise<P
   const entries = await apiRequest<PokedexEntry[]>("GET", endpoint, undefined, signal);
 
   if (!Array.isArray(entries)) {
-    throw new Error("Invalid PokéDex list response");
+    throw new Error("Invalid PokeDex list response");
   }
 
   // Order the entries by their ID to ensure a consistent display order.
