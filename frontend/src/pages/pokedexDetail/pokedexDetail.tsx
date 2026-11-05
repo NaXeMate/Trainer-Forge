@@ -29,11 +29,11 @@ type DetailLoadState =
   | { entryId: number; status: "error" };
 
 function getBaseStatTone(value: number): BaseStatTone {
-  if (value <= 25) return "lowest";
-  if (value <= 50) return "lower";
-  if (value <= 75) return "low";
+  if (value <= 40) return "lowest";
+  if (value <= 60) return "lower";
+  if (value <= 80) return "low";
   if (value <= 100) return "medium";
-  if (value <= 125) return "high";
+  if (value <= 120) return "high";
   if (value <= 150) return "higher";
   return "highest";
 }
