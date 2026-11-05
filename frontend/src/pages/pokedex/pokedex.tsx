@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import pokedexIcon from "../../assets/brand/sections/Pokedex_icon.png";
+import pokedexIcon from "../../assets/brand/sections/pokedex_icon.png";
 import cleanIcon from "../../assets/icons/pokedex/clean.svg";
 import searchIcon from "../../assets/icons/pokedex/search.svg";
 import sortIcon from "../../assets/icons/pokedex/sort.svg";
