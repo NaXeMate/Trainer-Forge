@@ -37,6 +37,10 @@ export function getPokedexEntries(signal?: AbortSignal): Promise<PokedexEntry[]>
   return requestEntries("/pokedex", signal);
 }
 
+export function getPokedexEntryById(id: number, signal?: AbortSignal): Promise<PokedexEntry> {
+  return apiRequest<PokedexEntry>("GET", `/pokedex/${id}`, undefined, signal);
+}
+
 /** Combine the existing statistic and type endpoints and text filters with AND semantics. */
 export async function searchPokedexEntries(
   filters: readonly PokedexStatFilter[],
