@@ -340,9 +340,23 @@
   height: 100%;
   max-width: 100%;
   position: relative;
-  transition: width var(--duration-normal) var(--ease-standard);
   width: var(--stat-width);
   z-index: 1;
+}
+
+.pokedex-detail__stat-bar--glow {
+  animation: pokedex-detail-stat-glow 1.1s ease-out both;
+}
+
+@keyframes pokedex-detail-stat-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+
+  28% {
+    box-shadow: 0 0 0.875rem 0.1875rem color-mix(in srgb, var(--stat-color) 68%, transparent);
+  }
 }
 
 .pokedex-detail__stat-value {
@@ -442,6 +456,12 @@
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .pokedex-detail__stat-bar--glow {
+    animation: none;
+  }
+}
+
 @media (max-width: 56rem) {
   .pokedex-detail__main {
     padding-block: 3rem;
@@ -525,8 +545,3 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .pokedex-detail__stat-bar {
-    transition: none;
-  }
-}

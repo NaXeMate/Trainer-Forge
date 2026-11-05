@@ -99,6 +99,88 @@ function TypeBadge({ type }: { type: string }) {
   );
 }
 
+const STAT_ANIMATION_DURATION = 1450;
+
+function BaseStatsChart({ pokemon }: { pokemon: PokedexEntry }) {
+  const [animation, setAnimation] = useState({ pokemonId: pokemon.id, progress: 0 });
+
+  useEffect(() => {
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let startTime: number | undefined;
+    let frameId = 0;
+
+    function animate(timestamp: number) {
+      if (prefersReducedMotion) {
+        setAnimation({ pokemonId: pokemon.id, progress: 1 });
+        return;
+      }
+
+      startTime ??= timestamp;
+      const linearProgress = Math.min((timestamp - startTime) / STAT_ANIMATION_DURATION, 1);
+      const easedProgress = 1 - (1 - linearProgress) ** 4;
+
+      setAnimation({ pokemonId: pokemon.id, progress: easedProgress });
+
+      if (linearProgress < 1) {
+        frameId = window.requestAnimationFrame(animate);
+      }
+    }
+
+    frameId = window.requestAnimationFrame(animate);
+    return () => window.cancelAnimationFrame(frameId);
+  }, [pokemon.id]);
+
+  const progress = animation.pokemonId === pokemon.id ? animation.progress : 0;
+
+  return (
+    <section className="pokedex-detail__stats" aria-labelledby="pokedex-detail-stats-title">
+      <h2 id="pokedex-detail-stats-title">Base Stats</h2>
+      <ul className="pokedex-detail__stat-list">
+        {BASE_STAT_ROWS.map(({ label, key }) => {
+          const value = pokemon[key];
+          const tone = getBaseStatTone(value);
+          const hasHighStatGlow = tone === "high" || tone === "higher" || tone === "highest";
+          const shouldShowGlow = hasHighStatGlow && progress >= 1;
+          const animatedValue = Math.round(value * progress);
+          const percentage = Math.max(0, Math.min(100, (value / 255) * 100 * progress));
+          const style = {
+            "--stat-color": `var(--color-stat-${tone})`,
+            "--stat-width": `${percentage}%`,
+          } as CSSProperties;
+
+          return (
+            <li className="pokedex-detail__stat-row" key={key}>
+              <span className="pokedex-detail__stat-label">{label}</span>
+              <div className="pokedex-detail__stat-track" style={style}>
+                <div
+                  className={shouldShowGlow
+                    ? "pokedex-detail__stat-bar pokedex-detail__stat-bar--glow"
+                    : "pokedex-detail__stat-bar"}
+                  role="progressbar"
+                  aria-label={label}
+                  aria-valuemin={0}
+                  aria-valuemax={255}
+                  aria-valuenow={animatedValue}/>
+                <span className="pokedex-detail__stat-value">{animatedValue}</span>
+              </div>
+            </li>
+          );
+        })}
+        <li className="pokedex-detail__stat-row" aria-hidden="true">
+          <span />
+          <div className="pokedex-detail__stat-axis">
+            <span>0</span>
+            <span>63</span>
+            <span>127</span>
+            <span>191</span>
+            <span>255</span>
+          </div>
+        </li>
+      </ul>
+    </section>
+  );
+}
+
 function DetailMessage({
   title,
   description,
@@ -162,7 +244,6 @@ export default function PokedexDetail() {
     ? [detailLoadState.pokemon.type1, detailLoadState.pokemon.type2]
       .filter((type): type is string => Boolean(type?.trim()))
     : [];
-  const pokemonForStats = detailLoadState.status === "success" ? detailLoadState.pokemon : undefined;
   const imageFrameStyle = detailLoadState.status === "success"
     ? {
       "--pokemon-type-start": getTypeColor(detailLoadState.pokemon.type1),
@@ -259,46 +340,7 @@ export default function PokedexDetail() {
           </div>
         </dl>
 
-        <section className="pokedex-detail__stats" aria-labelledby="pokedex-detail-stats-title">
-          <h2 id="pokedex-detail-stats-title">Base Stats</h2>
-          <ul className="pokedex-detail__stat-list">
-            {BASE_STAT_ROWS.map(({ label, key }) => {
-              if (!pokemonForStats) return null;
-              const value = pokemonForStats[key];
-              const percentage = Math.max(0, Math.min(100, (value / 255) * 100));
-              const style = {
-                "--stat-color": `var(--color-stat-${getBaseStatTone(value)})`,
-                "--stat-width": `${percentage}%`,
-              } as CSSProperties;
-
-              return (
-                <li className="pokedex-detail__stat-row" key={key}>
-                  <span className="pokedex-detail__stat-label">{label}</span>
-                  <div className="pokedex-detail__stat-track" style={style}>
-                    <div
-                      className="pokedex-detail__stat-bar"
-                      role="progressbar"
-                      aria-label={label}
-                      aria-valuemin={0}
-                      aria-valuemax={255}
-                      aria-valuenow={value}/>
-                    <span className="pokedex-detail__stat-value">{value}</span>
-                  </div>
-                </li>
-              );
-            })}
-            <li className="pokedex-detail__stat-row" aria-hidden="true">
-              <span />
-              <div className="pokedex-detail__stat-axis">
-                <span>0</span>
-                <span>63</span>
-                <span>127</span>
-                <span>191</span>
-                <span>255</span>
-              </div>
-            </li>
-          </ul>
-        </section>
+        <BaseStatsChart pokemon={detailLoadState.pokemon} />
       </section>
     </article>
   );
