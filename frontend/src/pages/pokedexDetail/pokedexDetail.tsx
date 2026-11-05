@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { CSSProperties } from "react";
-import { Link, useParams } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import bugTypeIcon from "../../assets/icons/pokemonTypes/bug.svg";
 import darkTypeIcon from "../../assets/icons/pokemonTypes/dark.svg";
 import dragonTypeIcon from "../../assets/icons/pokemonTypes/dragon.svg";
@@ -203,6 +203,7 @@ function DetailMessage({
 
 export default function PokedexDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const entryId = id === undefined ? Number.NaN : Number(id);
   const [loadState, setLoadState] = useState<DetailLoadState>({ entryId, status: "loading" });
   const [retryKey, setRetryKey] = useState(0);
@@ -269,80 +270,90 @@ export default function PokedexDetail() {
       </div>
     </section>
   ) : (
-    <article className="pokedex-detail__layout" aria-labelledby="pokedex-detail-title">
-      <section className="pokedex-detail__visual" aria-label={`${detailLoadState.pokemon.name} artwork`}>
-        <div className="pokedex-detail__image-frame" style={imageFrameStyle}>
-          <img src={detailLoadState.pokemon.imageUrl} alt={detailLoadState.pokemon.name} />
-        </div>
-        <ul
-          className={pokemonTypes.length === 1
-            ? "pokedex-detail__types pokedex-detail__types--single"
-            : "pokedex-detail__types"}
-          aria-label="Pokémon types">
-          {pokemonTypes.map(type => <TypeBadge key={type} type={type} />)}
-        </ul>
-      </section>
+    <div className="pokedex-detail__content">
+      <div className="pokedex-detail__back">
+        <button
+          className="pokedex-detail__back-button"
+          type="button"
+          aria-label="Back to PokeDex"
+          onClick={() => navigate(-1)}>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M19 12H5m0 0 7-7m-7 7 7 7" />
+          </svg>
+        </button>
+        <span>Back to PokeDex</span>
+      </div>
 
-      <section className="pokedex-detail__information" aria-labelledby="pokedex-detail-title">
-        <div className="pokedex-detail__heading">
-          <h1 id="pokedex-detail-title">
-            {detailLoadState.pokemon.name}
-            <span className="pokedex-detail__number"> #{String(detailLoadState.pokemon.id).padStart(3, "0")}</span>
-          </h1>
-          <span className="pokedex-detail__favorite" aria-hidden="true">
-            <svg viewBox="0 0 24 24">
-              <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z" fill="currentColor"/>
-            </svg>
-          </span>
-        </div>
-        <p className="pokedex-detail__description">{detailLoadState.pokemon.description}</p>
+      <article className="pokedex-detail__layout" aria-labelledby="pokedex-detail-title">
+        <section className="pokedex-detail__visual" aria-label={`${detailLoadState.pokemon.name} artwork`}>
+          <div className="pokedex-detail__image-frame" style={imageFrameStyle}>
+            <img src={detailLoadState.pokemon.imageUrl} alt={detailLoadState.pokemon.name} />
+          </div>
+          <ul
+            className={pokemonTypes.length === 1
+              ? "pokedex-detail__types pokedex-detail__types--single"
+              : "pokedex-detail__types"}
+            aria-label="Pokémon types">
+            {pokemonTypes.map(type => <TypeBadge key={type} type={type} />)}
+          </ul>
+        </section>
 
-        <dl className="pokedex-detail__facts">
-          <div className="pokedex-detail__fact">
-            <dt>National Dex Number</dt>
-            <dd>#{String(detailLoadState.pokemon.nationalPokedex).padStart(3, "0")}</dd>
+        <section className="pokedex-detail__information" aria-labelledby="pokedex-detail-title">
+          <div className="pokedex-detail__heading">
+            <h1 id="pokedex-detail-title">
+              {detailLoadState.pokemon.name}
+              <span className="pokedex-detail__number"> #{String(detailLoadState.pokemon.id).padStart(3, "0")}</span>
+            </h1>
           </div>
-          <div className="pokedex-detail__fact">
-            <dt>Height</dt>
-            <dd>{formatMeasurement(detailLoadState.pokemon.height, "m")}</dd>
-          </div>
-          <div className="pokedex-detail__fact">
-            <dt>Generation</dt>
-            <dd>{GENERATION_NUMERALS[detailLoadState.pokemon.generation - 1] ?? detailLoadState.pokemon.generation} Generation</dd>
-          </div>
-          <div className="pokedex-detail__fact">
-            <dt>Weight</dt>
-            <dd>{formatMeasurement(detailLoadState.pokemon.weight, "kg")}</dd>
-          </div>
-          <div className="pokedex-detail__fact">
-            <dt>Category</dt>
-            <dd>{detailLoadState.pokemon.category}</dd>
-          </div>
-          <div className="pokedex-detail__fact">
-            <dt>Abilities</dt>
-            <dd>
-              <ul className="pokedex-detail__abilities">
-                {[
-                  { name: detailLoadState.pokemon.ability1, hidden: false },
-                  { name: detailLoadState.pokemon.ability2, hidden: false },
-                  { name: detailLoadState.pokemon.hiddenAbility, hidden: true },
-                ]
-                  .filter((ability): ability is { name: string; hidden: boolean } => Boolean(ability.name?.trim()))
-                  .map(({ name, hidden }) => (
-                    <li
-                      className={hidden ? "pokedex-detail__ability--hidden" : undefined}
-                      key={name}>
-                      {name}
-                    </li>
-                  ))}
-              </ul>
-            </dd>
-          </div>
-        </dl>
+          <p className="pokedex-detail__description">{detailLoadState.pokemon.description}</p>
 
-        <BaseStatsChart pokemon={detailLoadState.pokemon} />
-      </section>
-    </article>
+          <dl className="pokedex-detail__facts">
+            <div className="pokedex-detail__fact">
+              <dt>National Dex Number</dt>
+              <dd>#{String(detailLoadState.pokemon.nationalPokedex).padStart(3, "0")}</dd>
+            </div>
+            <div className="pokedex-detail__fact">
+              <dt>Height</dt>
+              <dd>{formatMeasurement(detailLoadState.pokemon.height, "m")}</dd>
+            </div>
+            <div className="pokedex-detail__fact">
+              <dt>Generation</dt>
+              <dd>{GENERATION_NUMERALS[detailLoadState.pokemon.generation - 1] ?? detailLoadState.pokemon.generation} Generation</dd>
+            </div>
+            <div className="pokedex-detail__fact">
+              <dt>Weight</dt>
+              <dd>{formatMeasurement(detailLoadState.pokemon.weight, "kg")}</dd>
+            </div>
+            <div className="pokedex-detail__fact">
+              <dt>Category</dt>
+              <dd>{detailLoadState.pokemon.category}</dd>
+            </div>
+            <div className="pokedex-detail__fact">
+              <dt>Abilities</dt>
+              <dd>
+                <ul className="pokedex-detail__abilities">
+                  {[
+                    { name: detailLoadState.pokemon.ability1, hidden: false },
+                    { name: detailLoadState.pokemon.ability2, hidden: false },
+                    { name: detailLoadState.pokemon.hiddenAbility, hidden: true },
+                  ]
+                    .filter((ability): ability is { name: string; hidden: boolean } => Boolean(ability.name?.trim()))
+                    .map(({ name, hidden }) => (
+                      <li
+                        className={hidden ? "pokedex-detail__ability--hidden" : undefined}
+                        key={name}>
+                        {name}
+                      </li>
+                    ))}
+                </ul>
+              </dd>
+            </div>
+          </dl>
+
+          <BaseStatsChart pokemon={detailLoadState.pokemon} />
+        </section>
+      </article>
+    </div>
   );
 
   return (
