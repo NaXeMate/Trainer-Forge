@@ -23,10 +23,10 @@ const BASE_STAT_ROWS = [
 type BaseStatTone = "lowest" | "lower" | "low" | "medium" | "high" | "higher" | "highest";
 
 type DetailLoadState =
-  | { status: "loading" }
-  | { status: "success"; pokemon: PokedexEntry }
-  | { status: "not-found" }
-  | { status: "error" };
+  | { entryId: number; status: "loading" }
+  | { entryId: number; status: "success"; pokemon: PokedexEntry }
+  | { entryId: number; status: "not-found" }
+  | { entryId: number; status: "error" };
 
 function getBaseStatTone(value: number): BaseStatTone {
   if (value <= 25) return "lowest";
@@ -87,47 +87,53 @@ function DetailMessage({
 export default function PokedexDetail() {
   const { id } = useParams();
   const entryId = id === undefined ? Number.NaN : Number(id);
-  const [loadState, setLoadState] = useState<DetailLoadState>({ status: "loading" });
+  const [loadState, setLoadState] = useState<DetailLoadState>({ entryId, status: "loading" });
   const [retryKey, setRetryKey] = useState(0);
 
   useEffect(() => {
     if (!Number.isSafeInteger(entryId) || entryId < 1) {
-      setLoadState({ status: "not-found" });
       return;
     }
 
     const controller = new AbortController();
-    setLoadState({ status: "loading" });
 
     getPokedexEntryById(entryId, controller.signal)
       .then(pokemon => {
-        if (!controller.signal.aborted) setLoadState({ status: "success", pokemon });
+        if (!controller.signal.aborted) setLoadState({ entryId, status: "success", pokemon });
       })
       .catch((error: unknown) => {
         if (controller.signal.aborted) return;
         setLoadState(error instanceof ApiError && error.status === 404
-          ? { status: "not-found" }
-          : { status: "error" });
+          ? { entryId, status: "not-found" }
+          : { entryId, status: "error" });
       });
 
     return () => controller.abort();
   }, [entryId, retryKey]);
 
+  const isValidEntryId = Number.isSafeInteger(entryId) && entryId > 0;
+  const detailLoadState = !isValidEntryId
+    ? { status: "not-found" as const }
+    : loadState.entryId === entryId
+      ? loadState
+      : { status: "loading" as const };
+
   function retry() {
-    setLoadState({ status: "loading" });
+    setLoadState({ entryId, status: "loading" });
     setRetryKey(previous => previous + 1);
   }
 
-  const pokemonTypes = loadState.status === "success"
-    ? [loadState.pokemon.type1, loadState.pokemon.type2]
+  const pokemonTypes = detailLoadState.status === "success"
+    ? [detailLoadState.pokemon.type1, detailLoadState.pokemon.type2]
       .filter((type): type is string => Boolean(type?.trim()))
     : [];
+  const pokemonForStats = detailLoadState.status === "success" ? detailLoadState.pokemon : undefined;
 
-  const content = loadState.status === "loading" ? (
+  const content = detailLoadState.status === "loading" ? (
     <p className="pokedex-detail__message" role="status">Loading Pokémon…</p>
-  ) : loadState.status === "not-found" ? (
+  ) : detailLoadState.status === "not-found" ? (
     <DetailMessage title="Pokémon not found" description="This Pokédex entry is unavailable." />
-  ) : loadState.status === "error" ? (
+  ) : detailLoadState.status === "error" ? (
     <section className="pokedex-detail__message" aria-live="polite">
       <h1>Could not load this Pokémon</h1>
       <p>Please check your connection and try again.</p>
@@ -140,9 +146,9 @@ export default function PokedexDetail() {
     </section>
   ) : (
     <article className="pokedex-detail__layout" aria-labelledby="pokedex-detail-title">
-      <section className="pokedex-detail__visual" aria-label={`${loadState.pokemon.name} artwork`}>
+      <section className="pokedex-detail__visual" aria-label={`${detailLoadState.pokemon.name} artwork`}>
         <div className="pokedex-detail__image-frame">
-          <img src={loadState.pokemon.imageUrl} alt={loadState.pokemon.name} />
+          <img src={detailLoadState.pokemon.imageUrl} alt={detailLoadState.pokemon.name} />
         </div>
         <ul
           className={pokemonTypes.length === 1
@@ -156,8 +162,8 @@ export default function PokedexDetail() {
       <section className="pokedex-detail__information" aria-labelledby="pokedex-detail-title">
         <div className="pokedex-detail__heading">
           <h1 id="pokedex-detail-title">
-            {loadState.pokemon.name}
-            <span className="pokedex-detail__number"> #{String(loadState.pokemon.id).padStart(3, "0")}</span>
+            {detailLoadState.pokemon.name}
+            <span className="pokedex-detail__number"> #{String(detailLoadState.pokemon.id).padStart(3, "0")}</span>
           </h1>
           <span className="pokedex-detail__favorite" aria-hidden="true">
             <svg viewBox="0 0 24 24">
@@ -165,37 +171,37 @@ export default function PokedexDetail() {
             </svg>
           </span>
         </div>
-        <p className="pokedex-detail__description">{loadState.pokemon.description}</p>
+        <p className="pokedex-detail__description">{detailLoadState.pokemon.description}</p>
 
         <dl className="pokedex-detail__facts">
           <div className="pokedex-detail__fact">
             <dt>National Dex Number</dt>
-            <dd>#{String(loadState.pokemon.nationalPokedex).padStart(3, "0")}</dd>
+            <dd>#{String(detailLoadState.pokemon.nationalPokedex).padStart(3, "0")}</dd>
           </div>
           <div className="pokedex-detail__fact">
             <dt>Height</dt>
-            <dd>{formatMeasurement(loadState.pokemon.height, "m")}</dd>
+            <dd>{formatMeasurement(detailLoadState.pokemon.height, "m")}</dd>
           </div>
           <div className="pokedex-detail__fact">
             <dt>Generation</dt>
-            <dd>{GENERATION_NUMERALS[loadState.pokemon.generation - 1] ?? loadState.pokemon.generation} Generation</dd>
+            <dd>{GENERATION_NUMERALS[detailLoadState.pokemon.generation - 1] ?? detailLoadState.pokemon.generation} Generation</dd>
           </div>
           <div className="pokedex-detail__fact">
             <dt>Weight</dt>
-            <dd>{formatMeasurement(loadState.pokemon.weight, "kg")}</dd>
+            <dd>{formatMeasurement(detailLoadState.pokemon.weight, "kg")}</dd>
           </div>
           <div className="pokedex-detail__fact">
             <dt>Category</dt>
-            <dd>{loadState.pokemon.category}</dd>
+            <dd>{detailLoadState.pokemon.category}</dd>
           </div>
           <div className="pokedex-detail__fact">
             <dt>Abilities</dt>
             <dd>
               <ul className="pokedex-detail__abilities">
                 {[
-                  { name: loadState.pokemon.ability1, hidden: false },
-                  { name: loadState.pokemon.ability2, hidden: false },
-                  { name: loadState.pokemon.hiddenAbility, hidden: true },
+                  { name: detailLoadState.pokemon.ability1, hidden: false },
+                  { name: detailLoadState.pokemon.ability2, hidden: false },
+                  { name: detailLoadState.pokemon.hiddenAbility, hidden: true },
                 ]
                   .filter((ability): ability is { name: string; hidden: boolean } => Boolean(ability.name?.trim()))
                   .map(({ name, hidden }) => (
@@ -214,7 +220,8 @@ export default function PokedexDetail() {
           <h2 id="pokedex-detail-stats-title">Base Stats</h2>
           <ul className="pokedex-detail__stat-list">
             {BASE_STAT_ROWS.map(({ label, key }) => {
-              const value = loadState.pokemon[key];
+              if (!pokemonForStats) return null;
+              const value = pokemonForStats[key];
               const percentage = Math.max(0, Math.min(100, (value / 255) * 100));
               const style = {
                 "--stat-color": `var(--color-stat-${getBaseStatTone(value)})`,
@@ -256,7 +263,7 @@ export default function PokedexDetail() {
   return (
     <div className="pokedex-detail-page">
       <Header />
-      <main className="pokedex-detail__main" aria-busy={loadState.status === "loading"}>
+      <main className="pokedex-detail__main" aria-busy={detailLoadState.status === "loading"}>
         {content}
       </main>
       <Footer />

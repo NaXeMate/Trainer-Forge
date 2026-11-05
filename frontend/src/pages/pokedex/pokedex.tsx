@@ -21,6 +21,7 @@ import { POKEDEX_SORT_GROUPS, sortPokedexEntries } from "../../utils/pokedexSort
 import type { PokedexSortCriterion, PokedexSortKey } from "../../utils/pokedexSort";
 
 const POKEMON_PER_PAGE = 16;
+const EMPTY_POKEDEX_ENTRIES: PokedexEntry[] = [];
 
 const textFilters = [
   { name: "name", label: "Name", placeholder: "NAME", wide: true },
@@ -62,7 +63,7 @@ export default function Pokedex() {
   const sortContainerRef = useRef<HTMLDivElement>(null);
   const sortButtonRef = useRef<HTMLButtonElement>(null);
 
-  const entries = loadState.status === "success" ? loadState.entries : [];
+  const entries = loadState.status === "success" ? loadState.entries : EMPTY_POKEDEX_ENTRIES;
   const sortedEntries = useMemo(() => sortPokedexEntries(entries, sortCriteria), [entries, sortCriteria]);
   const totalPages = Math.ceil(entries.length / POKEMON_PER_PAGE);
   const page = Math.max(1, Math.min(currentPage, totalPages));
