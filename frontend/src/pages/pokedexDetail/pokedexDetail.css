@@ -116,14 +116,14 @@
   background: var(--type-color);
   color: var(--color-footer);
   display: inline-flex;
-  flex: 0 0 1.625rem;
+  flex: 0 0 2.25rem;
   height: 2.25rem;
   justify-content: center;
 }
 
-.pokedex-detail__type-icon svg {
-  height: 1.125rem;
-  width: 1.125rem;
+.pokedex-detail__type-icon img {
+  height: 1.3rem;
+  width: auto;
 }
 
 .pokedex-detail__information {
