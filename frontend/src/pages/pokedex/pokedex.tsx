@@ -180,7 +180,7 @@ export default function Pokedex() {
               aria-label="Reset Pokedex search"
               title="Reset Pokedex search">
               <img className="pokedex-page__logo" src={pokedexIcon} alt="" />
-              Poké<span>Dex</span>
+              Poke<span>Dex</span>
             </button>
           </h1>
         </div>

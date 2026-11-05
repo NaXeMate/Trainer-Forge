@@ -63,14 +63,30 @@
 
 .pokedex-detail__image-frame {
   aspect-ratio: 1;
-  background: linear-gradient(135deg, rgb(129 185 239 / 20%) 0%, rgb(80 96 225 / 20%) 100%);
-  border: 6px solid #d9d9d9;
+  background: linear-gradient(135deg, rgb(129 185 239 / 20%) 0%, rgb(80 96 225 / 20%) 100%) padding-box;
+  border: 6px solid transparent;
   border-radius: 0.9375rem;
   display: grid;
   max-width: 36.25rem;
-  overflow: hidden;
+  overflow: visible;
   place-items: center;
+  position: relative;
   width: 100%;
+}
+
+.pokedex-detail__image-frame::before {
+  background: linear-gradient(45deg, var(--pokemon-type-start) 50%, var(--pokemon-type-end) 50%);
+  border-radius: inherit;
+  content: "";
+  inset: -6px;
+  padding: 6px;
+  pointer-events: none;
+  position: absolute;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  z-index: 1;
 }
 
 .pokedex-detail__image-frame img {

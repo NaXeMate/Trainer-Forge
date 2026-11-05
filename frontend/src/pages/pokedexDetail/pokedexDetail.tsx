@@ -163,6 +163,14 @@ export default function PokedexDetail() {
       .filter((type): type is string => Boolean(type?.trim()))
     : [];
   const pokemonForStats = detailLoadState.status === "success" ? detailLoadState.pokemon : undefined;
+  const imageFrameStyle = detailLoadState.status === "success"
+    ? {
+      "--pokemon-type-start": getTypeColor(detailLoadState.pokemon.type1),
+      "--pokemon-type-end": detailLoadState.pokemon.type2?.trim()
+        ? getTypeColor(detailLoadState.pokemon.type2)
+        : getTypeColor(detailLoadState.pokemon.type1),
+    } as CSSProperties
+    : undefined;
 
   const content = detailLoadState.status === "loading" ? (
     <p className="pokedex-detail__message" role="status">Loading Pokémon…</p>
@@ -182,7 +190,7 @@ export default function PokedexDetail() {
   ) : (
     <article className="pokedex-detail__layout" aria-labelledby="pokedex-detail-title">
       <section className="pokedex-detail__visual" aria-label={`${detailLoadState.pokemon.name} artwork`}>
-        <div className="pokedex-detail__image-frame">
+        <div className="pokedex-detail__image-frame" style={imageFrameStyle}>
           <img src={detailLoadState.pokemon.imageUrl} alt={detailLoadState.pokemon.name} />
         </div>
         <ul
