@@ -8,9 +8,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import dev.trainerforge.dto.response.MoveDto;
 import dev.trainerforge.dto.response.TeamDto;
+import dev.trainerforge.mapper.MoveMapper;
 import dev.trainerforge.mapper.TeamMapper;
 import dev.trainerforge.service.BattleSimulatorService;
+import dev.trainerforge.service.MoveService;
 import dev.trainerforge.service.TeamService;
 
 @RestController
@@ -20,11 +23,25 @@ public class BattleSimulatorController {
     private final BattleSimulatorService battleSimulatorService;
     private final TeamService teamService;
     private final TeamMapper teamMapper;
+    private final MoveService moveService;
+    private final MoveMapper moveMapper;
 
-    public BattleSimulatorController(BattleSimulatorService battleSimulatorService, TeamService teamService, TeamMapper teamMapper) {
+    public BattleSimulatorController(BattleSimulatorService battleSimulatorService, TeamService teamService,
+            TeamMapper teamMapper, MoveService moveService, MoveMapper moveMapper) {
         this.battleSimulatorService = battleSimulatorService;
         this.teamService = teamService;
         this.teamMapper = teamMapper;
+        this.moveService = moveService;
+        this.moveMapper = moveMapper;
+    }
+
+    @GetMapping("/moves")
+    public ResponseEntity<List<MoveDto>> getMoves() {
+        List<MoveDto> moves = moveService.findAll()
+                .stream()
+                .map(moveMapper::toDto)
+                .toList();
+        return ResponseEntity.ok(moves);
     }
 
     @GetMapping("/available-teams")

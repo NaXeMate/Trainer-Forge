@@ -54,6 +54,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/actuator/health").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/pokedex", "/api/pokedex/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/simulator/moves").permitAll()
                 .anyRequest().authenticated()
             )
             .exceptionHandling(ex -> ex
