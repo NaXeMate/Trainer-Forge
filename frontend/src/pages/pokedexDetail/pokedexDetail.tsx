@@ -66,6 +66,14 @@ type DetailLoadState =
   | { entryId: number; status: "not-found" }
   | { entryId: number; status: "error" };
 
+type AdjacentPokemon = Pick<PokedexEntry, "id" | "name">;
+
+interface AdjacentPokemonState {
+  entryId: number;
+  previous: AdjacentPokemon | null;
+  next: AdjacentPokemon | null;
+}
+
 function getBaseStatTone(value: number): BaseStatTone {
   if (value <= 40) return "lowest";
   if (value <= 60) return "lower";
@@ -207,6 +215,7 @@ export default function PokedexDetail() {
   const entryId = id === undefined ? Number.NaN : Number(id);
   const [loadState, setLoadState] = useState<DetailLoadState>({ entryId, status: "loading" });
   const [retryKey, setRetryKey] = useState(0);
+  const [adjacentPokemonState, setAdjacentPokemonState] = useState<AdjacentPokemonState | null>(null);
 
   useEffect(() => {
     if (!Number.isSafeInteger(entryId) || entryId < 1) {
@@ -235,6 +244,28 @@ export default function PokedexDetail() {
     : loadState.entryId === entryId
       ? loadState
       : { status: "loading" as const };
+  const currentPokemonId = detailLoadState.status === "success" ? detailLoadState.pokemon.id : undefined;
+
+  useEffect(() => {
+    if (currentPokemonId === undefined) return;
+
+    const controller = new AbortController();
+    const getAdjacentPokemon = (pokemonId: number): Promise<AdjacentPokemon | null> =>
+      getPokedexEntryById(pokemonId, controller.signal)
+        .then(pokemon => ({ id: pokemon.id, name: pokemon.name }))
+        .catch(() => null);
+
+    Promise.all([
+      currentPokemonId > 1 ? getAdjacentPokemon(currentPokemonId - 1) : Promise.resolve(null),
+      getAdjacentPokemon(currentPokemonId + 1),
+    ]).then(([previous, next]) => {
+      if (!controller.signal.aborted) {
+        setAdjacentPokemonState({ entryId: currentPokemonId, previous, next });
+      }
+    });
+
+    return () => controller.abort();
+  }, [currentPokemonId]);
 
   function retry() {
     setLoadState({ entryId, status: "loading" });
@@ -253,6 +284,7 @@ export default function PokedexDetail() {
         : getTypeColor(detailLoadState.pokemon.type1),
     } as CSSProperties
     : undefined;
+  const adjacentPokemon = adjacentPokemonState?.entryId === currentPokemonId ? adjacentPokemonState : null;
 
   const content = detailLoadState.status === "loading" ? (
     <p className="pokedex-detail__message" role="status">Loading Pokémon…</p>
@@ -353,6 +385,65 @@ export default function PokedexDetail() {
           <BaseStatsChart pokemon={detailLoadState.pokemon} />
         </section>
       </article>
+      <nav className="pokedex-detail__pokemon-navigation" aria-label="Adjacent Pokémon">
+        {adjacentPokemon?.previous ? (
+          <Link
+            className="pokedex-detail__pokemon-link pokedex-detail__pokemon-link--previous"
+            to={`/pokedex/${adjacentPokemon.previous.id}`}
+            replace
+            aria-label={`Previous Pokémon: ${adjacentPokemon.previous.name} #${String(adjacentPokemon.previous.id).padStart(3, "0")}`}>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M19 12H5m0 0 7-7m-7 7 7 7" />
+            </svg>
+            <span className="pokedex-detail__pokemon-link-label">
+              <span className="pokedex-detail__pokemon-link-name">{adjacentPokemon.previous.name}</span>
+              <span>#{String(adjacentPokemon.previous.id).padStart(3, "0")}</span>
+            </span>
+          </Link>
+        ) : (
+          <button
+            className="pokedex-detail__pokemon-link pokedex-detail__pokemon-link--previous"
+            type="button"
+            disabled
+            aria-label={adjacentPokemon ? "No previous Pokémon" : "Loading previous Pokémon"}>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M19 12H5m0 0 7-7m-7 7 7 7" />
+            </svg>
+            <span className="pokedex-detail__pokemon-link-label">
+              {adjacentPokemon ? "First Pokémon" : "Loading…"}
+            </span>
+          </button>
+        )}
+
+        {adjacentPokemon?.next ? (
+          <Link
+            className="pokedex-detail__pokemon-link pokedex-detail__pokemon-link--next"
+            to={`/pokedex/${adjacentPokemon.next.id}`}
+            replace
+            aria-label={`Next Pokémon: ${adjacentPokemon.next.name} #${String(adjacentPokemon.next.id).padStart(3, "0")}`}>
+            <span className="pokedex-detail__pokemon-link-label">
+              <span className="pokedex-detail__pokemon-link-name">{adjacentPokemon.next.name}</span>
+              <span>#{String(adjacentPokemon.next.id).padStart(3, "0")}</span>
+            </span>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M5 12h14m0 0-7-7m7 7-7 7" />
+            </svg>
+          </Link>
+        ) : (
+          <button
+            className="pokedex-detail__pokemon-link pokedex-detail__pokemon-link--next"
+            type="button"
+            disabled
+            aria-label={adjacentPokemon ? "No next Pokémon" : "Loading next Pokémon"}>
+            <span className="pokedex-detail__pokemon-link-label">
+              {adjacentPokemon ? "Last Pokémon" : "Loading…"}
+            </span>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M5 12h14m0 0-7-7m7 7-7 7" />
+            </svg>
+          </button>
+        )}
+      </nav>
     </div>
   );
 
