@@ -6,6 +6,7 @@ import selectorLeft from "../../../assets/icons/pokedex/selector-left.svg";
 import statHelp from "../../../assets/icons/pokedex/stat-help.svg";
 import { BASE_STAT_MIN, BASE_STAT_MAX } from "../../../constants/pokedex";
 import type { PokedexStatFilter, StatFilterMode } from "../../../types/pokedexTypes";
+import AccentCheckbox from "../accentCheckbox";
 import "./statisticSlider.css";
 
 export interface StatisticSliderProps {
@@ -55,12 +56,11 @@ export default function StatisticSlider({ label, filter, onChange }: StatisticSl
   return (
     <div className={`statistic-slider${filter.enabled ? "" : " statistic-slider--inactive"}`} style={style}>
       <label className="statistic-slider__label">
-        <input
+        <AccentCheckbox
           className="statistic-slider__enabled"
-          type="checkbox"
           aria-label={`Apply ${label} filter`}
           checked={filter.enabled}
-          onChange={event => onChange({ ...filter, enabled: event.target.checked })}
+          onCheckedChange={enabled => onChange({ ...filter, enabled })}
         />
         <span>{label}</span>
       </label>

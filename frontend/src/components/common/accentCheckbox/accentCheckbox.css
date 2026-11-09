@@ -1,0 +1,36 @@
+.accent-checkbox {
+  appearance: none;
+  background: var(--color-glass-tint);
+  border: 2px solid var(--color-accent);
+  border-radius: 50%;
+  cursor: pointer;
+  display: grid;
+  height: 1.5625rem;
+  margin: 0;
+  place-items: center;
+  width: 1.5625rem;
+}
+
+.accent-checkbox::before {
+  background: var(--color-accent);
+  border-radius: 50%;
+  content: "";
+  height: 0.6875rem;
+  transform: scale(0);
+  width: 0.6875rem;
+}
+
+.accent-checkbox:checked::before {
+  transform: scale(1);
+}
+
+@media (forced-colors: active) {
+  .accent-checkbox {
+    border-color: ButtonText;
+  }
+
+  .accent-checkbox:checked::before {
+    background: Highlight;
+    forced-color-adjust: none;
+  }
+}

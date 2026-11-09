@@ -14,32 +14,9 @@
 }
 
 .statistic-slider__enabled {
-  appearance: none;
-  background: var(--color-glass-tint);
-  border: 2px solid var(--color-accent);
-  border-radius: 50%;
-  cursor: pointer;
-  display: grid;
-  height: 1.5625rem;
   left: 0;
-  margin: 0;
-  place-items: center;
   position: absolute;
   top: 0;
-  width: 1.5625rem;
-}
-
-.statistic-slider__enabled::before {
-  background: var(--color-accent);
-  border-radius: 50%;
-  content: "";
-  height: 0.6875rem;
-  transform: scale(0);
-  width: 0.6875rem;
-}
-
-.statistic-slider__enabled:checked::before {
-  transform: scale(1);
 }
 
 .statistic-slider__help {
@@ -150,15 +127,6 @@
   .statistic-slider--inactive .statistic-slider__range {
     filter: none;
     opacity: 1;
-  }
-
-  .statistic-slider__enabled {
-    border-color: ButtonText;
-  }
-
-  .statistic-slider__enabled:checked::before {
-    background: Highlight;
-    forced-color-adjust: none;
   }
 
   .statistic-slider__range {
