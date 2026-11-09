@@ -9,11 +9,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import dev.trainerforge.dto.response.MoveDto;
+import dev.trainerforge.dto.response.PokemonItemDto;
 import dev.trainerforge.dto.response.TeamDto;
 import dev.trainerforge.mapper.MoveMapper;
+import dev.trainerforge.mapper.PokemonItemMapper;
 import dev.trainerforge.mapper.TeamMapper;
 import dev.trainerforge.service.BattleSimulatorService;
 import dev.trainerforge.service.MoveService;
+import dev.trainerforge.service.PokemonItemService;
 import dev.trainerforge.service.TeamService;
 
 @RestController
@@ -25,14 +28,19 @@ public class BattleSimulatorController {
     private final TeamMapper teamMapper;
     private final MoveService moveService;
     private final MoveMapper moveMapper;
+    private final PokemonItemService pokemonItemService;
+    private final PokemonItemMapper pokemonItemMapper;
 
     public BattleSimulatorController(BattleSimulatorService battleSimulatorService, TeamService teamService,
-            TeamMapper teamMapper, MoveService moveService, MoveMapper moveMapper) {
+            TeamMapper teamMapper, MoveService moveService, MoveMapper moveMapper,
+            PokemonItemService pokemonItemService, PokemonItemMapper pokemonItemMapper) {
         this.battleSimulatorService = battleSimulatorService;
         this.teamService = teamService;
         this.teamMapper = teamMapper;
         this.moveService = moveService;
         this.moveMapper = moveMapper;
+        this.pokemonItemService = pokemonItemService;
+        this.pokemonItemMapper = pokemonItemMapper;
     }
 
     @GetMapping("/moves")
@@ -42,6 +50,15 @@ public class BattleSimulatorController {
                 .map(moveMapper::toDto)
                 .toList();
         return ResponseEntity.ok(moves);
+    }
+
+    @GetMapping("/items")
+    public ResponseEntity<List<PokemonItemDto>> getEquippableItems() {
+        List<PokemonItemDto> items = pokemonItemService.findAllEquippableItems()
+                .stream()
+                .map(pokemonItemMapper::toDto)
+                .toList();
+        return ResponseEntity.ok(items);
     }
 
     @GetMapping("/available-teams")

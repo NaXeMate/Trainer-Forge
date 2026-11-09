@@ -39,21 +39,30 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import dev.trainerforge.controller.BattleSimulatorController;
 import dev.trainerforge.mapper.EntityReferenceMapper;
 import dev.trainerforge.mapper.MoveMapperImpl;
+import dev.trainerforge.mapper.PokemonItemMapperImpl;
 import dev.trainerforge.mapper.TeamMapper;
+import dev.trainerforge.model.entities.Generation;
 import dev.trainerforge.model.entities.Move;
+import dev.trainerforge.model.entities.PokemonItem;
 import dev.trainerforge.model.entities.PokemonType;
+import dev.trainerforge.model.enumerated.ItemType;
 import dev.trainerforge.model.enumerated.MoveClass;
+import dev.trainerforge.repository.PokemonItemRepository;
 import dev.trainerforge.security.jwt.JwtFilter;
 import dev.trainerforge.security.jwt.JwtUtil;
 import dev.trainerforge.service.BattleSimulatorService;
 import dev.trainerforge.service.MoveService;
+import dev.trainerforge.service.PokemonItemService;
 import dev.trainerforge.service.TeamService;
 import jakarta.servlet.Filter;
 
-/** Exercises the move catalogue through the real controller, mapper and security chain. */
-@SpringJUnitWebConfig(BattleSimulatorMovesAccessTest.TestConfiguration.class)
+/** Exercises the simulator catalogues through the real controller, mappers and security chain. */
+@SpringJUnitWebConfig(BattleSimulatorCatalogueAccessTest.TestConfiguration.class)
 @TestPropertySource(properties = "trainerforge.cors.allowed-origins[0]=http://localhost:5173")
-class BattleSimulatorMovesAccessTest {
+class BattleSimulatorCatalogueAccessTest {
+
+    private static final List<ItemType> EQUIPPABLE_TYPES =
+            List.of(ItemType.HELD_ITEM, ItemType.MEGASTONE, ItemType.Z_CRYSTAL);
 
     @Autowired
     private WebApplicationContext context;
@@ -66,6 +75,9 @@ class BattleSimulatorMovesAccessTest {
     private MoveService moveService;
 
     @Autowired
+    private PokemonItemRepository pokemonItemRepository;
+
+    @Autowired
     private TeamService teamService;
 
     @Autowired
@@ -75,7 +87,7 @@ class BattleSimulatorMovesAccessTest {
 
     @BeforeEach
     void setUp() {
-        reset(moveService, teamService, battleSimulatorService);
+        reset(moveService, pokemonItemRepository, teamService, battleSimulatorService);
         mvc = MockMvcBuilders.webAppContextSetup(context).addFilters(securityFilter).build();
     }
 
@@ -156,14 +168,64 @@ class BattleSimulatorMovesAccessTest {
         verifyNoInteractions(teamService, battleSimulatorService);
     }
 
+    @Test
+    void anonymousCatalogueReturnsEquippableItemsWithTheirTypesFromTheAllowedFrontendOrigin() throws Exception {
+        PokemonItem charcoal = new PokemonItem("Charcoal", "Boosts Fire-type moves.",
+                ItemType.HELD_ITEM, new Generation("Generation III"));
+        PokemonItem gengarite = new PokemonItem("Gengarite", "Allows Gengar to Mega Evolve.",
+                ItemType.MEGASTONE, new Generation("Generation VI"));
+        PokemonItem firiumZ = new PokemonItem("Firium Z", "Enables Inferno Overdrive.",
+                ItemType.Z_CRYSTAL, new Generation("Generation VII"));
+        when(pokemonItemRepository.findByTypeIn(EQUIPPABLE_TYPES)).thenReturn(List.of(charcoal, gengarite, firiumZ));
+
+        mvc.perform(get("/api/simulator/items").header("Origin", "http://localhost:5173"))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Access-Control-Allow-Origin", "http://localhost:5173"))
+                .andExpect(jsonPath("$.length()").value(3))
+                .andExpect(jsonPath("$[0].name").value("Charcoal"))
+                .andExpect(jsonPath("$[0].description").value("Boosts Fire-type moves."))
+                .andExpect(jsonPath("$[0].type").value("HELD_ITEM"))
+                .andExpect(jsonPath("$[0].generation").value("Generation III"))
+                .andExpect(jsonPath("$[1].name").value("Gengarite"))
+                .andExpect(jsonPath("$[1].type").value("MEGASTONE"))
+                .andExpect(jsonPath("$[2].name").value("Firium Z"))
+                .andExpect(jsonPath("$[2].type").value("Z_CRYSTAL"))
+                .andExpect(jsonPath("$[2].generation").value("Generation VII"));
+
+        verify(pokemonItemRepository).findByTypeIn(EQUIPPABLE_TYPES);
+    }
+
+    @Test
+    void emptyEquippableItemCatalogueReturnsAnEmptyList() throws Exception {
+        when(pokemonItemRepository.findByTypeIn(EQUIPPABLE_TYPES)).thenReturn(List.of());
+
+        mvc.perform(get("/api/simulator/items"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"POST", "PUT", "PATCH", "DELETE"})
+    void equippableItemCatalogueWriteRequestsRequireAuthentication(String method) throws Exception {
+        mvc.perform(request(HttpMethod.valueOf(method), URI.create("/api/simulator/items")))
+                .andExpect(status().isUnauthorized());
+        verifyNoInteractions(pokemonItemRepository);
+    }
+
     @Configuration
     @EnableWebMvc
     @EnableWebSecurity
-    @Import({SecurityConfig.class, BattleSimulatorController.class, MoveMapperImpl.class})
+    @Import({SecurityConfig.class, BattleSimulatorController.class, MoveMapperImpl.class,
+            PokemonItemService.class, PokemonItemMapperImpl.class})
     static class TestConfiguration {
         @Bean
         MoveService moveService() {
             return mock(MoveService.class);
+        }
+
+        @Bean
+        PokemonItemRepository pokemonItemRepository() {
+            return mock(PokemonItemRepository.class);
         }
 
         @Bean

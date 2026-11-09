@@ -5,5 +5,7 @@ public enum ItemType {
     BATTLE_ITEM,
     KEY_ITEM,
     EVOLUTION_ITEM,
+    MEGASTONE,
+    Z_CRYSTAL,
     OTHER
 }

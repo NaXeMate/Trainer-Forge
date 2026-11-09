@@ -15,6 +15,9 @@ import dev.trainerforge.validator.PokemonItemValidator;
 @Service
 public class PokemonItemService {
 
+    private static final List<ItemType> EQUIPPABLE_TYPES =
+            List.of(ItemType.HELD_ITEM, ItemType.MEGASTONE, ItemType.Z_CRYSTAL);
+
     private final PokemonItemRepository pokemonItemRepo;
 
     public PokemonItemService(PokemonItemRepository pokemonItemRepo) {
@@ -23,6 +26,10 @@ public class PokemonItemService {
 
     public List<PokemonItem> findAll() {
         return pokemonItemRepo.findAll();
+    }
+
+    public List<PokemonItem> findAllEquippableItems() {
+        return pokemonItemRepo.findByTypeIn(EQUIPPABLE_TYPES);
     }
 
     public PokemonItem findById(Long id) {
