@@ -1,24 +1,6 @@
+@import "../../styles/pokemonTypeColors.css";
+
 .pokedex-page {
-  --pokedex-type-normal: #9FA19F;
-  --pokedex-type-fire: #E6282A;
-  --pokedex-type-water: #2A80EF;
-  --pokedex-type-electric: #FAC000;
-  --pokedex-type-grass: #3FA12A;
-  --pokedex-type-ice: #41D8FF;
-  --pokedex-type-fighting: #FF8000;
-  --pokedex-type-poison: #9141CB;
-  --pokedex-type-ground: #945121;
-  --pokedex-type-flying: #81B9EF;
-  --pokedex-type-psychic: #EF4179;
-  --pokedex-type-bug: #91A119;
-  --pokedex-type-rock: #AFA981;
-  --pokedex-type-ghost: #704170;
-  --pokedex-type-dragon: #5060E1;
-  --pokedex-type-dark: #50413F;
-  --pokedex-type-steel: #60A1B8;
-  --pokedex-type-fairy: #EF70EF;
-  --pokedex-type-unknown: #96A0B4;
-  
   --pokedex-gold-shadow: #D9AD24;
   --pokedex-gold-base: #EDC531;
   --pokedex-gold-light: #FFDD60;
