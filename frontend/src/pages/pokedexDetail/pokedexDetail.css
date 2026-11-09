@@ -243,36 +243,6 @@
   width: 100%;
 }
 
-.pokedex-detail__type {
-  align-items: center;
-  background: var(--color-footer);
-  border-radius: 0.25rem;
-  color: var(--color-on-dark);
-  display: flex;
-  flex: 0 0 9.375rem;
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-bold);
-  gap: 0.5rem;
-  height: 2.25rem;
-  overflow: hidden;
-  padding-right: 0.5rem;
-}
-
-.pokedex-detail__type-icon {
-  align-items: center;
-  background: var(--type-color);
-  color: var(--color-footer);
-  display: inline-flex;
-  flex: 0 0 2.25rem;
-  height: 2.25rem;
-  justify-content: center;
-}
-
-.pokedex-detail__type-icon img {
-  height: 1.3rem;
-  width: auto;
-}
-
 .pokedex-detail__information {
   min-width: 0;
 }
@@ -660,9 +630,8 @@
     width: 1.375rem;
   }
 
-  .pokedex-detail__type {
-    flex-basis: min(9.375rem, 48%);
-    font-size: 0.875rem;
+  .pokedex-detail__types .pokemon-type-badge {
+    inline-size: min(9.375rem, 48%);
   }
 
   .pokedex-detail__stats {

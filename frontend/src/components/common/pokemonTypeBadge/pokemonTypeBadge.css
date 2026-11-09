@@ -1,0 +1,40 @@
+.pokemon-type-badge {
+  align-items: center;
+  background: var(--color-footer);
+  border-radius: 0.25rem;
+  color: var(--color-on-dark);
+  display: flex;
+  flex: 0 0 auto;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  height: 2.25rem;
+  inline-size: min(9.375rem, 100%);
+  overflow: hidden;
+}
+
+.pokemon-type-badge__icon {
+  align-items: center;
+  background: var(--type-color);
+  color: var(--color-footer);
+  display: inline-flex;
+  flex: 0 0 2.25rem;
+  height: 2.25rem;
+  justify-content: center;
+}
+
+.pokemon-type-badge__icon img {
+  height: 1.3rem;
+  width: auto;
+}
+
+.pokemon-type-badge__label {
+  flex: 1;
+  min-inline-size: 0;
+  text-align: center;
+}
+
+@media (max-width: 30rem) {
+  .pokemon-type-badge {
+    font-size: var(--font-size-sm);
+  }
+}

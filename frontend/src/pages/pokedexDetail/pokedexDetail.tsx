@@ -1,26 +1,9 @@
 import { useEffect, useState } from "react";
 import type { CSSProperties } from "react";
 import { Link, useNavigate, useParams } from "react-router";
-import bugTypeIcon from "../../assets/icons/pokemonTypes/bug.svg";
-import darkTypeIcon from "../../assets/icons/pokemonTypes/dark.svg";
-import dragonTypeIcon from "../../assets/icons/pokemonTypes/dragon.svg";
-import electricTypeIcon from "../../assets/icons/pokemonTypes/electric.svg";
-import fairyTypeIcon from "../../assets/icons/pokemonTypes/fairy.svg";
-import fightingTypeIcon from "../../assets/icons/pokemonTypes/fighting.svg";
-import fireTypeIcon from "../../assets/icons/pokemonTypes/fire.svg";
-import flyingTypeIcon from "../../assets/icons/pokemonTypes/flying.svg";
-import ghostTypeIcon from "../../assets/icons/pokemonTypes/ghost.svg";
-import grassTypeIcon from "../../assets/icons/pokemonTypes/grass.svg";
-import groundTypeIcon from "../../assets/icons/pokemonTypes/ground.svg";
-import iceTypeIcon from "../../assets/icons/pokemonTypes/ice.svg";
-import normalTypeIcon from "../../assets/icons/pokemonTypes/normal.svg";
-import poisonTypeIcon from "../../assets/icons/pokemonTypes/poison.svg";
-import psychicTypeIcon from "../../assets/icons/pokemonTypes/psychic.svg";
-import rockTypeIcon from "../../assets/icons/pokemonTypes/rock.svg";
-import steelTypeIcon from "../../assets/icons/pokemonTypes/steel.svg";
-import waterTypeIcon from "../../assets/icons/pokemonTypes/water.svg";
 import Footer from "../../components/layout/footer";
 import Header from "../../components/layout/header";
+import TypeBadge from "../../components/common/pokemonTypeBadge";
 import { getTypeColor } from "../../utils/pokemonPresentation";
 import { ApiError } from "../../services/api";
 import { getPokedexEntryById } from "../../services/pokedexService";
@@ -28,27 +11,6 @@ import type { PokedexEntry } from "../../types/pokedexTypes";
 import "./pokedexDetail.css";
 
 const GENERATION_NUMERALS = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"];
-const TYPE_ICONS: Record<string, string> = {
-  bug: bugTypeIcon,
-  dark: darkTypeIcon,
-  dragon: dragonTypeIcon,
-  electric: electricTypeIcon,
-  fairy: fairyTypeIcon,
-  fighting: fightingTypeIcon,
-  fire: fireTypeIcon,
-  flying: flyingTypeIcon,
-  ghost: ghostTypeIcon,
-  grass: grassTypeIcon,
-  ground: groundTypeIcon,
-  ice: iceTypeIcon,
-  normal: normalTypeIcon,
-  poison: poisonTypeIcon,
-  psychic: psychicTypeIcon,
-  rock: rockTypeIcon,
-  steel: steelTypeIcon,
-  water: waterTypeIcon,
-};
-
 const BASE_STAT_ROWS = [
   { label: "HP", key: "hpBase" },
   { label: "ATTACK", key: "attackBase" },
@@ -91,20 +53,6 @@ function formatMeasurement(value: number, unit: string): string {
   }).format(value);
 
   return `${formattedValue} ${unit}`;
-}
-
-function TypeBadge({ type }: { type: string }) {
-  const style = { "--type-color": getTypeColor(type) } as CSSProperties;
-  const icon = TYPE_ICONS[type.trim().toLowerCase()] ?? normalTypeIcon;
-
-  return (
-    <li className="pokedex-detail__type" style={style}>
-      <span className="pokedex-detail__type-icon" aria-hidden="true">
-        <img src={icon} alt="" />
-      </span>
-      <span>{type.toUpperCase()}</span>
-    </li>
-  );
 }
 
 const STAT_ANIMATION_DURATION = 1450;
