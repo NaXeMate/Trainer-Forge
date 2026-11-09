@@ -1,0 +1,48 @@
+.team-pokemon {
+  --remove-size: 2rem;
+  --remove-right: 0.35rem;
+  --remove-top: 0.2rem;
+  --ring-size: 5rem;
+  --ring-offset: calc((var(--remove-size) - var(--ring-size)) / 2);
+
+  position: relative;
+  width: 100%;
+  min-height: var(--team-card-height, 38.4375rem);
+  padding: 0.875rem 1.3125rem 1.3125rem;
+  border-radius: var(--radius-card);
+  background:
+    url("../../../assets/icons/pokedex/card-ring.svg")
+      right calc(var(--remove-right) + var(--ring-offset))
+      top calc(var(--remove-top) + var(--ring-offset))
+      / var(--ring-size) var(--ring-size) no-repeat,
+    linear-gradient(158deg, color-mix(in srgb, var(--team-type-start) 20%, transparent), color-mix(in srgb, var(--team-type-end) 20%, transparent));
+}
+
+.team-pokemon__species { display: flex; flex-direction: column; align-items: center; width: 100%; height: 10.625rem; }
+.team-pokemon__species img { height: 9.5rem; width: 10.3125rem; object-fit: contain; }
+.team-pokemon__species span { font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.team-pokemon__remove {
+  position: absolute;
+  right: var(--remove-right);
+  top: var(--remove-top);
+  display: grid;
+  place-items: center;
+  width: var(--remove-size);
+  height: var(--remove-size);
+  padding: 0;
+  border-radius: var(--radius-pill);
+  color: var(--color-secondary-text);
+}
+.team-pokemon__remove:hover { background: var(--color-surface); color: var(--color-status-error); }
+.team-pokemon__fields { display: grid; gap: 0.625rem; }
+.team-pokemon__field { display: block; width: 100%; height: 3.125rem; border-radius: var(--radius-card); color: var(--color-accent-contrast); background: var(--color-accent); font-size: var(--font-size-sm); font-weight: var(--font-weight-bold); text-align: center; }
+.team-pokemon__field input, .team-pokemon__field select { width: 100%; height: 100%; padding: 0.5rem; border: 0; border-radius: inherit; background: transparent; text-align: center; text-overflow: ellipsis; }
+.team-pokemon__field input::placeholder { color: var(--color-accent-contrast); opacity: 1; }
+.team-pokemon__field select { appearance: none; cursor: pointer; }
+.team-pokemon__field option { color: var(--color-body-text); background: var(--color-background); }
+button.team-pokemon__field:hover { background: var(--color-accent-hover); }
+
+@media (max-width: 35rem) {
+  .team-pokemon { padding-inline: 0.625rem; }
+  .team-pokemon__field { font-size: 0.6875rem; }
+}
