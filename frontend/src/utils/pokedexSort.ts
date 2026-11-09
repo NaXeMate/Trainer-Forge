@@ -1,4 +1,6 @@
 import type { PokedexEntry } from "../types/pokedexTypes";
+import { sortByCriteria } from "./multiSort";
+import type { SortCriterion } from "./multiSort";
 
 export const POKEDEX_SORT_GROUPS = [
   {
@@ -35,11 +37,8 @@ export const POKEDEX_SORT_GROUPS = [
 ] as const;
 
 export type PokedexSortKey = typeof POKEDEX_SORT_GROUPS[number]["options"][number]["key"];
-export type SortDirection = "ascending" | "descending";
-export interface PokedexSortCriterion {
-  key: PokedexSortKey;
-  direction: SortDirection;
-}
+export type { SortDirection } from "./multiSort";
+export type PokedexSortCriterion = SortCriterion<PokedexSortKey>;
 
 const collator = new Intl.Collator(undefined, { sensitivity: "base", numeric: true });
 
@@ -56,25 +55,9 @@ export function sortPokedexEntries(entries: readonly PokedexEntry[], criteria: r
   if (criteria.length === 0) return [...entries].sort((left, right) => left.id - right.id);
 
   const nameCriterion = criteria.find(criterion => criterion.key === "name");
-  return [...entries].sort((left, right) => {
-    for (const { key, direction } of criteria) {
-      const a = sortValue(left, key);
-      const b = sortValue(right, key);
-      
-      if (a == null || b == null) {
-        if (a !== b) return a == null ? 1 : -1;
-        continue;
-      }
-      const comparison = typeof a === "number" && typeof b === "number"  ? a - b : collator.compare(String(a), String(b));
-      
-      if (comparison !== 0) return direction === "ascending" ? comparison : -comparison;
-    }
-
-    if (nameCriterion) {
-      const comparison = collator.compare(left.name, right.name);
-      if (comparison !== 0) return nameCriterion.direction === "ascending" ? comparison : -comparison;
-    }
-    
-    return 0;
+  return sortByCriteria(entries, criteria, sortValue, (left, right) => {
+    if (!nameCriterion) return 0;
+    const comparison = collator.compare(left.name, right.name);
+    return nameCriterion.direction === "ascending" ? comparison : -comparison;
   });
 }

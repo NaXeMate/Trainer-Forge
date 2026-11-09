@@ -1,13 +1,12 @@
+import type { SliderFilter } from "./sliderTypes";
+
 export type PokemonClass = "COMMON" | "LEGENDARY" | "MYTHICAL" | "ULTRABEAST" | "PARADOX";
 
 export type PokedexStat = "hp" | "attack" | "defense" | "special-attack" | "special-defense" | "speed";
-export type StatFilterMode = "equal" | "minimum" | "maximum";
+export type { SliderMode as StatFilterMode } from "./sliderTypes";
 
-export interface PokedexStatFilter {
+export interface PokedexStatFilter extends SliderFilter {
   stat: PokedexStat;
-  value: number;
-  mode: StatFilterMode;
-  enabled: boolean;
 }
 
 export interface PokedexTextFilters {

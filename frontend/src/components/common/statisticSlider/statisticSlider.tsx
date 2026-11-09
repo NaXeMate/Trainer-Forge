@@ -4,30 +4,35 @@ import selectorCircle from "../../../assets/icons/pokedex/selector-circle.svg";
 import selectorRight from "../../../assets/icons/pokedex/selector-right.svg";
 import selectorLeft from "../../../assets/icons/pokedex/selector-left.svg";
 import statHelp from "../../../assets/icons/pokedex/stat-help.svg";
-import { BASE_STAT_MIN, BASE_STAT_MAX } from "../../../constants/pokedex";
-import type { PokedexStatFilter, StatFilterMode } from "../../../types/pokedexTypes";
+import type { SliderFilter, SliderMode } from "../../../types/sliderTypes";
 import AccentCheckbox from "../accentCheckbox";
 import "./statisticSlider.css";
 
-export interface StatisticSliderProps {
+export interface StatisticSliderProps<Filter extends SliderFilter> {
   label: string;
-  filter: PokedexStatFilter;
-  onChange: (filter: PokedexStatFilter) => void;
+  min: number;
+  max: number;
+  filter: Filter;
+  showHelp?: boolean;
+  applyHint?: string;
+  onChange: (filter: Filter) => void;
 }
 
 const modes = {
   equal: { next: "minimum", icon: selectorCircle, rotation: "0deg", text: "exactly" },
   minimum: { next: "maximum", icon: selectorRight, rotation: "90deg", text: "at least" },
   maximum: { next: "equal", icon: selectorLeft, rotation: "-90deg", text: "at most" },
-} as const satisfies Record<StatFilterMode, { next: StatFilterMode; icon: string; rotation: string; text: string }>;
+} as const satisfies Record<SliderMode, { next: SliderMode; icon: string; rotation: string; text: string }>;
 
 type SliderStyle = CSSProperties & { "--stat-thumb": string; "--stat-rotation": string; "--stat-track": string };
 
-export default function StatisticSlider({ label, filter, onChange }: StatisticSliderProps) {
+export default function StatisticSlider<Filter extends SliderFilter>({
+  label, min, max, filter, showHelp = false, applyHint = "Check to apply this filter.", onChange,
+}: StatisticSliderProps<Filter>) {
   const instructionsId = useId();
   const pointerStart = useRef<{ x: number; y: number; onThumb: boolean } | null>(null);
   const mode = modes[filter.mode];
-  const position = (filter.value - BASE_STAT_MIN) / (BASE_STAT_MAX - BASE_STAT_MIN) * 100;
+  const position = (filter.value - min) / (max - min) * 100;
   const accent = "var(--color-accent)";
   const muted = "var(--color-glass-tint)";
   const track = filter.mode === "equal" ? `linear-gradient(${accent}, ${accent})` : filter.mode === "minimum"
@@ -64,21 +69,21 @@ export default function StatisticSlider({ label, filter, onChange }: StatisticSl
         />
         <span>{label}</span>
       </label>
-      {filter.stat === "hp" && (
+      {showHelp && (
         <img className="statistic-slider__help" src={statHelp} alt="" title="Check a statistic to include it in SEARCH. Click its slider icon to switch between exactly, at least and at most." />
       )}
       <span id={instructionsId} className="visually-hidden">
-        Check to include this statistic in SEARCH. Drag or use arrow keys to change the value.
+        {applyHint} Drag or use arrow keys to change the value.
         Click the slider icon, or press Enter or Space, to cycle exactly, at least and at most.
       </span>
       <div className="statistic-slider__scale">
-        <span aria-hidden="true">{BASE_STAT_MIN}</span>
+        <span aria-hidden="true">{min}</span>
         <div className="statistic-slider__control">
           <input
             className="statistic-slider__range"
             type="range"
-            min={BASE_STAT_MIN}
-            max={BASE_STAT_MAX}
+            min={min}
+            max={max}
             step={1}
             value={filter.value}
             aria-label={`${label} value`}
@@ -104,7 +109,7 @@ export default function StatisticSlider({ label, filter, onChange }: StatisticSl
             {filter.value}
           </output>
         </div>
-        <span aria-hidden="true">{BASE_STAT_MAX}</span>
+        <span aria-hidden="true">{max}</span>
       </div>
     </div>
   );

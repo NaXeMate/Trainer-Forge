@@ -9,9 +9,10 @@ import Header from "../../components/layout/header";
 import Pagination from "../../components/common/pagination";
 import type { PaginationChangeSource } from "../../components/common/pagination/pagination";
 import StatisticSlider from "../../components/common/statisticSlider";
+import SortOptions from "../../components/common/sortOptions";
 
 import { searchPokedexEntries } from "../../services/pokedexService";
-import { BASE_STAT_DEFAULT, POKEDEX_STATS } from "../../constants/pokedex";
+import { BASE_STAT_DEFAULT, BASE_STAT_MIN, BASE_STAT_MAX, POKEDEX_STATS } from "../../constants/pokedex";
 import type { PokedexEntry, PokedexStatFilter, PokedexTextFilters } from "../../types/pokedexTypes";
 import { uppercaseInput } from "../../utils/uppercaseInput";
 import "./pokedex-colors.css";
@@ -19,7 +20,7 @@ import "./pokedex.css";
 import PokemonTypeCombobox from "../../components/common/pokemonTypeCombobox";
 import PokedexCard from "../../components/cards/pokedexCard";
 import { POKEDEX_SORT_GROUPS, sortPokedexEntries } from "../../utils/pokedexSort";
-import type { PokedexSortCriterion, PokedexSortKey } from "../../utils/pokedexSort";
+import type { PokedexSortCriterion } from "../../utils/pokedexSort";
 
 const POKEMON_PER_PAGE = 16;
 const EMPTY_POKEDEX_ENTRIES: PokedexEntry[] = [];
@@ -236,25 +237,6 @@ export default function Pokedex() {
     };
   }, [sortOpen]);
 
-  function toggleCriterion(key: PokedexSortKey) {
-    setSortCriteria(previous => previous.some(criterion => criterion.key === key)
-      ? previous.filter(criterion => criterion.key !== key)
-      : [...previous, { key, direction: "ascending" }]);
-    setCurrentPage(1);
-  }
-
-  function toggleDirection(key: PokedexSortKey) {
-    setSortCriteria(previous => previous.map(criterion => criterion.key === key
-      ? { ...criterion, direction: criterion.direction === "ascending" ? "descending" : "ascending" }
-      : criterion));
-    setCurrentPage(1);
-  }
-
-  function resetSort() {
-    setSortCriteria([]);
-    setCurrentPage(1);
-  }
-
   function search() {
     setLoadState({ status: "loading" });
     setCurrentPage(1);
@@ -356,7 +338,11 @@ export default function Pokedex() {
                 <StatisticSlider
                   key={filter.stat}
                   label={POKEDEX_STATS.find(statistic => statistic.stat === filter.stat)!.label}
+                  min={BASE_STAT_MIN}
+                  max={BASE_STAT_MAX}
                   filter={filter}
+                  showHelp={filter.stat === "hp"}
+                  applyHint="Check to include this statistic in SEARCH."
                   onChange={updated => setDraftFilters(previous => previous.map(item => item.stat === updated.stat ? updated : item))}
                 />
               ))}
@@ -399,51 +385,14 @@ export default function Pokedex() {
 
                 {sortOpen && (
                   <div className="pokedex-sort__panel" id="pokedex-sort-panel" role="region" aria-label="Sort Pokémon">
-                    <button className="pokedex-sort__reset" type="button" disabled={sortCriteria.length === 0} onClick={resetSort}>Reset order</button>
-                    <div className="pokedex-sort__content">
-                      {POKEDEX_SORT_GROUPS.map(group => (
-                        <fieldset className="pokedex-sort__group" key={group.label}>
-                          <legend>{group.label}</legend>
-                          <div className="pokedex-sort__options">
-                            {group.options.map(option => {
-                              const index = sortCriteria.findIndex(criterion => criterion.key === option.key);
-                              const selected = index !== -1;
-                              const direction = selected ? sortCriteria[index].direction : "ascending";
-                              const directionLabel = option.kind === "text"
-                                ? direction === "ascending" ? "A → Z" : "Z → A"
-                                : direction === "ascending" ? "Low → High" : "High → Low";
-                              const directionText = option.kind === "text"
-                                ? direction === "ascending" ? "A-Z" : "Z-A"
-                                : direction === "ascending" ? "LOW-HIGH" : "HIGH-LOW";
-                              return (
-                                <div className={`pokedex-sort__option${selected ? " pokedex-sort__option--selected" : ""}`} key={option.key}>
-                                  <label className="pokedex-sort__label">
-                                    <input type="checkbox" checked={selected} onChange={() => toggleCriterion(option.key)} />
-                                    <span>{option.label}</span>
-                                  </label>
-                                  {selected && (
-                                    <div className="pokedex-sort__selection">
-                                      <span className="pokedex-sort__priority" aria-label={`Priority ${index + 1}`}>{index + 1}</span>
-                                      <button
-                                        type="button"
-                                        className="pokedex-sort__direction"
-                                        aria-label={`${option.label}: ${directionLabel}. Change direction`}
-                                        title={`${directionLabel} · Change direction`}
-                                        onClick={() => toggleDirection(option.key)}>
-                                        <span>{directionText}</span>
-                                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
-                                          <path d="M4 8h15m0 0-4-4m4 4-4 4M20 16H5m0 0 4-4m-4 4 4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                        </svg>
-                                      </button>
-                                    </div>
-                                  )}
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </fieldset>
-                      ))}
-                    </div>
+                    <SortOptions
+                      groups={POKEDEX_SORT_GROUPS}
+                      criteria={sortCriteria}
+                      onChange={criteria => {
+                        setSortCriteria(criteria);
+                        setCurrentPage(1);
+                      }}
+                    />
                   </div>
                 )}
               </div>
