@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import type { PokedexEntry } from "../../../types/pokedexTypes";
 import { getTypeColor } from "../../../utils/pokemonPresentation";
+import { uppercaseInput } from "../../../utils/uppercaseInput";
 import "../../../styles/pokemonTypeColors.css";
 import "./teamCard.css";
 
@@ -70,7 +71,7 @@ export default function TeamCard({
         </label>
         <label className="team-pokemon__field">
           <span className="visually-hidden">{name}, equipped item</span>
-          <input value={item} placeholder="EQUIPPED ITEM" maxLength={60} onChange={event => onItemChange(event.target.value)} />
+          <input value={item} placeholder="EQUIPPED ITEM" maxLength={60} onChange={event => onItemChange(uppercaseInput(event.currentTarget))} />
         </label>
         <button className="team-pokemon__field" type="button" onClick={event => onEditStatPoints(event.currentTarget)}>
           STAT POINTS

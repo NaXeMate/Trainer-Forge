@@ -1,7 +1,6 @@
 import type { CSSProperties } from "react";
 import type { PokedexEntry } from "../types/pokedexTypes";
 
-// The API provides type names; all the editable colors are in pokedex-colors.css.
 const typeColors = new Map<string, string>([
   ["normal", "var(--pokedex-type-normal)"],
   ["fire", "var(--pokedex-type-fire)"],
@@ -32,7 +31,6 @@ type CardStyle = CSSProperties & {
   "--pokedex-card-type-end": string;
 };
 
-/** Derive presentation from server data without assigning colors in TypeScript. */
 export function getPokedexCardPresentation(
   pokemon: Pick<PokedexEntry, "type1" | "type2" | "pokemonClass">,
 ): { className: string; style: CardStyle } {

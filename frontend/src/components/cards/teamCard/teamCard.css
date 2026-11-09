@@ -42,6 +42,15 @@
 .team-pokemon__field option { color: var(--color-body-text); background: var(--color-background); }
 button.team-pokemon__field:hover { background: var(--color-accent-hover); }
 
+.team-pokemon__species span,
+button.team-pokemon__field,
+.team-pokemon__field input,
+.team-pokemon__field select {
+  text-transform: uppercase;
+}
+
+.team-pokemon__field option { text-transform: none; }
+
 @media (max-width: 35rem) {
   .team-pokemon { padding-inline: 0.625rem; }
   .team-pokemon__field { font-size: 0.6875rem; }
