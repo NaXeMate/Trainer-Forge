@@ -181,11 +181,12 @@
 }
 
 .team-pokemon__species span { text-transform: uppercase; }
+.team-pokemon__stats { text-align: center; }
 .team-pokemon__stat-pair {
   display: inline-block;
-  margin-inline-end: 0.25em;
   white-space: nowrap;
 }
+.team-pokemon__stat-pair:not(:last-child) { margin-inline-end: 0.25em; }
 
 @media (max-width: 35rem) {
   .team-pokemon { padding-inline: 0.625rem; }

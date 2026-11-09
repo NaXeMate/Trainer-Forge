@@ -173,10 +173,10 @@ export default function TeamCard({
         <div className="team-pokemon__field">
           <span className="team-pokemon__field-label">STAT POINTS</span>
           <button
-            className="team-control"
+            className="team-control team-pokemon__stats"
             type="button"
             data-empty={!statSpread.length}
-            aria-label={`${name}, stat points: ${statSpread.join(" / ") || "0 SP"}`}
+            aria-label={statSpread.length ? `${name}, stat points: ${statSpread.join(" / ")}` : `${name}, configure stats`}
             aria-haspopup="dialog"
             onClick={event => onEditStatPoints(event.currentTarget)}
           >
@@ -184,7 +184,7 @@ export default function TeamCard({
               <span key={entry} className="team-pokemon__stat-pair">
                 {entry}{index < statSpread.length - 1 ? " /" : ""}{" "}
               </span>
-            )) : "0 SP"}
+            )) : "CONFIGURE STATS"}
           </button>
         </div>
       </div>
