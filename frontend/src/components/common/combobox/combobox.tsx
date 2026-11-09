@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState } from "react";
-import type { CSSProperties, KeyboardEvent } from "react";
+import type { CSSProperties, KeyboardEvent, ReactNode } from "react";
 import { useSelectionFeedback } from "../../../hooks/useSelectionFeedback";
 import { uppercaseInput } from "../../../utils/uppercaseInput";
 import "./combobox.css";
@@ -11,6 +11,7 @@ export type ComboboxOption = {
 };
 
 type ComboboxProps = {
+  inputId?: string;
   name?: string;
   className?: string;
   inputClassName?: string;
@@ -18,8 +19,11 @@ type ComboboxProps = {
   placeholder?: string;
   value: string;
   options: readonly ComboboxOption[];
+  readOnly?: boolean;
+  leadingAdornment?: ReactNode;
+  clearLabel?: string;
   excludedValue?: string;
-  emptyMessage?: string;
+  emptyMessage?: ReactNode;
   invalidMessage?: string;
   excludedMessage?: string;
   onChange: (value: string) => void;
@@ -31,6 +35,7 @@ function normalize(text: string) {
 }
 
 export default function Combobox({
+  inputId,
   name,
   className,
   inputClassName = "combobox__input--default",
@@ -38,6 +43,9 @@ export default function Combobox({
   placeholder,
   value,
   options,
+  readOnly = false,
+  leadingAdornment,
+  clearLabel,
   excludedValue,
   emptyMessage = "No matching options.",
   invalidMessage = "Choose an option from the list.",
@@ -45,7 +53,8 @@ export default function Combobox({
   onChange,
   onInputChange,
 }: ComboboxProps) {
-  const id = useId();
+  const generatedId = useId();
+  const id = inputId ?? generatedId;
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
   const [open, setOpen] = useState(false);
@@ -89,7 +98,9 @@ export default function Combobox({
 
   function commit() {
     cancelSelection();
-    if (!inputValue.trim()) {
+    if (draftText === null) {
+      close();
+    } else if (!inputValue.trim()) {
       select("");
     } else if (selected && normalize(selected.value) !== excluded) {
       select(selected.value);
@@ -138,8 +149,8 @@ export default function Combobox({
         if (!event.currentTarget.contains(event.relatedTarget)) commit();
       }}
     >
-      <label className="visually-hidden" htmlFor={id}>{label}</label>
       <div className="combobox__control">
+        {leadingAdornment}
         <input
           ref={inputRef}
           id={id}
@@ -147,6 +158,7 @@ export default function Combobox({
           name={name}
           type="text"
           role="combobox"
+          aria-label={label}
           aria-autocomplete="list"
           aria-expanded={open}
           aria-controls={open ? `${id}-options` : undefined}
@@ -156,7 +168,7 @@ export default function Combobox({
           autoComplete="off"
           autoCapitalize="characters"
           spellCheck={false}
-          readOnly={pendingSelection !== null}
+          readOnly={readOnly || pendingSelection !== null}
           value={inputValue}
           style={selected?.color ? { color: selected.color } : undefined}
           onFocus={() => setOpen(true)}
@@ -171,6 +183,23 @@ export default function Combobox({
           }}
           onKeyDown={handleKeyDown}
         />
+        {value && clearLabel && (
+          <button
+            className="combobox__clear"
+            type="button"
+            aria-label={clearLabel}
+            onPointerDown={event => event.preventDefault()}
+            onClick={() => {
+              cancelSelection();
+              inputRef.current?.focus();
+              select("");
+            }}
+          >
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+              <path d="m4 4 8 8M12 4l-8 8" />
+            </svg>
+          </button>
+        )}
         <button
           className="combobox__toggle"
           type="button"

@@ -26,6 +26,29 @@
   padding-inline-end: 1.75rem;
 }
 
+.combobox__control:has(.combobox__clear) .combobox__input {
+  padding-inline-end: 3.375rem;
+}
+
+.combobox__clear {
+  position: absolute;
+  inset-inline-end: 1.625rem;
+  inset-block-start: 50%;
+  translate: 0 -50%;
+  display: grid;
+  place-items: center;
+  width: 1.625rem;
+  height: 1.625rem;
+  padding: 0;
+  border-radius: var(--radius-pill);
+  color: var(--color-secondary-text);
+}
+
+.combobox__clear:hover {
+  background: var(--color-surface);
+  color: var(--color-status-error);
+}
+
 .combobox__input::placeholder {
   color: var(--color-secondary-text);
   opacity: 1;

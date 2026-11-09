@@ -1,14 +1,23 @@
 import { useId } from "react";
-import type { CSSProperties } from "react";
+import type { CSSProperties, ReactNode } from "react";
+import megaEvolutionIcon from "../../../assets/icons/specialGimmicks/megaevolution.svg";
+import zPowerIcon from "../../../assets/icons/specialGimmicks/z-power.svg";
 import { POKEDEX_STATS } from "../../../constants/pokedex";
+import type { EquippableItemType } from "../../../types/itemTypes";
 import type { PokedexEntry } from "../../../types/pokedexTypes";
 import type { StatPoints } from "../../../utils/championsStatPoints";
 import { getTypeColor } from "../../../utils/pokemonPresentation";
-import { uppercaseInput } from "../../../utils/uppercaseInput";
 import Combobox from "../../common/combobox";
+import type { ComboboxOption } from "../../common/combobox";
 import "../../../styles/pokemonTypeColors.css";
 import "../../../styles/teamControl.css";
 import "./teamCard.css";
+
+type ItemOption = ComboboxOption & { type: EquippableItemType };
+
+export type ItemCatalogue =
+  | { status: "loading" | "error" }
+  | { status: "success"; options: readonly ItemOption[] };
 
 type TeamCardProps = {
   pokemon: PokedexEntry;
@@ -16,6 +25,8 @@ type TeamCardProps = {
   moves: readonly [string, string, string, string];
   ability: string;
   item: string;
+  itemCatalogue: ItemCatalogue;
+  onRetryItems: () => void;
   statPoints: StatPoints;
   onRemove: () => void;
   onReplace: (trigger: HTMLButtonElement) => void;
@@ -66,6 +77,8 @@ export default function TeamCard({
   moves,
   ability,
   item,
+  itemCatalogue,
+  onRetryItems,
   statPoints,
   onRemove,
   onReplace,
@@ -80,6 +93,14 @@ export default function TeamCard({
   const abilityOptions = [...new Set([ability1, ability2, hiddenAbility])]
     .filter((entry): entry is string => Boolean(entry))
     .map(entry => ({ value: entry, label: entry }));
+  const itemOptions = itemCatalogue.status === "success" ? itemCatalogue.options : [];
+  const itemName = item.trim().toLowerCase();
+  const selectedItemType = itemOptions.find(option => option.value.toLowerCase() === itemName)?.type;
+  let itemEmptyMessage: ReactNode = "No matching items.";
+  if (itemCatalogue.status === "loading") itemEmptyMessage = "Loading items…";
+  if (itemCatalogue.status === "error") {
+    itemEmptyMessage = <>Could not load items. <button className="team-pokemon__retry-items" type="button" onClick={onRetryItems}>Retry</button></>;
+  }
   const statSpread = POKEDEX_STATS
     .filter(({ stat }) => statPoints[stat] > 0)
     .map(({ stat }) => `${statPoints[stat]} ${STAT_ABBREVIATIONS[stat]}`);
@@ -127,12 +148,27 @@ export default function TeamCard({
             onChange={onAbilityChange}
           />
         </div>
-        <div className="team-pokemon__field">
+        <div className="team-pokemon__field team-pokemon__field--item" data-item-type={selectedItemType}>
           <label className="team-pokemon__field-label" htmlFor={itemInputId}>EQUIPPED ITEM</label>
-          <div className="team-pokemon__clearable">
-            <input id={itemInputId} className="team-control" aria-label={`${name}, equipped item`} value={item} placeholder="—" maxLength={60} onChange={event => onItemChange(uppercaseInput(event.currentTarget))} />
-            {item && <ClearFieldButton label={`Clear equipped item for ${name}`} onClear={() => onItemChange("")} />}
-          </div>
+          <Combobox
+            inputId={itemInputId}
+            inputClassName="team-control"
+            label={`${name}, equipped item`}
+            placeholder="—"
+            value={item}
+            options={itemOptions}
+            readOnly={itemCatalogue.status !== "success"}
+            emptyMessage={itemEmptyMessage}
+            invalidMessage="Choose an item from the list."
+            clearLabel={`Clear equipped item for ${name}`}
+            leadingAdornment={
+              <span className="team-pokemon__item-icons" aria-hidden="true">
+                <img src={megaEvolutionIcon} alt="" data-icon="mega" />
+                <img src={zPowerIcon} alt="" data-icon="z" />
+              </span>
+            }
+            onChange={onItemChange}
+          />
         </div>
         <div className="team-pokemon__field">
           <span className="team-pokemon__field-label">STAT POINTS</span>
