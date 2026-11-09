@@ -35,23 +35,72 @@
 }
 .team-pokemon__remove:hover { background: var(--color-surface); color: var(--color-status-error); }
 .team-pokemon__fields { display: grid; gap: 0.625rem; }
-.team-pokemon__field { display: block; width: 100%; height: 3.125rem; border-radius: var(--radius-card); color: var(--color-accent-contrast); background: var(--color-accent); font-size: var(--font-size-sm); font-weight: var(--font-weight-bold); text-align: center; }
-.team-pokemon__field input, .team-pokemon__field select { width: 100%; height: 100%; padding: 0.5rem; border: 0; border-radius: inherit; background: transparent; text-align: center; text-overflow: ellipsis; }
-.team-pokemon__field input::placeholder { color: var(--color-accent-contrast); opacity: 1; }
-.team-pokemon__field select { appearance: none; cursor: pointer; }
-.team-pokemon__field option { color: var(--color-body-text); background: var(--color-background); }
-button.team-pokemon__field:hover { background: var(--color-accent-hover); }
-
-.team-pokemon__species span,
-button.team-pokemon__field,
-.team-pokemon__field input,
-.team-pokemon__field select {
-  text-transform: uppercase;
+.team-pokemon__field {
+  display: grid;
+  gap: 0.125rem;
+  min-width: 0;
 }
 
-.team-pokemon__field option { text-transform: none; }
+.team-pokemon__field-label {
+  color: var(--poke-accent, var(--color-accent));
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-label);
+}
+
+.team-pokemon__field .team-control {
+  min-width: 0;
+  border: var(--border-width-thin) solid var(--poke-accent, var(--color-accent));
+  background: linear-gradient(var(--color-glass-tint), var(--color-glass-tint)) var(--color-background);
+  font-size: var(--font-size-sm);
+}
+
+.team-pokemon__field button.team-control {
+  min-height: 2.5rem;
+  height: auto;
+  overflow-wrap: anywhere;
+}
+
+.team-pokemon__field button.team-control:hover {
+  background-color: color-mix(in srgb, var(--color-background), var(--color-glass-tint-base) 8%);
+}
+
+.team-pokemon__clearable {
+  position: relative;
+  min-width: 0;
+}
+
+.team-pokemon__clearable .team-control:has(+ .team-pokemon__clear) {
+  padding-inline-end: 2.25rem;
+}
+
+.team-pokemon__clear {
+  position: absolute;
+  inset-inline-end: 0.25rem;
+  inset-block-start: 50%;
+  translate: 0 -50%;
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border-radius: var(--radius-pill);
+  color: var(--color-secondary-text);
+}
+
+.team-pokemon__clear:hover {
+  background: var(--color-surface);
+  color: var(--color-status-error);
+}
+
+.team-pokemon__species span { text-transform: uppercase; }
+.team-pokemon__stat-pair {
+  display: inline-block;
+  margin-inline-end: 0.25em;
+  white-space: nowrap;
+}
 
 @media (max-width: 35rem) {
   .team-pokemon { padding-inline: 0.625rem; }
-  .team-pokemon__field { font-size: 0.6875rem; }
+  .team-pokemon__field .team-control { font-size: var(--font-size-xs); }
 }
