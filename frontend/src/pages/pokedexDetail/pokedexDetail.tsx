@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { CSSProperties } from "react";
 import { Link, useNavigate, useParams } from "react-router";
+import ArrowButton from "../../components/common/arrowButton";
 import Footer from "../../components/layout/footer";
 import Header from "../../components/layout/header";
 import TypeBadge from "../../components/common/pokemonTypeBadge";
@@ -252,15 +253,7 @@ export default function PokedexDetail() {
   ) : (
     <div className="pokedex-detail__content">
       <div className="pokedex-detail__back">
-        <button
-          className="pokedex-detail__back-button"
-          type="button"
-          aria-label="Back to PokeDex"
-          onClick={() => navigate(-1)}>
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M19 12H5m0 0 7-7m-7 7 7 7" />
-          </svg>
-        </button>
+        <ArrowButton aria-label="Back to PokeDex" onClick={() => navigate(-1)} />
         <span>Back to PokeDex</span>
       </div>
 

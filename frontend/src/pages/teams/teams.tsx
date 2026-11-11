@@ -11,6 +11,8 @@ import TeamCard from "../../components/cards/teamCard";
 import type { ItemCatalogue } from "../../components/cards/teamCard";
 import AccentCheckbox from "../../components/common/accentCheckbox";
 import Combobox from "../../components/common/combobox";
+import PokemonPicker from "../../components/common/pokemonPicker";
+import type { PickerPanel } from "../../components/common/pokemonPicker";
 import PokemonTypeBadge from "../../components/common/pokemonTypeBadge";
 import PokemonTypeCombobox from "../../components/common/pokemonTypeCombobox";
 import SortOptions from "../../components/common/sortOptions";
@@ -30,20 +32,16 @@ import {
   STAT_POINT_BUDGET,
 } from "../../utils/championsStatPoints";
 import type { StatPoints } from "../../utils/championsStatPoints";
-import type { PokedexSortCriterion } from "../../utils/pokedexSort";
 import { getTypeColor } from "../../utils/pokemonPresentation";
 import {
   EMPTY_MOVE_FILTERS,
-  EMPTY_POKEMON_FILTERS,
   getTeamPickerMoves,
-  getTeamPickerPokemon,
   MOVE_RANGES,
   TEAM_MOVE_SORT_GROUPS,
-  TEAM_POKEMON_SORT_GROUPS,
 } from "../../utils/teamPicker";
 import type { MoveSortCriterion } from "../../utils/teamPicker";
 import { uppercaseInput } from "../../utils/uppercaseInput";
-import { analyzeTeamTypes, getPokemonTypes } from "../../utils/typeEffectiveness";
+import { analyzeTeamTypes } from "../../utils/typeEffectiveness";
 import type { PokemonType } from "../../utils/typeEffectiveness";
 import "../../styles/pokemonTypeColors.css";
 import "../../styles/teamControl.css";
@@ -79,7 +77,6 @@ type StoredMember = Omit<Member, "statPoints"> & { statPoints?: unknown; evs?: u
 type StoredDraft = Omit<Draft, "members"> & { members: (StoredMember | null)[] };
 type DialogState = { kind: "pokemon"; slot: number } | { kind: "stat-points"; slot: number } | { kind: "move"; slot: number; index: number; pokedexId: number } | { kind: "erase" } | null;
 type MoveLoadState = { status: "loading" | "error" } | { status: "success"; moves: MoveOption[] };
-type PickerPanel = "sort" | "filter";
 
 function emptyDraft(): Draft {
   return { name: "", modality: "", game: "", publicTeam: false, members: Array.from({ length: TEAM_SIZE }, () => null) };
@@ -120,9 +117,7 @@ export default function Teams() {
   const [dialog, setDialog] = useState<DialogState>(null);
   const [query, setQuery] = useState("");
   const [pickerPanel, setPickerPanel] = useState<PickerPanel | null>(null);
-  const [pokemonSort, setPokemonSort] = useState<PokedexSortCriterion[]>([]);
   const [moveSort, setMoveSort] = useState<MoveSortCriterion[]>([]);
-  const [pokemonFilters, setPokemonFilters] = useState(EMPTY_POKEMON_FILTERS);
   const [moveFilters, setMoveFilters] = useState(EMPTY_MOVE_FILTERS);
   const [statPoints, setStatPoints] = useState<StatPoints>(EMPTY_STAT_POINTS);
   const [moveState, setMoveState] = useState<MoveLoadState>({ status: "loading" });
@@ -133,9 +128,6 @@ export default function Teams() {
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const teamNameRef = useRef<HTMLInputElement>(null);
   const pokemonById = useMemo(() => new Map(entries.map(pokemon => [pokemon.id, pokemon])), [entries]);
-  const abilityOptions = useMemo(() => [...new Set(entries.flatMap(pokemon =>
-    [pokemon.ability1, pokemon.ability2, pokemon.hiddenAbility].filter((ability): ability is string => Boolean(ability)),
-  ))].sort((a, b) => a.localeCompare(b)).map(ability => ({ value: ability, label: ability })), [entries]);
   const selected = draft.members.map(member => member ? pokemonById.get(member.pokedexId) : undefined);
   const memberCount = draft.members.filter(Boolean).length;
   const canErase = Boolean(memberCount || draft.name || draft.modality || draft.game || draft.publicTeam);
@@ -269,7 +261,6 @@ export default function Teams() {
   }
   const isPokemonPicker = dialog?.kind === "pokemon";
   const isPicker = isPokemonPicker || dialog?.kind === "move";
-  const matches = isPokemonPicker ? getTeamPickerPokemon(entries, query, pokemonFilters, pokemonSort) : [];
   const spentPoints = getStatPointTotal(statPoints);
   const remainingPoints = STAT_POINT_BUDGET - spentPoints;
 
@@ -437,21 +428,21 @@ export default function Teams() {
           <button className="team-dialog__primary" type="button" onClick={eraseTeam}>ERASE TEAM</button>
         </div>
       </>}
-      {isPicker && (
+      {dialog?.kind === "move" && (
         <>
           <div className="team-dialog__search">
-            <label htmlFor="team-picker-search">{isPokemonPicker ? "Search Pokémon by name or ID" : "Search moves by name"}</label>
-            <div className="team-dialog__search-row">
+            <label htmlFor="team-picker-search">Search moves by name</label>
+            <div className="team-dialog__search-row--tools">
               <input
                 id="team-picker-search"
                 value={query}
                 onChange={event => setQuery(event.target.value)}
-                placeholder={isPokemonPicker ? "Search Pokémon…" : "Search moves…"}
+                placeholder="Search moves…"
               />
               <button
                 className="team-dialog__tool"
                 type="button"
-                aria-label={isPokemonPicker ? "Filter Pokémon" : "Filter moves"}
+                aria-label="Filter moves"
                 aria-expanded={pickerPanel === "filter"}
                 aria-controls={pickerPanel === "filter" ? "team-picker-filter" : undefined}
                 onClick={() => setPickerPanel(previous => previous === "filter" ? null : "filter")}
@@ -463,7 +454,7 @@ export default function Teams() {
               <button
                 className="team-dialog__tool"
                 type="button"
-                aria-label={isPokemonPicker ? "Sort Pokémon" : "Sort moves"}
+                aria-label="Sort moves"
                 aria-expanded={pickerPanel === "sort"}
                 aria-controls={pickerPanel === "sort" ? "team-picker-sort" : undefined}
                 onClick={() => setPickerPanel(previous => previous === "sort" ? null : "sort")}
@@ -475,14 +466,12 @@ export default function Teams() {
           {pickerPanel === "sort" && (
             <div
               className="team-dialog__picker-panel team-dialog__sort"
-              data-picker={isPokemonPicker ? "pokemon" : "move"}
+              data-picker="move"
               id="team-picker-sort"
               role="region"
               aria-label="Sort options"
             >
-              {isPokemonPicker
-                ? <SortOptions<PokedexSortCriterion["key"]> groups={TEAM_POKEMON_SORT_GROUPS} criteria={pokemonSort} onChange={setPokemonSort} />
-                : <SortOptions groups={TEAM_MOVE_SORT_GROUPS} criteria={moveSort} onChange={setMoveSort} />}
+              <SortOptions groups={TEAM_MOVE_SORT_GROUPS} criteria={moveSort} onChange={setMoveSort} />
             </div>
           )}
           {pickerPanel === "filter" && (
@@ -494,64 +483,41 @@ export default function Teams() {
                     inputId="team-picker-type"
                     name="team-picker-type"
                     label="Type"
-                    value={isPokemonPicker ? pokemonFilters.type : moveFilters.type}
+                    value={moveFilters.type}
                     clearLabel="Clear type filter"
                     liveSearch={false}
-                    onChange={type => {
-                      if (isPokemonPicker) setPokemonFilters(previous => ({ ...previous, type }));
-                      else setMoveFilters(previous => ({ ...previous, type }));
-                    }}
+                    onChange={type => setMoveFilters(previous => ({ ...previous, type }))}
                   />
                 </div>
-                {isPokemonPicker ? (
-                  <div className="team-dialog__filter-select">
-                    <label htmlFor="team-picker-ability">Ability</label>
-                    <Combobox
-                      inputId="team-picker-ability"
-                      label="Ability"
-                      value={pokemonFilters.ability}
-                      placeholder="Any ability"
-                      options={abilityOptions}
-                      clearLabel="Clear ability filter"
-                      onChange={ability => setPokemonFilters(previous => ({ ...previous, ability }))}
+                <div className="team-dialog__filter-select">
+                  <label htmlFor="team-picker-class">Class</label>
+                  <Combobox
+                    inputId="team-picker-class"
+                    label="Class"
+                    placeholder="Any class"
+                    value={moveFilters.moveClass}
+                    options={MOVE_CLASS_OPTIONS}
+                    clearLabel="Clear class filter"
+                    onChange={moveClass => setMoveFilters(previous => ({ ...previous, moveClass }))}
+                  />
+                </div>
+                <div className="team-dialog__filter-sliders">
+                  {MOVE_RANGES.map(({ key, label, min, max }) => (
+                    <StatisticSlider
+                      key={key}
+                      label={label}
+                      min={min}
+                      max={max}
+                      filter={moveFilters.ranges[key]}
+                      onChange={filter => setMoveFilters(previous => ({
+                        ...previous,
+                        ranges: { ...previous.ranges, [key]: filter },
+                      }))}
                     />
-                  </div>
-                ) : (
-                  <>
-                    <div className="team-dialog__filter-select">
-                      <label htmlFor="team-picker-class">Class</label>
-                      <Combobox
-                        inputId="team-picker-class"
-                        label="Class"
-                        placeholder="Any class"
-                        value={moveFilters.moveClass}
-                        options={MOVE_CLASS_OPTIONS}
-                        clearLabel="Clear class filter"
-                        onChange={moveClass => setMoveFilters(previous => ({ ...previous, moveClass }))}
-                      />
-                    </div>
-                    <div className="team-dialog__filter-sliders">
-                      {MOVE_RANGES.map(({ key, label, min, max }) => (
-                        <StatisticSlider
-                          key={key}
-                          label={label}
-                          min={min}
-                          max={max}
-                          filter={moveFilters.ranges[key]}
-                          onChange={filter => setMoveFilters(previous => ({
-                            ...previous,
-                            ranges: { ...previous.ranges, [key]: filter },
-                          }))}
-                        />
-                      ))}
-                    </div>
-                  </>
-                )}
+                  ))}
+                </div>
               </div>
-              <button className="team-dialog__reset-filters" type="button" onClick={() => {
-                if (isPokemonPicker) setPokemonFilters(EMPTY_POKEMON_FILTERS);
-                else setMoveFilters(EMPTY_MOVE_FILTERS);
-              }}>Reset filters</button>
+              <button className="team-dialog__reset-filters" type="button" onClick={() => setMoveFilters(EMPTY_MOVE_FILTERS)}>Reset filters</button>
             </div>
           )}
         </>
@@ -585,36 +551,17 @@ export default function Teams() {
         </>}
         <button className="team-dialog__primary" type="button" onClick={() => chooseMove(null)}>Clear move</button>
       </>}
-      {dialog?.kind === "pokemon" && <>
-        {loadStatus === "loading" && <p role="status">Loading Pokémon…</p>}
-        {loadStatus === "error" && <div role="alert"><p>Could not load the Pokédex. Check that the server is running.</p><button type="button" className="team-dialog__primary" onClick={() => { setLoadStatus("loading"); setAttempt(previous => previous + 1); }}>Retry</button></div>}
-        {loadStatus === "success" && <>
-          <p className="team-dialog__count" role="status">{matches.length} Pokémon found</p>
-          <div className="team-dialog__results team-dialog__pokemon">
-            {matches.map(pokemon => {
-              const types = getPokemonTypes(pokemon);
-
-              return (
-                <button
-                  type="button"
-                  key={pokemon.id}
-                  aria-label={[pokemon.name, ...types].join(", ")}
-                  onClick={() => choosePokemon(pokemon)}
-                >
-                  <img className="team-dialog__artwork" src={pokemon.imageUrl} alt="" loading="lazy" />
-                  {types.length > 0 && (
-                    <span className="team-dialog__types">
-                      {types.map(type => <PokemonTypeBadge key={type} type={type} as="span" />)}
-                    </span>
-                  )}
-                  <strong>{pokemon.name}</strong>
-                </button>
-              );
-            })}
-          </div>
-          {!matches.length && <p>No Pokémon match your search.</p>}
-        </>}
-      </>}
+      <PokemonPicker
+        active={isPokemonPicker}
+        entries={entries}
+        status={loadStatus}
+        query={query}
+        onQueryChange={setQuery}
+        panel={pickerPanel}
+        onPanelChange={setPickerPanel}
+        onRetry={() => { setLoadStatus("loading"); setAttempt(previous => previous + 1); }}
+        onSelect={choosePokemon}
+      />
       {dialog?.kind === "stat-points" && (
         <form onSubmit={saveStatPoints} className="team-dialog__stat-points">
           <div className="team-dialog__stat-budget">
