@@ -306,7 +306,7 @@ export default function Teams() {
   return <div className="teams-page pokedex-page">
     <Header />
     <main className="teams-page__main">
-      <div className="teams-page__heading"><img src={teamsIcon} alt="" /><h1>Pokemon <span>Team Editor</span></h1></div>
+      <div className="teams-page__heading"><img src={teamsIcon} alt="" /><h1>Team <span>Editor</span></h1></div>
       <div className="teams-page__workspace">
         <section className="team-roster" aria-label={`Team Pokémon, ${memberCount} of ${TEAM_SIZE}`}>
           {draft.members.map((member, slot) => {
@@ -341,7 +341,7 @@ export default function Teams() {
           })}
         </section>
         <aside className="team-details">
-          <section className="team-data" aria-labelledby="team-data-title"><h2 id="team-data-title">TEAM DATA</h2>
+          <section className="team-data" aria-labelledby="team-data-title"><h2 id="team-data-title">DATA</h2>
             <label><span className="visually-hidden">Team name</span><input ref={teamNameRef} className="team-control" placeholder="NAME" maxLength={80} value={draft.name} onChange={event => setDraft({ ...draft, name: uppercaseInput(event.currentTarget) })} /></label>
             <div className="team-data__last-row">
               <Combobox
