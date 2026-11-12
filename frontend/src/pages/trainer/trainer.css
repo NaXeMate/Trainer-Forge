@@ -121,6 +121,10 @@
   grid-area: profile;
   min-height: 12rem;
   min-width: 0;
+}
+
+.trainer-card__summary-content,
+.trainer-card__fields {
   padding-inline-end: 3rem;
 }
 
@@ -221,6 +225,27 @@ button.trainer-card__choice:hover span {
 .trainer-card__choice--sprite img {
   width: min(100%, 12rem);
   height: 12rem;
+}
+
+.trainer-card__choice--sprite picture {
+  display: contents;
+}
+
+@media (width > 40rem) {
+  .trainer-card__choice--sprite:has(.trainer-card__fitted-sprite) {
+    position: relative;
+    align-self: stretch;
+    overflow: clip;
+  }
+
+  .trainer-card__choice--sprite .trainer-card__fitted-sprite {
+    position: absolute;
+    inset-block-start: var(--trainer-sprite-top, 0px);
+    inset-inline: 0;
+    width: 100%;
+    height: var(--trainer-sprite-height, 12rem);
+    object-position: center top;
+  }
 }
 
 .trainer-card__choice--pokemon {

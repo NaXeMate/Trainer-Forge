@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import trainerIcon from "../../assets/brand/sections/trainer_icon.png";
 import pokeBallSeparator from "../../assets/icons/poke-ball-separator.svg";
@@ -120,6 +120,54 @@ function readProfile(): TrainerProfile {
   }
 }
 
+function trimSprite(image: HTMLImageElement) {
+  const { naturalWidth: width, naturalHeight: height } = image;
+  if (!width || !height) return;
+
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext("2d");
+  if (!context) return;
+
+  context.drawImage(image, 0, 0);
+  const { data } = context.getImageData(0, 0, width, height);
+  let left = width;
+  let top = height;
+  let right = -1;
+  let bottom = -1;
+
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      if (data[(y * width + x) * 4 + 3] === 0) continue;
+      left = Math.min(left, x);
+      top = Math.min(top, y);
+      right = Math.max(right, x);
+      bottom = Math.max(bottom, y);
+    }
+  }
+
+  if (right < left || bottom < top) return;
+
+  canvas.width = right - left + 1;
+  canvas.height = bottom - top + 1;
+  context.drawImage(image, left, top, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+  return canvas.toDataURL();
+}
+
+function TrainerSprite({ image, name }: { image: string; name?: string }) {
+  const [trimmed, setTrimmed] = useState<string>();
+
+  return (
+    <picture>
+      {trimmed && <source media="(width > 40rem)" srcSet={trimmed} />}
+      <img src={image} alt={name ?? ""}
+        className={trimmed ? "trainer-card__fitted-sprite" : undefined}
+        onLoad={event => { if (!trimmed) setTrimmed(trimSprite(event.currentTarget)); }} />
+    </picture>
+  );
+}
+
 function ProfileArtwork({ kind, image, name, onChoose }: {
   kind: Picker;
   image?: string;
@@ -129,7 +177,13 @@ function ProfileArtwork({ kind, image, name, onChoose }: {
   const className = `trainer-card__choice trainer-card__choice--${kind}`;
 
   if (!onChoose) {
-    return <div className={className}>{image && <img src={image} alt={name ?? ""} />}</div>;
+    return (
+      <div className={className}>
+        {image && (kind === "sprite"
+          ? <TrainerSprite key={image} image={image} name={name} />
+          : <img src={image} alt={name ?? ""} />)}
+      </div>
+    );
   }
 
   const label = PICKER_TITLES[kind];
@@ -155,6 +209,8 @@ export default function Trainer() {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const editButtonRef = useRef<HTMLButtonElement>(null);
+  const identityRef = useRef<HTMLDivElement>(null);
+  const summaryRef = useRef<HTMLDivElement>(null);
 
   const displayedProfile = draft ?? profile;
   const selectedGame = games.find(game => game.id === displayedProfile.game);
@@ -174,6 +230,28 @@ export default function Trainer() {
   const imageMatches = picker === "game" || picker === "sprite"
     ? (picker === "game" ? games : sprites).filter(option => searchKey(option.name).includes(imageQuery))
     : [];
+
+  useLayoutEffect(() => {
+    const identity = identityRef.current;
+    const summary = summaryRef.current;
+    const username = summary?.firstElementChild;
+    const lastLine = summary?.lastElementChild;
+    if (!identity || !summary || !username || !lastLine) return;
+
+    const fitSprite = () => {
+      // Match the visible text rather than the full line boxes.
+      const topInset = Number.parseFloat(getComputedStyle(username).fontSize) * 0.22;
+      const bottomInset = Number.parseFloat(getComputedStyle(lastLine).fontSize) * 0.08;
+      const height = summary.getBoundingClientRect().height - topInset - bottomInset;
+      identity.style.setProperty("--trainer-sprite-top", `${topInset}px`);
+      identity.style.setProperty("--trainer-sprite-height", height > 0 ? `${height}px` : "12rem");
+    };
+
+    fitSprite();
+    const observer = new ResizeObserver(fitSprite);
+    observer.observe(summary);
+    return () => observer.disconnect();
+  }, [profile.username, profile.realName, savedTrainerTitle]);
 
   useEffect(() => {
     if (pokemonAttempt === 0) return;
@@ -250,11 +328,11 @@ export default function Trainer() {
               </svg>
             </button>
           )}
-          <div className="trainer-card__identity">
+          <div ref={identityRef} className="trainer-card__identity">
             <ProfileArtwork kind="sprite" name={selectedSprite?.name} image={selectedSprite?.image} onChoose={chooseArtwork} />
 
             <div className="trainer-card__summary" aria-hidden={draft ? true : undefined}>
-              <div className="trainer-card__summary-content">
+              <div ref={summaryRef} className="trainer-card__summary-content">
                 <h2>{profile.username || "Trainer profile"}</h2>
                 {profile.realName && <p className="trainer-card__real-name">{profile.realName}</p>}
                 {savedTrainerTitle && <p className="trainer-card__title">{savedTrainerTitle}</p>}
