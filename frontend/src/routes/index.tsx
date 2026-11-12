@@ -4,6 +4,7 @@ import Pokedex from "../pages/pokedex";
 import PokedexDetail from "../pages/pokedexDetail";
 import NotFound from "../pages/notFound";
 import Teams from "../pages/teams";
+import Trainer from "../pages/trainer";
 
 export const router = createBrowserRouter([
     // Public routes
@@ -23,6 +24,10 @@ export const router = createBrowserRouter([
     {
         path: "/teams",
         element: <Teams />,
+    },
+    {
+        path: "/trainer",
+        element: <Trainer />,
     },
 
     // Fallback route

@@ -1,5 +1,6 @@
 .pokedex-page,
-.team-pokemon {
+.team-pokemon,
+.trainer-picker {
   --pokedex-type-normal: #9FA19F;
   --pokedex-type-fire: #E6282A;
   --pokedex-type-water: #2A80EF;
