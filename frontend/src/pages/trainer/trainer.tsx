@@ -1,6 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import trainerIcon from "../../assets/brand/sections/trainer_icon.png";
+import favoriteGame from "../../assets/icons/favorite-game.svg";
+import favoritePokemon from "../../assets/icons/favorite-pokemon.svg";
 import pokeBallSeparator from "../../assets/icons/poke-ball-separator.svg";
 import { trainerSpriteCredits } from "../../utils/trainerSpriteCredits";
 import ArrowButton from "../../components/common/arrowButton";
@@ -56,6 +58,11 @@ const PICKER_TITLES = {
   pokemon: "Choose a favorite Pokémon",
   game: "Choose a favorite game",
   sprite: "Choose a trainer sprite",
+};
+
+const FAVORITE_LABELS = {
+  pokemon: { image: favoritePokemon, text: "Favorite Pokémon" },
+  game: { image: favoriteGame, text: "Favorite Game" },
 };
 
 const ACHIEVEMENT_SLOTS = 30;
@@ -175,15 +182,19 @@ function ProfileArtwork({ kind, image, name, onChoose }: {
   onChoose?: (kind: Picker, trigger: HTMLButtonElement) => void;
 }) {
   const className = `trainer-card__choice trainer-card__choice--${kind}`;
+  const favoriteLabel = kind === "sprite" ? null : FAVORITE_LABELS[kind];
+  const artwork = image && (favoriteLabel ? (
+    <span className="trainer-card__favorite-artwork">
+      <img className="trainer-card__artwork-image" src={image} alt={onChoose ? "" : name ?? ""} />
+      <img className="trainer-card__favorite-label" src={favoriteLabel.image}
+        alt={onChoose ? "" : favoriteLabel.text} width={196} height={48} />
+    </span>
+  ) : (
+    onChoose ? <img src={image} alt="" /> : <TrainerSprite key={image} image={image} name={name} />
+  ));
 
   if (!onChoose) {
-    return (
-      <div className={className}>
-        {image && (kind === "sprite"
-          ? <TrainerSprite key={image} image={image} name={name} />
-          : <img src={image} alt={name ?? ""} />)}
-      </div>
-    );
+    return <div className={className}>{artwork}</div>;
   }
 
   const label = PICKER_TITLES[kind];
@@ -191,7 +202,7 @@ function ProfileArtwork({ kind, image, name, onChoose }: {
     <button className={className} type="button" aria-haspopup="dialog"
       aria-label={name ? `${label}: ${name}` : undefined}
       onClick={event => onChoose(kind, event.currentTarget)}>
-      {image ? <img src={image} alt="" /> : <span>{label}</span>}
+      {artwork || <span>{label}</span>}
     </button>
   );
 }

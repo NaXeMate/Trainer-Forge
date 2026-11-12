@@ -1,0 +1,188 @@
+.simulator-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.simulator-page > .site-header {
+  flex: 0 0 auto;
+  margin-top: 0.625rem;
+  width: min(calc(100% - (2 * var(--content-gutter))), 87.5rem);
+}
+
+.simulator-page__main {
+  display: grid;
+  flex: 1 0 auto;
+  place-items: center;
+  min-height: 50.375rem;
+  padding: var(--space-12) var(--content-gutter);
+}
+
+.simulator-arena {
+  display: grid;
+  grid-template:
+    ". title ." auto
+    "one battle two" auto
+    / minmax(0, 21.875rem) minmax(0, 1fr) minmax(0, 21.875rem);
+  align-items: start;
+  column-gap: var(--space-6);
+  row-gap: var(--space-2);
+  width: min(100%, 74.375rem);
+}
+
+.simulator-arena h1 {
+  grid-area: title;
+  font-size: clamp(2rem, 3.4vw, 3rem);
+  line-height: var(--line-height-tight);
+  text-align: center;
+}
+
+.simulator-arena h1 span { color: var(--color-accent); }
+
+.simulator-team {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.simulator-team--one { grid-area: one; }
+.simulator-team--two { grid-area: two; }
+
+.simulator-team__roster {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 12% var(--space-2);
+  width: 100%;
+  aspect-ratio: 350 / 254;
+  padding: var(--space-2);
+  overflow: hidden;
+  border-radius: var(--radius-card);
+  background: var(--color-glass-tint);
+  transition: background var(--duration-fast), box-shadow var(--duration-fast);
+}
+
+.simulator-team__roster:hover {
+  background: color-mix(in srgb, var(--color-glass-tint-base) 30%, transparent);
+  box-shadow: var(--shadow-card);
+}
+
+.simulator-team__slot {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  min-height: 0;
+}
+
+.simulator-team__slot img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.simulator-team__empty-slot { color: var(--color-secondary-text); }
+
+.simulator-team__identity {
+  display: grid;
+  margin-top: var(--space-1);
+  gap: var(--space-1);
+}
+
+.simulator-team__role {
+  color: var(--color-accent);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-label);
+}
+
+.simulator-team__name {
+  color: var(--color-secondary-text);
+  font-size: var(--font-size-section);
+  line-height: var(--line-height-label);
+  overflow-wrap: anywhere;
+}
+
+.simulator-team__edit {
+  justify-self: end;
+  text-align: end;
+  font-size: 1.25rem;
+}
+
+.simulator-arena__battle {
+  grid-area: battle;
+  display: grid;
+  justify-items: center;
+  gap: var(--space-2);
+  text-align: center;
+}
+
+.simulator-arena__start {
+  width: min(100%, 16.25rem);
+  aspect-ratio: 1;
+  border-radius: var(--radius-pill);
+}
+
+.simulator-arena__start img { width: 100%; height: 100%; object-fit: contain; }
+.simulator-arena__status { color: var(--color-secondary-text); }
+.simulator-arena__error { color: var(--color-body-text); }
+.simulator-arena__error button { color: var(--color-accent); text-decoration: underline; }
+
+.simulator-picker {
+  width: min(27rem, calc(100% - (2 * var(--content-gutter))));
+  max-height: calc(100% - (2 * var(--content-gutter)));
+  margin: auto;
+  padding: var(--space-6);
+  border: var(--border-width-thin) solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-background);
+  color: var(--color-body-text);
+  box-shadow: var(--shadow-card);
+}
+
+.simulator-picker::backdrop { background: rgb(0 0 0 / 45%); }
+.simulator-picker h2 { margin-bottom: var(--space-4); }
+.simulator-picker ul { display: grid; gap: var(--space-2); list-style: none; }
+
+.simulator-picker li button {
+  display: grid;
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-glass-tint);
+  text-align: start;
+  overflow-wrap: anywhere;
+}
+
+.simulator-picker li button:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-glass-tint-base) 30%, transparent);
+}
+
+.simulator-picker li button span { color: var(--color-secondary-text); font-size: var(--font-size-sm); }
+.simulator-picker__cancel { margin-top: var(--space-4); color: var(--color-accent); }
+
+@media (max-width: 64rem) {
+  .simulator-arena {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: var(--space-4);
+  }
+}
+
+@media (max-width: 48rem) {
+  .simulator-page__main { min-height: auto; padding-block: var(--space-12); }
+
+  .simulator-arena {
+    grid-template:
+      "title title" auto
+      "one two" auto
+      "battle battle" auto
+      / repeat(2, minmax(0, 1fr));
+    row-gap: var(--space-12);
+  }
+
+  .simulator-team__name { font-size: var(--font-size-md); }
+  .simulator-team__edit { font-size: var(--font-size-sm); }
+  .simulator-arena__start { max-width: 10rem; }
+}

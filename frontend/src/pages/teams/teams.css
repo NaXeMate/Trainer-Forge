@@ -14,6 +14,7 @@
 .teams-page__heading img { width: 6.5625rem; height: 4.875rem; object-fit: contain; }
 .teams-page__heading h1 { font-size: 3rem; line-height: 1.2; }
 .teams-page__heading h1 span { color: var(--color-accent); }
+.teams-page__simulator-link { margin: 0 auto 1rem; text-align: center; }
 
 .teams-page__workspace {
   display: grid;

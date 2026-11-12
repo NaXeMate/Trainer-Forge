@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, FormEvent } from "react";
+import { Link, useLocation, useSearchParams } from "react-router";
+import type { To } from "react-router";
 import teamsIcon from "../../assets/brand/sections/teams_icon.png";
 import physicalMoveIcon from "../../assets/icons/movesClasses/physical.svg";
 import specialMoveIcon from "../../assets/icons/movesClasses/special.svg";
@@ -24,7 +26,6 @@ import { getMoves } from "../../services/moveService";
 import type { MoveOption } from "../../types/moveTypes";
 import type { PokedexEntry, PokedexStat } from "../../types/pokedexTypes";
 import {
-  convertLegacyEvs,
   EMPTY_STAT_POINTS,
   getStatPointLimit,
   getStatPointTotal,
@@ -32,6 +33,8 @@ import {
   STAT_POINT_BUDGET,
 } from "../../utils/championsStatPoints";
 import type { StatPoints } from "../../utils/championsStatPoints";
+import { emptyDraft, isExampleTeamId, readTeamDraft, TEAM_SIZE, writeTeamDraft } from "../../utils/localTeamDrafts";
+import type { Draft, LocalTeamId, Member } from "../../utils/localTeamDrafts";
 import { getTypeColor } from "../../utils/pokemonPresentation";
 import {
   EMPTY_MOVE_FILTERS,
@@ -46,8 +49,6 @@ import type { PokemonType } from "../../utils/typeEffectiveness";
 import "../../styles/pokemonTypeColors.css";
 import "../../styles/teamControl.css";
 import "./teams.css";
-
-const TEAM_SIZE = 6;
 
 const MODALITY_OPTIONS = [
   { value: "SINGLES", label: "Singles" },
@@ -66,51 +67,27 @@ const MOVE_CLASS_OPTIONS = [
   { value: "STATUS", label: "Status" },
 ];
 
-const STORAGE_KEY = "trainerforge:team-draft:v2";
-const LEGACY_STORAGE_KEY = "trainerforge:team-draft:v1";
 const ANALYZER_TYPES: readonly PokemonType[] = ["GRASS", "FIRE", "WATER", "NORMAL", "ELECTRIC", "GHOST", "FAIRY", "FLYING", "ICE", "ROCK", "GROUND", "PSYCHIC", "FIGHTING", "DARK", "BUG", "DRAGON", "POISON", "STEEL"];
 const TYPE_ICONS = import.meta.glob<string>("../../assets/icons/pokemonTypes/*.svg", { eager: true, query: "?url", import: "default" });
 
-type Member = { pokedexId: number; moves: [string, string, string, string]; ability: string; item: string; statPoints: StatPoints };
-type Draft = { name: string; modality: string; game: string; publicTeam: boolean; members: (Member | null)[] };
-type StoredMember = Omit<Member, "statPoints"> & { statPoints?: unknown; evs?: unknown };
-type StoredDraft = Omit<Draft, "members"> & { members: (StoredMember | null)[] };
 type DialogState = { kind: "pokemon"; slot: number } | { kind: "stat-points"; slot: number } | { kind: "move"; slot: number; index: number; pokedexId: number } | { kind: "erase" } | null;
 type MoveLoadState = { status: "loading" | "error" } | { status: "success"; moves: MoveOption[] };
 
-function emptyDraft(): Draft {
-  return { name: "", modality: "", game: "", publicTeam: false, members: Array.from({ length: TEAM_SIZE }, () => null) };
-}
-
-function readDraft(): Draft {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem(LEGACY_STORAGE_KEY);
-    const draft = JSON.parse(saved ?? "null") as StoredDraft | null;
-    if (!draft || typeof draft.name !== "string" || typeof draft.modality !== "string" || typeof draft.game !== "string" || typeof draft.publicTeam !== "boolean" || !Array.isArray(draft.members) || draft.members.length !== TEAM_SIZE) return emptyDraft();
-    const valid = draft.members.every(member => member === null || (
-      typeof member === "object" && Number.isSafeInteger(member.pokedexId) && member.pokedexId > 0 &&
-      Array.isArray(member.moves) && member.moves.length === 4 && member.moves.every(move => typeof move === "string") &&
-      typeof member.ability === "string" && typeof member.item === "string"
-    ));
-    if (!valid) return emptyDraft();
-    return {
-      ...draft,
-      members: draft.members.map(member => {
-        if (!member) return null;
-        const { pokedexId, moves, ability, item } = member;
-        const statPoints = member.statPoints ?? convertLegacyEvs(member.evs);
-        return {
-          pokedexId, moves, ability, item,
-          statPoints: isValidStatPoints(statPoints) ? statPoints : { ...EMPTY_STAT_POINTS },
-        };
-      }),
-    };
-  } catch { return emptyDraft(); }
-}
-
 /** Team builder with a local draft and type coverage based on the supplied chart. */
 export default function Teams() {
-  const [draft, setDraftState] = useState(readDraft);
+  const [params] = useSearchParams();
+  const { state } = useLocation();
+  const requestedTeam = params.get("team");
+  const teamId = isExampleTeamId(requestedTeam) ? requestedTeam : "draft";
+  const simulatorSearch = (state as { simulatorSearch?: unknown } | null)?.simulatorSearch;
+  const returnTo = typeof simulatorSearch === "string"
+    ? { pathname: "/simulator", search: simulatorSearch }
+    : requestedTeam === teamId ? "/simulator" : undefined;
+  return <TeamEditor key={teamId} teamId={teamId} returnTo={returnTo} />;
+}
+
+function TeamEditor({ teamId, returnTo }: { teamId: LocalTeamId; returnTo?: To }) {
+  const [draft, setDraftState] = useState(() => readTeamDraft(teamId));
   const [entries, setEntries] = useState<PokedexEntry[]>([]);
   const [loadStatus, setLoadStatus] = useState<"loading" | "success" | "error">("loading");
   const [attempt, setAttempt] = useState(0);
@@ -171,11 +148,7 @@ export default function Teams() {
   function setDraft(update: Draft | ((previous: Draft) => Draft)) {
     const next = typeof update === "function" ? update(draft) : update;
     setDraftState(next);
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    } catch {
-      // The draft remains editable and downloadable if browser storage is unavailable.
-    }
+    writeTeamDraft(teamId, next);
   }
 
   useEffect(() => {
@@ -298,6 +271,7 @@ export default function Teams() {
     <Header />
     <main className="teams-page__main">
       <div className="teams-page__heading"><img src={teamsIcon} alt="" /><h1>Team <span>Editor</span></h1></div>
+      {returnTo && <div className="teams-page__simulator-link"><Link to={returnTo}>Back to Battle Simulator</Link></div>}
       <div className="teams-page__workspace">
         <section className="team-roster" aria-label={`Team Pokémon, ${memberCount} of ${TEAM_SIZE}`}>
           {draft.members.map((member, slot) => {

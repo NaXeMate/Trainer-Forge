@@ -4,6 +4,7 @@ import Pokedex from "../pages/pokedex";
 import PokedexDetail from "../pages/pokedexDetail";
 import NotFound from "../pages/notFound";
 import Teams from "../pages/teams";
+import Simulator from "../pages/simulator";
 import Trainer from "../pages/trainer";
 
 export const router = createBrowserRouter([
@@ -24,6 +25,10 @@ export const router = createBrowserRouter([
     {
         path: "/teams",
         element: <Teams />,
+    },
+    {
+        path: "/simulator",
+        element: <Simulator />,
     },
     {
         path: "/trainer",

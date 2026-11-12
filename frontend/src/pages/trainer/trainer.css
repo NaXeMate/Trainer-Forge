@@ -252,8 +252,11 @@ button.trainer-card__choice:hover span {
   min-height: 10.25rem;
 }
 
-.trainer-card__choice--pokemon img {
+.trainer-card__choice--pokemon .trainer-card__favorite-artwork {
   width: min(100%, 11rem);
+}
+
+.trainer-card__choice--pokemon .trainer-card__artwork-image {
   height: 10.25rem;
 }
 
@@ -270,10 +273,32 @@ button.trainer-card__choice:hover span {
   min-height: 5.75rem;
 }
 
-.trainer-card__choice--game img {
+.trainer-card__choice--game .trainer-card__favorite-artwork {
   width: min(100%, 12rem);
+}
+
+.trainer-card__choice--game .trainer-card__artwork-image {
   height: 5.75rem;
   object-position: center bottom;
+}
+
+.trainer-card__favorite-artwork {
+  position: relative;
+}
+
+.trainer-card__artwork-image {
+  width: 100%;
+}
+
+.trainer-card__favorite-label {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: 0;
+  width: min(100%, 7.5rem);
+  height: auto;
+  margin-inline: auto;
+  translate: 0 40%;
+  pointer-events: none;
 }
 
 .trainer-achievements {
