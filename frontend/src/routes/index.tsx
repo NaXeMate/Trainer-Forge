@@ -1,43 +1,57 @@
 import { createBrowserRouter } from "react-router";
-import Home from "../pages/home";
-import Pokedex from "../pages/pokedex";
-import PokedexDetail from "../pages/pokedexDetail";
-import NotFound from "../pages/notFound";
-import Teams from "../pages/teams";
-import Simulator from "../pages/simulator";
-import Trainer from "../pages/trainer";
 
 export const router = createBrowserRouter([
     // Public routes
     {
         path: "/",
-        element: <Home />,
+        lazy: async () => {
+            const { default: Component } = await import("../pages/home");
+            return { Component };
+        },
     },
     {
         path: "/pokedex",
-        element: <Pokedex />,
+        lazy: async () => {
+            const { default: Component } = await import("../pages/pokedex");
+            return { Component };
+        },
     },
     {
         path: "/pokedex/:id",
-        element: <PokedexDetail />,
+        lazy: async () => {
+            const { default: Component } = await import("../pages/pokedexDetail");
+            return { Component };
+        },
     },
 
     {
         path: "/teams",
-        element: <Teams />,
+        lazy: async () => {
+            const { default: Component } = await import("../pages/teams");
+            return { Component };
+        },
     },
     {
         path: "/simulator",
-        element: <Simulator />,
+        lazy: async () => {
+            const { default: Component } = await import("../pages/simulator");
+            return { Component };
+        },
     },
     {
         path: "/trainer",
-        element: <Trainer />,
+        lazy: async () => {
+            const { default: Component } = await import("../pages/trainer");
+            return { Component };
+        },
     },
 
     // Fallback route
     {
         path: "*",
-        element: <NotFound />,
+        lazy: async () => {
+            const { default: Component } = await import("../pages/notFound");
+            return { Component };
+        },
     },
 ]);
