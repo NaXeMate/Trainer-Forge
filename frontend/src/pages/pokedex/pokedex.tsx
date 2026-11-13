@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router";
 import pokedexIcon from "../../assets/brand/sections/pokedex_icon.png";
 import cleanIcon from "../../assets/icons/pokedex/clean.svg";
@@ -153,29 +153,25 @@ export default function Pokedex() {
   const resultsRef = useRef<HTMLElement>(null);
   const sortContainerRef = useRef<HTMLDivElement>(null);
   const sortButtonRef = useRef<HTMLButtonElement>(null);
-  const viewStateRef = useRef<PokedexViewState>({
-    currentPage,
-    draftFilters,
-    appliedFilters,
-    draftTextFilters,
-    appliedTextFilters,
-    typeFilters,
-    appliedTypeFilters,
-    sortCriteria,
+  const saveViewState = useEffectEvent((entryKey: string) => {
+    try {
+      window.sessionStorage.setItem(
+        `${POKEDEX_VIEW_STATE_KEY}${entryKey}`,
+        JSON.stringify({
+          currentPage,
+          draftFilters,
+          appliedFilters,
+          draftTextFilters,
+          appliedTextFilters,
+          typeFilters,
+          appliedTypeFilters,
+          sortCriteria,
+        }),
+      );
+    } catch {
+      // The page can still work when browser storage is unavailable.
+    }
   });
-
-  useLayoutEffect(() => {
-    viewStateRef.current = {
-      currentPage,
-      draftFilters,
-      appliedFilters,
-      draftTextFilters,
-      appliedTextFilters,
-      typeFilters,
-      appliedTypeFilters,
-      sortCriteria,
-    };
-  }, [currentPage, draftFilters, appliedFilters, draftTextFilters, appliedTextFilters, typeFilters, appliedTypeFilters, sortCriteria]);
 
   const entries = loadState.status === "success" ? loadState.entries : EMPTY_POKEDEX_ENTRIES;
   const sortedEntries = useMemo(() => sortPokedexEntries(entries, sortCriteria), [entries, sortCriteria]);
@@ -185,6 +181,10 @@ export default function Pokedex() {
   const visibleEntries = sortedEntries.slice(firstEntryIndex, firstEntryIndex + POKEMON_PER_PAGE);
   const hasAppliedFilters = appliedTypeFilters.length > 0 || appliedFilters.some(filter => filter.enabled) ||
     Object.values(appliedTextFilters).some(value => value.trim());
+
+  useEffect(() => () => {
+    saveViewState(location.key);
+  }, [location.key]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -205,17 +205,6 @@ export default function Pokedex() {
 
     return () => controller.abort();
   }, [attempt, appliedFilters, appliedTypeFilters, appliedTextFilters]);
-
-  useEffect(() => () => {
-    try {
-      window.sessionStorage.setItem(
-        `${POKEDEX_VIEW_STATE_KEY}${location.key}`,
-        JSON.stringify(viewStateRef.current),
-      );
-    } catch {
-      // The page can still work when browser storage is unavailable.
-    }
-  }, [location.key]);
 
   useEffect(() => {
     if (!sortOpen) return;

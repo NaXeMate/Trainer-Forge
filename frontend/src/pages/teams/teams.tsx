@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { CSSProperties, FormEvent } from "react";
+import type { CSSProperties, SubmitEvent } from "react";
 import { Link, useLocation, useSearchParams } from "react-router";
 import type { To } from "react-router";
 import teamsIcon from "../../assets/brand/sections/teams_icon.png";
@@ -245,7 +245,7 @@ function TeamEditor({ teamId, returnTo }: { teamId: LocalTeamId; returnTo?: To }
     });
   }
 
-  function saveStatPoints(event: FormEvent<HTMLFormElement>) {
+  function saveStatPoints(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     if (dialog?.kind !== "stat-points" || !isValidStatPoints(statPoints)) return;
     updateMember(dialog.slot, { statPoints });
