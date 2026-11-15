@@ -46,6 +46,21 @@ export const router = createBrowserRouter([
         },
     },
 
+    {
+        path: "/login",
+        lazy: async () => {
+            const { default: Component } = await import("../pages/login");
+            return { Component };
+        },
+    },
+    {
+        path: "/register",
+        lazy: async () => {
+            const { default: Component } = await import("../pages/register");
+            return { Component };
+        },
+    },
+
     // Fallback route
     {
         path: "*",

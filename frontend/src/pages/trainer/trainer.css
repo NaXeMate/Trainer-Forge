@@ -190,6 +190,22 @@
 .trainer-card__fields .trainer-card__username {
   font-size: var(--font-size-section);
   font-weight: var(--font-weight-bold);
+  overflow-wrap: anywhere;
+}
+
+.trainer-page__session-error button,
+.trainer-picker__clear {
+  color: var(--color-accent-hover);
+  text-decoration: underline;
+}
+
+.trainer-picker__clear {
+  justify-self: start;
+}
+
+.trainer-card__save-error {
+  margin-top: var(--space-2);
+  color: var(--color-secondary-text);
 }
 
 .trainer-card__title-field .combobox__error {

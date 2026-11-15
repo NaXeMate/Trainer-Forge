@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router";
 
 import trainerForgeLogo from "../../../assets/brand/logo/logo_dark_header.png";
 import LoginButton from "../../common/loginButton";
+import { useAuth } from "../../../context/useAuth";
 
 import "./header.css";
 
@@ -14,6 +15,7 @@ const navigationItems = [
 
 function Header() {
   const navigate = useNavigate();
+  const { session, logout } = useAuth();
 
   const handleLogin = () => {
     navigate("/login");
@@ -37,10 +39,19 @@ function Header() {
         </ul>
       </nav>
 
-      <LoginButton
-        aria-label="Log in"
-        className="site-header__login"
-        onClick={handleLogin}/>
+      {session.status === "authenticated" ? (
+        <div className="site-header__login site-header__account">
+          <Link to="/trainer" title={session.profile.username}>{session.profile.username}</Link>
+          <button type="button" onClick={logout}>Log out</button>
+        </div>
+      ) : session.status === "checking" ? (
+        <span className="site-header__login site-header__account" role="status">Checking session…</span>
+      ) : (
+        <LoginButton
+          aria-label="Log in"
+          className="site-header__login"
+          onClick={handleLogin}/>
+      )}
     </header>
   );
 }

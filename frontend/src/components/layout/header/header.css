@@ -58,6 +58,26 @@
   justify-self: end;
 }
 
+.site-header__account {
+  display: grid;
+  max-width: 100%;
+  min-width: 0;
+  justify-items: end;
+  color: var(--color-on-dark);
+  font-size: var(--font-size-sm);
+}
+
+.site-header__account a {
+  max-width: 100%;
+  overflow: hidden;
+  color: inherit;
+  font-weight: var(--font-weight-bold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.site-header__account button { text-decoration: underline; }
+
 @media (max-width: 75rem) {
   .site-header__navigation-list {
     gap: 2.5rem;
