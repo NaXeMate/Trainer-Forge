@@ -51,6 +51,8 @@
 
 .auth-card__fields {
   display: grid;
+  min-inline-size: 0;
+  border: 0;
   gap: var(--auth-field-gap);
   margin-top: var(--auth-fields-offset);
 }
@@ -143,6 +145,11 @@
   margin-top: var(--space-3);
   color: var(--color-secondary-text);
   text-align: center;
+}
+
+.auth-card__status button {
+  color: var(--color-accent-hover);
+  text-decoration: underline;
 }
 
 .auth-page__switch {
