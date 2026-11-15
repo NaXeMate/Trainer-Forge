@@ -1,12 +1,12 @@
-export const API_BASE_URL = "http://localhost:8080/api";
+export const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api").replace(/\/+$/, "");
 
-type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";
+type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 export class ApiError extends Error {
   readonly status: number;
 
-  constructor(status: number, statusText: string) {
-    super(`Error ${status}: ${statusText}`);
+  constructor(status: number, message: string) {
+    super(message);
     this.name = "ApiError";
     this.status = status;
   }
@@ -17,27 +17,31 @@ export async function apiRequest<T>(
   endpoint: string,
   body?: unknown,
   signal?: AbortSignal,
+  token?: string,
 ): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
+  const headers = new Headers();
 
   const options: RequestInit = {
     method,
     signal,
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers,
   };
 
-  // The body is only added if it exists
-  if (body) {
+  if (token) headers.set("Authorization", `Bearer ${token}`);
+  if (body !== undefined) {
+    headers.set("Content-Type", "application/json");
     options.body = JSON.stringify(body);
   }
 
   const response = await fetch(url, options);
 
-  // If the response is not OK (codes 200-299), throw an error
   if (!response.ok) {
-    throw new ApiError(response.status, response.statusText);
+    const error = await response.json().catch(() => null) as { message?: unknown } | null;
+    const message = typeof error?.message === "string" && error.message
+      ? error.message
+      : `Error ${response.status}: ${response.statusText || "Request failed"}`;
+    throw new ApiError(response.status, message);
   }
 
   // Parse and return the typed JSON
