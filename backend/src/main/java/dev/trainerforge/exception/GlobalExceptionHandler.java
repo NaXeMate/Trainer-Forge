@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -59,6 +60,18 @@ public class GlobalExceptionHandler {
                 LocalDateTime.now()
             )
         );
+    }
+
+    @ExceptionHandler(TrainerNameConflictException.class)
+    public ResponseEntity<ErrorDTO> handleTrainerNameConflict(TrainerNameConflictException ex, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorDTO(
+                409, "Conflict", ex.getMessage(), request.getRequestURI(), LocalDateTime.now()));
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorDTO> handleUnreadableBody(HttpMessageNotReadableException ex, HttpServletRequest request) {
+        return ResponseEntity.badRequest().body(new ErrorDTO(
+                400, "Bad Request", "Invalid request body.", request.getRequestURI(), LocalDateTime.now()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

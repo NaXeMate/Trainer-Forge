@@ -7,6 +7,7 @@ import org.mapstruct.ReportingPolicy;
 
 import dev.trainerforge.dto.input.TrainerInputDto;
 import dev.trainerforge.dto.response.TrainerDto;
+import dev.trainerforge.dto.response.TrainerPrivateDto;
 import dev.trainerforge.model.entities.Trainer;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = {EntityReferenceMapper.class})
@@ -17,6 +18,13 @@ public interface TrainerMapper {
 
     @Mapping(source = "bestFriend.username", target = "bestFriendUsername")
     TrainerDto toDto(Trainer trainer);
+
+    @Mapping(source = "region.name", target = "regionName")
+    @Mapping(source = "favoriteGame.name", target = "favoriteGameName")
+    @Mapping(source = "favoritePokemon.id", target = "favoritePokemonId")
+    @Mapping(source = "favoritePokemon.name", target = "favoritePokemonName")
+    @Mapping(source = "bestFriend.username", target = "bestFriendUsername")
+    TrainerPrivateDto toPrivateDto(Trainer trainer);
 
     @Mapping(source = "bestFriendUsername", target = "bestFriend")
     void updateEntityFromDto(TrainerInputDto trainerDto, @MappingTarget Trainer trainer);

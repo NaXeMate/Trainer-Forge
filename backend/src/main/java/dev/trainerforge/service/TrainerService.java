@@ -2,27 +2,43 @@ package dev.trainerforge.service;
 
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.regex.Pattern;
 
+import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import tools.jackson.databind.JsonNode;
+
 import dev.trainerforge.dto.input.TrainerInputDto;
+import dev.trainerforge.dto.response.TrainerPrivateDto;
+import dev.trainerforge.exception.InvalidFilterValueException;
+import dev.trainerforge.exception.TrainerNameConflictException;
 import dev.trainerforge.exception.notfound.TrainerNotFoundException;
 import dev.trainerforge.mapper.TrainerMapper;
 import dev.trainerforge.model.entities.GamePossession;
+import dev.trainerforge.model.entities.Pokedex;
 import dev.trainerforge.model.entities.Trainer;
+import dev.trainerforge.model.entities.Videogame;
 import dev.trainerforge.model.enumerated.TrainerClass;
 import dev.trainerforge.repository.GamePossessionRepository;
+import dev.trainerforge.repository.PokedexRepository;
 import dev.trainerforge.repository.TrainerRepository;
+import dev.trainerforge.repository.VideogameRepository;
 import dev.trainerforge.validator.TrainerValidator;
 
 @Transactional(readOnly = true)
 @Service
 public class TrainerService {
-    
+
+    private static final Pattern SPRITE_PATH = Pattern.compile("/trainer-sprites/[A-Za-z0-9_-]+\\.png");
     private final TrainerRepository trainerRepo;
     private final GamePossessionRepository gamePossessionRepo;
+    private final PokedexRepository pokedexRepo;
+    private final VideogameRepository videogameRepo;
 
     private final TrainerMapper trainerMapper;
     private final PasswordEncoder passwordEncoder;
@@ -33,9 +49,13 @@ public class TrainerService {
         return "TF-%04d-%04d".formatted(part1, part2);
     } 
 
-    public TrainerService(TrainerRepository trainerRepo, GamePossessionRepository gamePossessionRepo, TrainerMapper trainerMapper, PasswordEncoder passwordEncoder) {
+    public TrainerService(TrainerRepository trainerRepo, GamePossessionRepository gamePossessionRepo,
+            PokedexRepository pokedexRepo, VideogameRepository videogameRepo, TrainerMapper trainerMapper,
+            PasswordEncoder passwordEncoder) {
         this.trainerRepo = trainerRepo;
         this.gamePossessionRepo = gamePossessionRepo;
+        this.pokedexRepo = pokedexRepo;
+        this.videogameRepo = videogameRepo;
         this.trainerMapper = trainerMapper;
         this.passwordEncoder = passwordEncoder;
     }
@@ -55,7 +75,8 @@ public class TrainerService {
         TrainerValidator.validateUsernameUniqueness(trainerRepo.existsByUsername(dto.username()));
         TrainerValidator.validateEmail(dto.email());
         TrainerValidator.validateEmailUniqueness(trainerRepo.existsByEmail(dto.email()));
-        TrainerValidator.validateRealName(dto.realName());
+        String realName = normalizeRealName(dto.realName());
+        TrainerValidator.validateRealName(realName);
         TrainerValidator.validatePassword(dto.password());
         
         String friendCode;
@@ -65,11 +86,15 @@ public class TrainerService {
         
         Trainer newTrainer = new Trainer();
         trainerMapper.updateEntityFromDto(dto, newTrainer);
+        newTrainer.setRealName(realName);
+        if (newTrainer.getTrainerClass() == null) {
+            newTrainer.setTrainerClass(TrainerClass.NOVICE);
+        }
         
         newTrainer.setFriendCode(friendCode);
         
         newTrainer.setPasswordHash(passwordEncoder.encode(dto.password()));
-        return trainerRepo.save(newTrainer);
+        return saveWithNameConflict(newTrainer);
     }
     
     /**
@@ -89,7 +114,7 @@ public class TrainerService {
         TrainerValidator.validateRealName(dto.realName());
 
         if (!trainer.getUsername().equals(dto.username())) {
-            TrainerValidator.validateUsernameUniqueness(trainerRepo.existsByUsername(dto.username()));
+            throw new InvalidFilterValueException("The username cannot be changed.");
         }
         if (!trainer.getEmail().equals(dto.email())) {
             TrainerValidator.validateEmailUniqueness(trainerRepo.existsByEmail(dto.email()));
@@ -98,6 +123,115 @@ public class TrainerService {
         trainerMapper.updateEntityFromDto(dto, trainer);
         
         return trainerRepo.save(trainer);
+    }
+
+    public TrainerPrivateDto getCurrentTrainer(String username) {
+        return trainerMapper.toPrivateDto(findAuthenticatedTrainer(username));
+    }
+
+    @Transactional
+    public TrainerPrivateDto updateCurrentTrainer(String username, JsonNode changes) {
+        if (changes == null || !changes.isObject()) {
+            throw new InvalidFilterValueException("Profile changes must be a JSON object.");
+        }
+
+        Trainer trainer = findAuthenticatedTrainer(username);
+        
+        for (var field : changes.properties()) {
+            JsonNode value = field.getValue();
+            switch (field.getKey()) {
+                case "realName" -> {
+                    String name = normalizeRealName(readText(value, "realName"));
+                    TrainerValidator.validateRealName(name);
+                    trainer.setRealName(name);
+                }
+                
+                case "trainerClass" -> trainer.setTrainerClass(readTrainerClass(value));
+                
+                case "profilePictureUrl" -> {
+                    String sprite = readText(value, "profilePictureUrl");
+                    if (sprite != null && (sprite.length() > 255 || !SPRITE_PATH.matcher(sprite).matches())) {
+                        throw new InvalidFilterValueException("Choose a trainer sprite from the catalogue.");
+                    }
+                    trainer.setProfilePictureUrl(sprite);
+                }
+                
+                case "favoritePokemonId" -> trainer.setFavoritePokemon(readFavoritePokemon(value));
+                
+                case "favoriteGameName" -> trainer.setFavoriteGame(readFavoriteGame(value));
+                
+                default -> throw new InvalidFilterValueException("This request contains a field that cannot be edited.");
+            }
+        }
+        return trainerMapper.toPrivateDto(saveWithNameConflict(trainer));
+    }
+
+    private Trainer findAuthenticatedTrainer(String username) {
+        try {
+            return findByUsername(username);
+        } catch (TrainerNotFoundException ex) {
+            throw new UsernameNotFoundException("Trainer account no longer exists.", ex);
+        }
+    }
+
+    private static String normalizeRealName(String name) {
+        return name == null || name.isBlank() ? null : name.strip();
+    }
+
+    private static String readText(JsonNode value, String field) {
+        if (value.isNull()) return null;
+        
+        if (!value.isString()) {
+            throw new InvalidFilterValueException(field + " must be text or null.");
+        }
+        
+        return value.stringValue();
+    }
+
+    private static TrainerClass readTrainerClass(JsonNode value) {
+        String trainerClass = readText(value, "trainerClass");
+        
+        if (trainerClass == null) {
+            throw new InvalidFilterValueException("The trainer title is required.");
+        }
+        
+        try {
+            return TrainerClass.valueOf(trainerClass);
+        } catch (IllegalArgumentException ex) {
+            throw new InvalidFilterValueException("Choose a valid trainer title.");
+        }
+    }
+
+    private Pokedex readFavoritePokemon(JsonNode value) {
+        if (value.isNull()) return null;
+        
+        if (!value.isIntegralNumber() || !value.canConvertToLong() || value.longValue() <= 0) {
+            throw new InvalidFilterValueException("The favorite Pokémon must use a valid Pokédex entry ID.");
+        }
+        
+        return pokedexRepo.findById(value.longValue())
+                .orElseThrow(() -> new InvalidFilterValueException("The selected Pokémon does not exist."));
+    }
+
+    private Videogame readFavoriteGame(JsonNode value) {
+        String name = readText(value, "favoriteGameName");
+        
+        if (name == null) return null;
+        
+        return videogameRepo.findByName(name)
+                .orElseThrow(() -> new InvalidFilterValueException("The selected game does not exist."));
+    }
+
+    private Trainer saveWithNameConflict(Trainer trainer) {
+        try {
+            return trainerRepo.saveAndFlush(trainer);
+        } catch (DataIntegrityViolationException ex) {
+            if (ex.getCause() instanceof ConstraintViolationException violation
+                    && "trainers_real_name_key".equals(violation.getConstraintName())) {
+                throw new TrainerNameConflictException();
+            }
+            throw ex;
+        }
     }
 
     @Transactional

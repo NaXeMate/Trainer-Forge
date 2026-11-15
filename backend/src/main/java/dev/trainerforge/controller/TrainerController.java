@@ -2,11 +2,14 @@ package dev.trainerforge.controller;
 
 import java.util.List;
 
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -14,9 +17,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import tools.jackson.databind.JsonNode;
+
 import dev.trainerforge.dto.input.TrainerInputDto;
 import dev.trainerforge.dto.response.GamePossessionDto;
 import dev.trainerforge.dto.response.TrainerDto;
+import dev.trainerforge.dto.response.TrainerPrivateDto;
 import dev.trainerforge.mapper.GamePossessionMapper;
 import dev.trainerforge.mapper.TrainerMapper;
 import dev.trainerforge.model.entities.Trainer;
@@ -37,7 +43,17 @@ public class TrainerController {
         this.gamePossessionMapper = gamePossessionMapper;
     }
 
-    // GETs
+    @GetMapping("/me")
+    public ResponseEntity<TrainerPrivateDto> getCurrentTrainer(Authentication authentication) {
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore())
+                .body(trainerService.getCurrentTrainer(authentication.getName()));
+    }
+
+    @PatchMapping("/me")
+    public ResponseEntity<TrainerPrivateDto> updateCurrentTrainer(Authentication authentication, @RequestBody JsonNode changes) {
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore())
+                .body(trainerService.updateCurrentTrainer(authentication.getName(), changes));
+    }
 
     @GetMapping
     public ResponseEntity<List<TrainerDto>> getAllTrainers() {
@@ -123,8 +139,6 @@ public class TrainerController {
         return ResponseEntity.ok(trainers);
     }
 
-    // GAME POSSESSIONS QUERIES
-
     @GetMapping("/{trainerId}/games")
     public ResponseEntity<List<GamePossessionDto>> getGamesByTrainer(@PathVariable Long trainerId) {
         List<GamePossessionDto> games = trainerService.findGamesByTrainerId(trainerId)
@@ -142,8 +156,6 @@ public class TrainerController {
                 .toList();
         return ResponseEntity.ok(games);
     }
-
-    // CRUDs
 
     @PostMapping
     public ResponseEntity<TrainerDto> createTrainer(@RequestBody TrainerInputDto dto) {
