@@ -130,6 +130,10 @@ function panelOutcome(result: BattleResult | undefined, side: Side): PanelOutcom
 
 type MatchupMeasurement = { start: number; key: string; requests: number };
 
+function beginMeasurement(key: string, start = performance.now()): MatchupMeasurement {
+  return { start, key, requests: 0 };
+}
+
 function Matchup({ token, catalogue, initialStart }: { token: string; catalogue: Catalogue; initialStart: number }) {
   const { logout } = useAuth();
   const { working, storageAvailable } = useSessionTeamDraft();
@@ -171,7 +175,7 @@ function Matchup({ token, catalogue, initialStart }: { token: string; catalogue:
   }, []);
 
   useEffect(() => {
-    const measure = { start: uptime.current ? performance.now() : initialStart, key: battleKey, requests: 0 };
+    const measure = beginMeasurement(battleKey, uptime.current ? undefined : initialStart);
     uptime.current = measure;
     for (const id of [firstId, secondId]) {
       if (id === undefined || completed.current.has(id)) continue;
