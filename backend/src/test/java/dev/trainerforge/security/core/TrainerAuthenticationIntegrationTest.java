@@ -116,6 +116,37 @@ class TrainerAuthenticationIntegrationTest {
         assertEquals(profile, body(200, request("GET", "/api/trainers/me", red, null)));
     }
 
+    @Test
+    void readsTheCompleteLineupWithItsPositionsAndVisibility() throws Exception {
+        String red = jwt.generate("red");
+        String leaf = jwt.generate("leaf");
+        String lineup = """
+                {
+                  "name":"Sparse private team","modality":"NORMAL","gameId":1,"publicTeam":false,
+                  "members":[null,null,null,{"pokedexId":53,"ability":"Static","moves":["Agility","","",""],
+                    "stats":{"hp":0,"attack":0,"defense":0,"specialAttack":0,"specialDefense":0,"speed":32}},null,null]
+                }
+                """;
+        JsonNode created = body(201, request("POST", "/api/teams/complete", red, lineup));
+        String path = "/api/teams/" + created.get("id").asLong() + "/complete";
+
+        body(401, request("GET", path, null, null));
+        body(404, request("GET", path, leaf, null));
+        JsonNode own = body(200, request("GET", path, red, null));
+        assertEquals(created, own);
+        JsonNode members = own.get("lineup").get("members");
+        assertEquals(6, members.size());
+        assertTrue(members.get(0).isNull());
+        assertEquals(32, members.get(3).get("stats").get("speed").asInt());
+        body(400, request("PUT", path, red, lineup.replace("\"speed\":32", "\"speed\":33")));
+        assertEquals(own, body(200, request("GET", path, red, null)));
+
+        JsonNode demo = body(200, request("GET", "/api/teams/1/complete", leaf, null));
+        assertEquals("Kanto Classics", demo.get("lineup").get("name").asText());
+        assertTrue(demo.get("lineup").get("publicTeam").asBoolean());
+        assertFalse(demo.get("lineup").get("members").get(0).isNull());
+    }
+
     private HttpResponse<String> request(String method, String path, String token, String payload) throws Exception {
         var request = HttpRequest.newBuilder(URI.create("http://localhost:" + port + path));
         if (token != null) request.header("Authorization", "Bearer " + token);

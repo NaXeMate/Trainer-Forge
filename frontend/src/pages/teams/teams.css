@@ -30,14 +30,6 @@
 .teams-page__heading h1 span { color: var(--color-accent); }
 .teams-page__saved-status { padding-top: var(--space-12); text-align: center; }
 .teams-page__saved-status p { margin-block: var(--space-3); }
-.teams-page__draft-status {
-  text-align: center;
-  margin: 0 var(--space-4) var(--space-5);
-  color: var(--color-secondary-text);
-}
-.teams-page__draft-status [role="alert"] { color: var(--color-body-text); overflow-wrap: anywhere; }
-.teams-page__draft-status button { color: var(--color-accent); text-decoration: underline; }
-
 .teams-page__workspace {
   display: grid;
   grid-template-columns: minmax(0, 49.125rem) minmax(0, 27rem);
@@ -96,6 +88,13 @@
   justify-content: center;
   gap: var(--space-2);
   margin-block-start: 2.5rem;
+}
+
+.teams-page__action-error {
+  margin-block-start: var(--space-2);
+  color: var(--color-body-text);
+  text-align: center;
+  overflow-wrap: anywhere;
 }
 
 .teams-page__action {

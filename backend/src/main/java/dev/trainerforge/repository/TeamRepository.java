@@ -45,6 +45,18 @@ public interface TeamRepository extends JpaRepository<Team, Long> {
             """)
     Optional<Team> findAccessibleById(@Param("id") Long id, @Param("username") String username);
 
+    @EntityGraph(attributePaths = {
+            "trainer", "videogame", "pokemonTeams.pokemon.species", "pokemonTeams.pokemon.ability",
+            "pokemonTeams.pokemon.move1", "pokemonTeams.pokemon.move2", "pokemonTeams.pokemon.move3",
+            "pokemonTeams.pokemon.move4", "pokemonTeams.pokemon.equippedItem", "pokemonTeams.pokemon.nature"
+    })
+    @Query("""
+            SELECT team FROM Team team
+            WHERE team.id = :id
+              AND (team.isHidden = false OR team.trainer.username = :username)
+            """)
+    Optional<Team> findAccessibleCompleteById(@Param("id") Long id, @Param("username") String username);
+
     @EntityGraph(attributePaths = {"trainer", "videogame"})
     @Query("""
             SELECT team FROM Team team

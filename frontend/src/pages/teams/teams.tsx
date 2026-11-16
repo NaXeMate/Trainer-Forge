@@ -144,7 +144,7 @@ function RequestedTeam({ id, token, username }: { id: number; token: string; use
     if (!allowed) return;
     const controller = new AbortController();
     const { signal } = controller;
-    getCompleteTeam(id, token, signal, { expectedOwner: username }).then(team => {
+    getCompleteTeam(id, token, signal, username).then(team => {
       if (signal.aborted) return;
       if (!replace({ draft: team.draft, origin: { kind: "saved", id }, dirty: false })) return;
       void navigate("/teams", { replace: true, state });
@@ -252,7 +252,9 @@ function TeamEditor({ token, username }: { token: string; username: string }) {
   }, [attempt]);
 
   function setDraft(change: Draft | ((previous: Draft) => Draft)) {
-    if (!operation.current) update(typeof change === "function" ? change(draft) : change);
+    if (operation.current) return;
+    update(typeof change === "function" ? change(draft) : change);
+    setActionError(undefined);
   }
 
   function confirmReplacement(message = "Replace the team and discard your unsaved changes?") {
@@ -290,7 +292,7 @@ function TeamEditor({ token, username }: { token: string; username: string }) {
     if (dialog?.kind === "load") closeDialog();
     void runOperation(async signal => {
       const { id } = chosen;
-      const team = await getCompleteTeam(id, token, signal, { expectedOwner: username });
+      const team = await getCompleteTeam(id, token, signal, username);
       if (signal.aborted) return;
       replace({ draft: team.draft, origin: { kind: "saved", id }, dirty: false });
     });
@@ -363,7 +365,6 @@ function TeamEditor({ token, username }: { token: string; username: string }) {
       setActionError("All Pokémon in a Monotype team must share a type.");
       return;
     }
-    setActionError(undefined);
     setDraft({ ...draft, modality });
   }
 
@@ -621,6 +622,7 @@ function TeamEditor({ token, username }: { token: string; username: string }) {
               </svg>
             </button>
           </div>
+          {actionError && <p className="teams-page__action-error" role="alert">{actionError}</p>}
         </aside>
       </div>
     </main>

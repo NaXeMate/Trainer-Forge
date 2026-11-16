@@ -138,6 +138,12 @@ public class TeamService {
         }
     }
 
+    public Complete getCompleteTeam(Long id) {
+        Team team = teamRepo.findAccessibleCompleteById(id, getCurrentUsername())
+                .orElseThrow(() -> new TeamNotFoundException(id));
+        return describeCompleteTeam(team);
+    }
+
     private Complete describeCompleteTeam(Team team) {
         Map<Integer, Member> roster = team.getPokemonTeams().stream()
                 .collect(Collectors.toMap(slot -> slot.getPosition(), slot -> pokemonService.describeTeamMember(slot.getPokemon())));

@@ -128,11 +128,7 @@ function panelOutcome(result: BattleResult | undefined, side: Side): PanelOutcom
   return (result.outcome === "TEAM_ONE" ? "one" : "two") === side ? "win" : "loss";
 }
 
-type MatchupMeasurement = { start: number; key: string; requests: number; teamIds: (number | undefined)[] };
-
-function beginMeasurement(key: string, teamIds: (number | undefined)[], initialStart?: number): MatchupMeasurement {
-  return { start: initialStart ?? performance.now(), key, requests: 0, teamIds };
-}
+type MatchupMeasurement = { start: number; key: string; requests: number };
 
 function Matchup({ token, catalogue, initialStart }: { token: string; catalogue: Catalogue; initialStart: number }) {
   const { logout } = useAuth();
@@ -175,10 +171,9 @@ function Matchup({ token, catalogue, initialStart }: { token: string; catalogue:
   }, []);
 
   useEffect(() => {
-    const teamIds = [firstId, secondId];
-    const measure = beginMeasurement(battleKey, teamIds, uptime.current ? undefined : initialStart);
+    const measure = { start: uptime.current ? performance.now() : initialStart, key: battleKey, requests: 0 };
     uptime.current = measure;
-    for (const id of teamIds) {
+    for (const id of [firstId, secondId]) {
       if (id === undefined || completed.current.has(id)) continue;
       if (requests.current.has(id)) continue;
       const controller = new AbortController();
@@ -189,10 +184,8 @@ function Matchup({ token, catalogue, initialStart }: { token: string; catalogue:
         completed.current.set(id, value);
         setDetails(new Map(completed.current));
       };
-      getCompleteTeam(id, token, signal, { onRequest: () => {
-        const current = uptime.current;
-        if (current?.teamIds.includes(id)) current.requests++;
-      } }).then(team => store({ team })).catch(error => {
+      measure.requests++;
+      getCompleteTeam(id, token, signal).then(team => store({ team })).catch(error => {
         if (signal.aborted) return;
         if (error instanceof ApiError && error.status === 401) logout();
         const description = error instanceof ApiError && error.status === 404

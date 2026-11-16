@@ -48,6 +48,11 @@ public class TeamController {
         return ResponseEntity.ok(team);
     }
 
+    @GetMapping("/{id}/complete")
+    public ResponseEntity<Complete> getCompleteTeam(@PathVariable Long id) {
+        return ResponseEntity.ok(teamService.getCompleteTeam(id));
+    }
+
     @GetMapping("/trainer/{trainerId}")
     public ResponseEntity<List<TeamDto>> getTeamsByTrainer(@PathVariable Long trainerId) {
         List<TeamDto> teams = teamService.findByTrainerId(trainerId)

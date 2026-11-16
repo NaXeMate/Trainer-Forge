@@ -1,7 +1,5 @@
-import { gameCatalogue } from "../constants/teamCatalogue";
-import { TEAM_SIZE } from "../utils/teamDraft";
 import type { Draft, Member, Modality } from "../utils/teamDraft";
-import { ApiError, apiRequest } from "./api";
+import { apiRequest } from "./api";
 
 export type SavedTeam = {
   id: number;
@@ -17,24 +15,6 @@ type ApiMember = Omit<Member, "statPoints"> & {
 };
 type ApiLineup = Omit<Draft, "members"> & { members: (ApiMember | null)[] };
 type ApiTeam = { id: number; trainerUsername: string; lineup: ApiLineup };
-type LinkedMember = { pokemonId: string; position: number };
-type LegacyPokemon = {
-  species: number;
-  ability: string;
-  move1: string;
-  move2: string | null;
-  move3: string | null;
-  move4: string | null;
-  equippedItem: string | null;
-  hpEv: number;
-  attackEv: number;
-  defenseEv: number;
-  specialAttackEv: number;
-  specialDefenseEv: number;
-  speedEv: number;
-  level: number;
-  nature: string;
-};
 
 export type CompleteTeam = { id: number; trainerUsername: string; draft: Draft };
 
@@ -87,55 +67,12 @@ export async function getMyTeams(username: string, token: string, signal: AbortS
   return teams.filter(team => team.trainerUsername === username);
 }
 
-async function getLinkedSlots(id: number, token: string, signal: AbortSignal) {
-  try {
-    return await apiRequest<LinkedMember[]>("GET", `/pokemon-teams/team/${id}`, undefined, signal, token);
-  } catch (error) {
-    // Access has already been checked by reading the team. An empty roster returns 404.
-    if (!(error instanceof ApiError) || error.status !== 404) throw error;
-    return [];
+export async function getCompleteTeam(id: number, token: string, signal: AbortSignal, expectedOwner?: string) {
+  const team = await apiRequest<ApiTeam>("GET", `/teams/${id}/complete`, undefined, signal, token);
+  if (expectedOwner && team.trainerUsername !== expectedOwner) {
+    throw new Error("You can only open your own saved teams.");
   }
-}
-
-export async function getCompleteTeam(id: number, token: string, signal: AbortSignal, options?: {
-  expectedOwner?: string;
-  onRequest?: () => void;
-}) {
-  const { expectedOwner, onRequest } = options ?? {};
-  onRequest?.();
-  const team = await apiRequest<SavedTeam>("GET", `/teams/${id}`, undefined, signal, token);
-  assertOwner(team.trainerUsername, expectedOwner);
-  onRequest?.();
-  const slots = await getLinkedSlots(id, token, signal);
-  const members = Array.from({ length: TEAM_SIZE }, () => null as Member | null);
-  await Promise.all(slots.map(async ({ pokemonId, position }) => {
-    if (position < 1 || position > TEAM_SIZE) return;
-    onRequest?.();
-    const pokemon = await apiRequest<LegacyPokemon>("GET", `/pokemon/${encodeURIComponent(pokemonId)}`, undefined, signal, token);
-    members[position - 1] = {
-      pokedexId: pokemon.species,
-      moves: [pokemon.move1 ?? "", pokemon.move2 ?? "", pokemon.move3 ?? "", pokemon.move4 ?? ""],
-      ability: pokemon.ability,
-      item: pokemon.equippedItem ?? "",
-      statPoints: {
-        hp: pokemon.hpEv, attack: pokemon.attackEv, defense: pokemon.defenseEv,
-        "special-attack": pokemon.specialAttackEv, "special-defense": pokemon.specialDefenseEv, speed: pokemon.speedEv,
-      },
-      level: pokemon.level,
-      nature: pokemon.nature,
-    };
-  }));
-  return {
-    id, trainerUsername: team.trainerUsername,
-    draft: {
-      name: team.name, modality: team.modality, publicTeam: !team.hidden, members,
-      gameId: gameCatalogue.find(game => game.name === team.videogame)?.id ?? null,
-    },
-  };
-}
-
-function assertOwner(actual: string, expected?: string) {
-  if (expected && actual !== expected) throw new Error("You can only open your own saved teams.");
+  return fromTeam(team);
 }
 
 export async function saveCompleteTeam(draft: Draft, id: number | null, token: string, signal: AbortSignal) {
