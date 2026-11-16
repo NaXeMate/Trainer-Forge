@@ -12,6 +12,7 @@ import PokemonPicker from "../../components/common/pokemonPicker";
 import type { PickerPanel } from "../../components/common/pokemonPicker";
 import Footer from "../../components/layout/footer";
 import Header from "../../components/layout/header";
+import { gameCatalogue } from "../../constants/teamCatalogue";
 import { useAuth } from "../../context/useAuth";
 import { ApiError } from "../../services/api";
 import { getPokedexEntries } from "../../services/pokedexService";
@@ -24,17 +25,6 @@ import trainerSpriteIds from "./trainerSprites.json";
 import "./trainer.css";
 
 type Picker = "pokemon" | "game" | "sprite";
-
-const GAME_NAMES: Record<string, string> = {
-  PokemonFireRed: "Pokemon FireRed",
-  PokemonLeafGreen: "Pokemon LeafGreen",
-  PokemonHeartGold: "Pokemon HeartGold",
-  PokemonSoulSilver: "Pokemon SoulSilver",
-  PokemonLetsGoPikachu: "Pokemon Let's Go, Pikachu!",
-  PokemonLetsGoEevee: "Pokemon Let's Go, Eevee!",
-  PokemonLegendsArceus: "Pokemon Legends: Arceus",
-  PokemonLegendsZA: "Pokemon Legends Z-A",
-};
 
 const PICKER_TITLES = {
   pokemon: "Choose a favorite Pokémon",
@@ -51,10 +41,6 @@ const ACHIEVEMENT_SLOTS = 30;
 const ACHIEVEMENTS_PER_PAGE = 15;
 const LAST_ACHIEVEMENT_PAGE = Math.ceil(ACHIEVEMENT_SLOTS / ACHIEVEMENTS_PER_PAGE) - 1;
 
-function assetName(path: string) {
-  return path.slice(path.lastIndexOf("/") + 1, path.lastIndexOf("."));
-}
-
 function titleCase(name: string) {
   return name.replace(/([a-z])([A-Z0-9])/g, "$1 $2").replace(/[-_]/g, " ")
     .replace(/\b\w/g, letter => letter.toUpperCase());
@@ -67,22 +53,15 @@ const TRAINER_TITLE_OPTIONS = TRAINER_CLASSES.map(value => ({
     : titleCase(value.toLowerCase()).replace("Pokemon", "Pokémon"),
 }));
 
-const games = Object.entries(import.meta.glob<string>("../../assets/images/gameLogos/*.png", {
+const gameLogos = import.meta.glob<string>("../../assets/images/gameLogos/*.png", {
   eager: true, import: "default", query: "?url",
-})).flatMap(([path, image]) => {
-  const id = assetName(path);
-  if (id === "PokemonRedAndBlue") {
-    return [
-      { value: "Pokemon Red", name: "Pokémon Red", image },
-      { value: "Pokemon Blue", name: "Pokémon Blue", image },
-    ];
-  }
-  if (id === "PokemonWaves" || id === "PokemonWinds") return [];
-  const value = GAME_NAMES[id] ?? titleCase(id);
+});
+const games = gameCatalogue.map(({ name: value, logoKey }) => {
+  const key = logoKey ?? value.replace(/[^a-zA-Z0-9]/g, "");
   const name = value.replace(/^Pokemon /, "Pokémon ")
     .replace("Pokémon Let's Go", "Pokémon: Let's Go")
     .replace("Legends Z-A", "Legends: Z-A");
-  return [{ value, name, image }];
+  return { value, name, image: gameLogos[`../../assets/images/gameLogos/${key}.png`] };
 }).sort((a, b) => a.name.localeCompare(b.name));
 
 const sprites = trainerSpriteIds.map(id => ({

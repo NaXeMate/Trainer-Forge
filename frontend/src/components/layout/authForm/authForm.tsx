@@ -41,7 +41,7 @@ export default function AuthForm({ mode, children, onReset }: AuthFormProps) {
   const { session, login, register, retry, logout } = useAuth();
   const { state } = useLocation();
   const from = (state as { from?: unknown } | null)?.from;
-  const destination = typeof from === "string" && /^\/trainer\/?(?:[?#]|$)/i.test(from) ? from : "/";
+  const destination = typeof from === "string" && /^\/(?:trainer|simulator|teams)\/?(?:[?#]|$)/i.test(from) ? from : "/";
   const submitting = useRef(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");

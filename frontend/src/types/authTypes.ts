@@ -23,6 +23,7 @@ export type AuthSession =
 
 export type AuthContextValue = {
   session: AuthSession;
+  accessToken: string | null;
   login: (input: LoginInput) => Promise<void>;
   register: (input: RegisterInput) => Promise<void>;
   retry: () => void;

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { ApiError } from "../services/api";
 import { login, register } from "../services/authService";
+import { clearSessionTeamDraft } from "../services/sessionTeamDraft";
 import { getCurrentTrainer, updateCurrentTrainer } from "../services/trainerService";
 import type { AuthResponse, AuthSession, LoginInput, RegisterInput } from "../types/authTypes";
 import type { TrainerProfileChanges } from "../types/trainerTypes";
@@ -45,8 +46,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(() => {
     generation.current++;
     persistToken(null);
+    clearSessionTeamDraft();
     setToken(null);
     setSession({ status: "guest" });
+  }, []);
+
+  useEffect(() => {
+    function onRestore(event: PageTransitionEvent) {
+      if (event.persisted) clearSessionTeamDraft();
+    }
+    window.addEventListener("pagehide", clearSessionTeamDraft);
+    window.addEventListener("pageshow", onRestore);
+    return () => {
+      window.removeEventListener("pagehide", clearSessionTeamDraft);
+      window.removeEventListener("pageshow", onRestore);
+    };
   }, []);
 
   function retry() {
@@ -101,6 +115,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const response = await request();
     
     if (generation.current !== currentGeneration) return;
+    clearSessionTeamDraft();
     persistToken(response.token);
     setSession({ status: "checking" });
     setToken(response.token);
@@ -123,6 +138,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <AuthContext.Provider value={{
       session, retry, logout, updateProfile,
+      accessToken: session.status === "authenticated" ? token : null,
       login: (input: LoginInput) => authenticate(() => login(input)),
       register: (input: RegisterInput) => authenticate(() => register(input)),
     }}>

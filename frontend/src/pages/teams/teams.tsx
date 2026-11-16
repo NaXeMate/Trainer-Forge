@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { CSSProperties, SubmitEvent } from "react";
-import { Link, useLocation, useSearchParams } from "react-router";
-import type { To } from "react-router";
+import type { CSSProperties, ReactNode, SubmitEvent } from "react";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router";
 import teamsIcon from "../../assets/brand/sections/teams_icon.png";
 import physicalMoveIcon from "../../assets/icons/movesClasses/physical.svg";
 import specialMoveIcon from "../../assets/icons/movesClasses/special.svg";
@@ -20,9 +19,15 @@ import PokemonTypeCombobox from "../../components/common/pokemonTypeCombobox";
 import SortOptions from "../../components/common/sortOptions";
 import StatisticSlider from "../../components/common/statisticSlider";
 import { findPokemonType, POKEDEX_STATS } from "../../constants/pokedex";
+import { gameCatalogue, teamNatures } from "../../constants/teamCatalogue";
+import { useAuth } from "../../context/useAuth";
+import { useSessionTeamDraft, useSessionTeamDraftRevision } from "../../hooks/useSessionTeamDraft";
+import { ApiError } from "../../services/api";
 import { getEquippableItems } from "../../services/itemService";
 import { getPokedexEntries } from "../../services/pokedexService";
 import { getMoves } from "../../services/moveService";
+import { deleteSavedTeam, getCompleteTeam, getMyTeams, saveCompleteTeam } from "../../services/teamService";
+import type { SavedTeam } from "../../services/teamService";
 import type { MoveOption } from "../../types/moveTypes";
 import type { PokedexEntry, PokedexStat } from "../../types/pokedexTypes";
 import {
@@ -33,8 +38,8 @@ import {
   STAT_POINT_BUDGET,
 } from "../../utils/championsStatPoints";
 import type { StatPoints } from "../../utils/championsStatPoints";
-import { emptyDraft, isExampleTeamId, readTeamDraft, TEAM_SIZE, writeTeamDraft } from "../../utils/localTeamDrafts";
-import type { Draft, LocalTeamId, Member } from "../../utils/localTeamDrafts";
+import { commonMonotypeTypes, emptyDraft, incompleteSlot, MODALITIES, newMember, readTeamFile, TEAM_SCHEMA_VERSION, TEAM_SIZE } from "../../utils/teamDraft";
+import type { Draft, Member, Modality } from "../../utils/teamDraft";
 import { getTypeColor } from "../../utils/pokemonPresentation";
 import {
   EMPTY_MOVE_FILTERS,
@@ -43,17 +48,22 @@ import {
   TEAM_MOVE_SORT_GROUPS,
 } from "../../utils/teamPicker";
 import type { MoveSortCriterion } from "../../utils/teamPicker";
-import { uppercaseInput } from "../../utils/uppercaseInput";
-import { analyzeTeamTypes } from "../../utils/typeEffectiveness";
+import { analyzeTeamTypes, getPokemonTypes } from "../../utils/typeEffectiveness";
 import type { PokemonType } from "../../utils/typeEffectiveness";
 import "../../styles/pokemonTypeColors.css";
 import "../../styles/teamControl.css";
 import "./teams.css";
 
-const MODALITY_OPTIONS = [
-  { value: "SINGLES", label: "Singles" },
-  { value: "DOUBLES", label: "Doubles (VGC)" },
+const MODALITY_OPTIONS = MODALITIES.map(value => ({
+  value, label: value[0] + value.slice(1).toLowerCase(),
+}));
+const GAME_OPTIONS = gameCatalogue.map(game => ({ value: String(game.id), label: game.name }));
+const LOAD_OPTIONS = [
+  { value: "profile", label: "From Profile..." },
+  { value: "json", label: "From JSON..." },
 ];
+
+const blankTeam = emptyDraft();
 
 const MOVE_CLASS_ICONS = new Map([
   ["PHYSICAL", physicalMoveIcon],
@@ -70,24 +80,104 @@ const MOVE_CLASS_OPTIONS = [
 const ANALYZER_TYPES: readonly PokemonType[] = ["GRASS", "FIRE", "WATER", "NORMAL", "ELECTRIC", "GHOST", "FAIRY", "FLYING", "ICE", "ROCK", "GROUND", "PSYCHIC", "FIGHTING", "DARK", "BUG", "DRAGON", "POISON", "STEEL"];
 const TYPE_ICONS = import.meta.glob<string>("../../assets/icons/pokemonTypes/*.svg", { eager: true, query: "?url", import: "default" });
 
-type DialogState = { kind: "pokemon"; slot: number } | { kind: "stat-points"; slot: number } | { kind: "move"; slot: number; index: number; pokedexId: number } | { kind: "erase" } | null;
+type DialogState = { kind: "pokemon"; slot: number } | { kind: "stat-points"; slot: number }
+  | { kind: "move"; slot: number; index: number; pokedexId: number }
+  | { kind: "load"; source?: "profile" } | { kind: "clear" | "delete" } | null;
 type MoveLoadState = { status: "loading" | "error" } | { status: "success"; moves: MoveOption[] };
 
-/** Team builder with a local draft and type coverage based on the supplied chart. */
+/** Team builder backed by the current trainer's working draft. */
 export default function Teams() {
+  const { session, accessToken, logout, retry } = useAuth();
+  const draftRevision = useSessionTeamDraftRevision();
+  const { pathname, search } = useLocation();
   const [params] = useSearchParams();
-  const { state } = useLocation();
-  const requestedTeam = params.get("team");
-  const teamId = isExampleTeamId(requestedTeam) ? requestedTeam : "draft";
-  const simulatorSearch = (state as { simulatorSearch?: unknown } | null)?.simulatorSearch;
-  const returnTo = typeof simulatorSearch === "string"
-    ? { pathname: "/simulator", search: simulatorSearch }
-    : requestedTeam === teamId ? "/simulator" : undefined;
-  return <TeamEditor key={teamId} teamId={teamId} returnTo={returnTo} />;
+  const requestedId = params.get("savedTeam");
+
+  if (session.status === "authenticated" && accessToken) {
+    const editorKey = `${session.profile.id}:${draftRevision}`;
+    if (requestedId !== null) {
+      const id = Number(requestedId);
+      if (!/^[1-9]\d*$/.test(requestedId) || !Number.isSafeInteger(id)) {
+        return <TeamStatus><p role="alert">Team not found.</p><Link to="/teams" replace>Open team editor</Link></TeamStatus>;
+      }
+      return <RequestedTeam key={`${editorKey}:${id}`} id={id} token={accessToken} username={session.profile.username} />;
+    }
+    return <TeamEditor key={editorKey} token={accessToken} username={session.profile.username} />;
+  }
+
+  return <TeamStatus>
+    {session.status === "checking" && <p role="status">Checking your session…</p>}
+    {session.status === "guest" && <Link to="/login" state={{ from: pathname + search }}>Log in to create or edit teams</Link>}
+    {session.status === "error" && <>
+      <p role="alert">Could not verify your session.</p>
+      <button type="button" onClick={retry}>Retry</button>{" · "}
+      <button type="button" onClick={logout}>Use another account</button>
+    </>}
+  </TeamStatus>;
 }
 
-function TeamEditor({ teamId, returnTo }: { teamId: LocalTeamId; returnTo?: To }) {
-  const [draft, setDraftState] = useState(() => readTeamDraft(teamId));
+function TeamStatus({ children }: { children: ReactNode }) {
+  return <div className="teams-page">
+    <Header />
+    <main className="teams-page__main teams-page__saved-status">
+      <h1>Team Editor</h1>
+      {children}
+    </main>
+    <Footer />
+  </div>;
+}
+
+function RequestedTeam({ id, token, username }: { id: number; token: string; username: string }) {
+  const { working, replace } = useSessionTeamDraft();
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+  const { state } = useLocation();
+  const [allowed, setAllowed] = useState(() => !working?.dirty);
+  const [error, setError] = useState("");
+  const alreadyOpen = working?.origin.kind === "saved" && working.origin.id === id;
+
+  useEffect(() => {
+    if (alreadyOpen) {
+      void navigate("/teams", { replace: true, state });
+      return;
+    }
+    if (!allowed) return;
+    const controller = new AbortController();
+    const { signal } = controller;
+    getCompleteTeam(id, token, signal, { expectedOwner: username }).then(team => {
+      if (signal.aborted) return;
+      if (!replace({ draft: team.draft, origin: { kind: "saved", id }, dirty: false })) return;
+      void navigate("/teams", { replace: true, state });
+    }).catch(failure => {
+      if (signal.aborted) return;
+      if (failure instanceof ApiError && failure.status === 401) logout();
+      setError(failure instanceof Error ? failure.message : "Could not load the requested team.");
+    });
+    return () => controller.abort();
+  }, [alreadyOpen, allowed, id, token, username, replace, navigate, state, logout]);
+
+  return <TeamStatus>
+    {!allowed && !alreadyOpen && <>
+      <p role="alert">Loading this team will replace your unsaved changes.</p>
+      <button type="button" onClick={() => setAllowed(true)}>Replace draft and open team</button>
+    </>}
+    {(allowed || alreadyOpen) && !error && <p role="status">Loading team…</p>}
+    {error && <p role="alert">{error}</p>}
+    <p><Link to="/teams" replace state={state}>Back to the editor</Link></p>
+  </TeamStatus>;
+}
+
+function TeamEditor({ token, username }: { token: string; username: string }) {
+  const { working, replace, update } = useSessionTeamDraft();
+  const { logout } = useAuth();
+  const draft = working?.draft ?? blankTeam;
+  const [actionError, setActionError] = useState<string>();
+  const [busy, setBusy] = useState(false);
+  const operation = useRef<AbortController | null>(null);
+  const fileInput = useRef<HTMLInputElement>(null);
+  const [profileAttempt, setProfileAttempt] = useState(0);
+  const [profile, setProfile] = useState<{ status: "loading" | "error" } |
+    { status: "ready"; teams: SavedTeam[] }>({ status: "loading" });
   const [entries, setEntries] = useState<PokedexEntry[]>([]);
   const [loadStatus, setLoadStatus] = useState<"loading" | "success" | "error">("loading");
   const [attempt, setAttempt] = useState(0);
@@ -103,11 +193,27 @@ function TeamEditor({ teamId, returnTo }: { teamId: LocalTeamId; returnTo?: To }
   const [itemAttempt, setItemAttempt] = useState(0);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
-  const teamNameRef = useRef<HTMLInputElement>(null);
   const pokemonById = useMemo(() => new Map(entries.map(pokemon => [pokemon.id, pokemon])), [entries]);
   const selected = draft.members.map(member => member ? pokemonById.get(member.pokedexId) : undefined);
   const memberCount = draft.members.filter(Boolean).length;
-  const canErase = Boolean(memberCount || draft.name || draft.modality || draft.game || draft.publicTeam);
+  const monotypeTypes = draft.modality === "MONOTYPE" && dialog?.kind === "pokemon"
+    ? commonMonotypeTypes(draft.members, pokemonById, dialog.slot) : null;
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const { signal } = controller;
+    getMyTeams(username, token, signal).then(teams => {
+      if (!signal.aborted) setProfile({ status: "ready", teams });
+    }).catch(error => {
+      if (signal.aborted) return;
+      if (error instanceof ApiError && error.status === 401) logout();
+      setProfile({ status: "error" });
+      controller.abort();
+    });
+    return () => controller.abort();
+  }, [token, username, logout, profileAttempt]);
+
+  useEffect(() => () => operation.current?.abort(), []);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -145,20 +251,130 @@ function TeamEditor({ teamId, returnTo }: { teamId: LocalTeamId; returnTo?: To }
     return () => controller.abort();
   }, [attempt]);
 
-  function setDraft(update: Draft | ((previous: Draft) => Draft)) {
-    const next = typeof update === "function" ? update(draft) : update;
-    setDraftState(next);
-    writeTeamDraft(teamId, next);
+  function setDraft(change: Draft | ((previous: Draft) => Draft)) {
+    if (!operation.current) update(typeof change === "function" ? change(draft) : change);
+  }
+
+  function confirmReplacement(message = "Replace the team and discard your unsaved changes?") {
+    return !working?.dirty || window.confirm(message);
+  }
+
+  function nameNewTeam(name: string) {
+    if (operation.current) return;
+    replace({ draft: { ...draft, name }, origin: { kind: "new" }, dirty: true });
+    setActionError(undefined);
+  }
+
+  async function runOperation(action: (signal: AbortSignal) => Promise<void>) {
+    if (operation.current) return;
+    const controller = new AbortController();
+    operation.current = controller;
+    setBusy(true);
+    setActionError(undefined);
+    try {
+      await action(controller.signal);
+    } catch (error) {
+      if (controller.signal.aborted) return;
+      if (error instanceof ApiError && error.status === 401) logout();
+      setActionError(error instanceof Error ? error.message : "The operation failed.");
+    } finally {
+      operation.current = null;
+      if (!controller.signal.aborted) setBusy(false);
+    }
+  }
+
+  function loadFromProfile(value: string) {
+    if (profile.status !== "ready") return;
+    const chosen = profile.teams.find(team => String(team.id) === value);
+    if (!chosen || !confirmReplacement()) return;
+    if (dialog?.kind === "load") closeDialog();
+    void runOperation(async signal => {
+      const { id } = chosen;
+      const team = await getCompleteTeam(id, token, signal, { expectedOwner: username });
+      if (signal.aborted) return;
+      replace({ draft: team.draft, origin: { kind: "saved", id }, dirty: false });
+    });
+  }
+
+  function importFile(file: File) {
+    if (loadStatus !== "success" || moveState.status !== "success" || itemCatalogue.status !== "success") {
+      setActionError("The Pokémon, move and item catalogues must be loaded before importing a team.");
+      return;
+    }
+    const moves = new Set(moveState.moves.map(move => move.name));
+    const items = new Set(itemCatalogue.options.map(item => item.value));
+    void runOperation(async signal => {
+      if (file.size > 256 * 1024) throw new Error("The team file is too large.");
+      const raw = await file.text();
+      if (signal.aborted) return;
+      let data: unknown;
+      try {
+        data = JSON.parse(raw);
+      } catch {
+        throw new Error("The file does not contain valid JSON.");
+      }
+      const imported = readTeamFile(data, { pokedex: pokemonById, moves, items, games: gameCatalogue, natures: teamNatures });
+      if (imported.modalityChanged) {
+        const warning = "The file uses a legacy modality. It will open as Normal.";
+        const question = working?.dirty ? " Replace the draft and discard your unsaved changes?" : " Open this team?";
+        if (!window.confirm(warning + question)) return;
+      } else if (!confirmReplacement()) return;
+      replace({ draft: imported.draft, origin: { kind: "import" }, dirty: true });
+    });
+  }
+
+  function saveTeam() {
+    if (!working) return;
+    let message = "";
+    const slot = incompleteSlot(draft);
+    if (!draft.name.trim()) message = "Enter a team name.";
+    else if (draft.gameId === null) message = "Choose a game before saving.";
+    else if (slot !== -1) message = `Slot ${slot + 1} needs an ability and a move in its first move slot.`;
+    else if (draft.modality === "MONOTYPE" && commonMonotypeTypes(draft.members, pokemonById)?.length === 0) {
+      message = "All Pokémon in a Monotype team must share a type.";
+    }
+    if (message) {
+      setActionError(message);
+      return;
+    }
+    const id = working.origin.kind === "saved" ? working.origin.id : null;
+    void runOperation(async signal => {
+      const team = await saveCompleteTeam(draft, id, token, signal);
+      if (signal.aborted) return;
+      if (!replace({ draft: team.draft, origin: { kind: "saved", id: team.id }, dirty: false })) return;
+      setProfileAttempt(previous => previous + 1);
+    });
+  }
+
+  function deleteTeam() {
+    if (savedId === null) return;
+    closeDialog();
+    void runOperation(async signal => {
+      await deleteSavedTeam(savedId, token, signal);
+      if (signal.aborted || !replace({ draft: emptyDraft(), origin: { kind: "new" }, dirty: false })) return;
+      setProfile(current => current.status === "ready"
+        ? { ...current, teams: current.teams.filter(team => team.id !== savedId) } : current);
+      setProfileAttempt(previous => previous + 1);
+    });
+  }
+
+  function changeModality(modality: Modality) {
+    if (modality === "MONOTYPE" && commonMonotypeTypes(draft.members, pokemonById)?.length === 0) {
+      setActionError("All Pokémon in a Monotype team must share a type.");
+      return;
+    }
+    setActionError(undefined);
+    setDraft({ ...draft, modality });
   }
 
   useEffect(() => {
     if (dialog) {
       dialogRef.current?.showModal();
-      dialogRef.current?.querySelector("input")?.focus();
+      dialogRef.current?.querySelector<HTMLInputElement>("input:not([hidden])")?.focus();
     }
     else if (dialogRef.current?.open) {
       dialogRef.current.close();
-      if (triggerRef.current?.disabled) teamNameRef.current?.focus();
+      if (triggerRef.current?.disabled) document.getElementById("team-name")?.focus();
     }
   }, [dialog]);
 
@@ -173,6 +389,20 @@ function TeamEditor({ teamId, returnTo }: { teamId: LocalTeamId; returnTo?: To }
   }
 
   function closeDialog() { setDialog(null); triggerRef.current?.focus(); }
+
+  function chooseLoadSource(source: string) {
+    if (source === "profile") setDialog({ kind: "load", source });
+    if (source === "json") {
+      dialogRef.current?.close();
+      closeDialog();
+      fileInput.current?.click();
+    }
+  }
+
+  function retryProfile() {
+    setProfile({ status: "loading" });
+    setProfileAttempt(previous => previous + 1);
+  }
   function updateMember(slot: number, update: Partial<Member>) {
     setDraft(previous => ({ ...previous, members: previous.members.map((member, index) => index === slot && member ? { ...member, ...update } : member) }));
   }
@@ -189,8 +419,9 @@ function TeamEditor({ teamId, returnTo }: { teamId: LocalTeamId; returnTo?: To }
   }
   function choosePokemon(pokemon: PokedexEntry) {
     if (dialog?.kind !== "pokemon") return;
+    if (monotypeTypes && !getPokemonTypes(pokemon).some(type => monotypeTypes.includes(type))) return;
     setDraft(previous => ({ ...previous, members: previous.members.map((member, index) => index === dialog.slot
-      ? { pokedexId: pokemon.id, moves: ["", "", "", ""], ability: pokemon.ability1, item: "", statPoints: { ...EMPTY_STAT_POINTS } }
+      ? newMember(pokemon)
       : member) }));
     closeDialog();
   }
@@ -239,8 +470,7 @@ function TeamEditor({ teamId, returnTo }: { teamId: LocalTeamId; returnTo?: To }
 
   function changeStatPoints(stat: PokedexStat, requestedPoints: number) {
     setStatPoints(previous => {
-      const limit = getStatPointLimit(previous, stat);
-      const points = Math.min(limit, Math.max(0, Math.trunc(requestedPoints) || 0));
+      const points = Math.min(getStatPointLimit(previous, stat), Math.max(0, Math.trunc(requestedPoints) || 0));
       return { ...previous, [stat]: points };
     });
   }
@@ -251,28 +481,34 @@ function TeamEditor({ teamId, returnTo }: { teamId: LocalTeamId; returnTo?: To }
     updateMember(dialog.slot, { statPoints });
     closeDialog();
   }
+
   function downloadTeam() {
-    const data = { ...draft, members: draft.members.map((member, slot) => member ? { ...member, name: selected[slot]?.name } : null) };
+    const data = {
+      schemaVersion: TEAM_SCHEMA_VERSION, ...draft,
+      members: draft.members.map((member, slot) => member ? { ...member, name: selected[slot]?.name } : null),
+    };
     const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }));
     const link = document.createElement("a");
-    link.href = url; link.download = `${draft.name.trim().replace(/[^a-z0-9_-]+/gi, "-") || "pokemon-team"}.json`;
-    link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+    link.href = url;
+    link.download = `${draft.name.trim().replace(/[^a-z0-9_-]+/gi, "-") || "pokemon-team"}.json`;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
-  function eraseTeam() {
-    setDraft(emptyDraft());
-    closeDialog();
-  }
+
+  const savedId = working?.origin.kind === "saved" ? working.origin.id : null;
+  const profileOptions = profile.status === "ready"
+    ? profile.teams.map(team => ({ value: String(team.id), label: team.name })) : [];
+  const isConfirmation = dialog?.kind === "clear" || dialog?.kind === "delete";
 
   const dialogTitle = dialog?.kind === "move"
     ? `Choose move ${dialog.index + 1}`
-    : { pokemon: "Choose a Pokémon", "stat-points": "Stat Points", erase: "Erase team?" }[dialog?.kind ?? "pokemon"];
+    : { pokemon: "Choose a Pokémon", "stat-points": "Stat Points", load: "Load team", clear: "Clear draft?", delete: "Delete saved team?" }[dialog?.kind ?? "pokemon"];
 
-  return <div className="teams-page pokedex-page">
+  return <div className="teams-page">
     <Header />
     <main className="teams-page__main">
       <div className="teams-page__heading"><img src={teamsIcon} alt="" /><h1>Team <span>Editor</span></h1></div>
-      {returnTo && <div className="teams-page__simulator-link"><Link to={returnTo}>Back to Battle Simulator</Link></div>}
-      <div className="teams-page__workspace">
+      <div className="teams-page__workspace" inert={busy}>
         <section className="team-roster" aria-label={`Team Pokémon, ${memberCount} of ${TEAM_SIZE}`}>
           {draft.members.map((member, slot) => {
             const pokemon = selected[slot];
@@ -307,16 +543,18 @@ function TeamEditor({ teamId, returnTo }: { teamId: LocalTeamId; returnTo?: To }
         </section>
         <aside className="team-details">
           <section className="team-data" aria-labelledby="team-data-title"><h2 id="team-data-title">DATA</h2>
-            <label><span className="visually-hidden">Team name</span><input ref={teamNameRef} className="team-control" placeholder="NAME" maxLength={80} value={draft.name} onChange={event => setDraft({ ...draft, name: uppercaseInput(event.currentTarget) })} /></label>
+            <Combobox inputId="team-name" label="Team name" placeholder="NAME" maxLength={100} inputClassName="team-control"
+              value={savedId === null ? "" : String(savedId)} displayValue={draft.name} options={profileOptions}
+              createOption={{ label: "New Team", onSelect: nameNewTeam }}
+              invalidMessage="Choose a saved team or select New Team to use this name."
+              onChange={loadFromProfile} />
+            <Combobox label="Game" placeholder="GAME" inputClassName="team-control"
+              value={draft.gameId === null ? "" : String(draft.gameId)}
+              displayValue={GAME_OPTIONS.find(option => option.value === String(draft.gameId))?.label ?? ""}
+              options={GAME_OPTIONS} clearLabel="Clear game" onChange={value => setDraft({ ...draft, gameId: value ? Number(value) : null })} />
             <div className="team-data__last-row">
-              <Combobox
-                inputClassName="team-control"
-                label="Modality"
-                placeholder="MODALITY"
-                value={draft.modality}
-                options={MODALITY_OPTIONS}
-                onChange={modality => setDraft(previous => ({ ...previous, modality }))}
-              />
+              <Combobox label="Modality" inputClassName="team-control" value={draft.modality} options={MODALITY_OPTIONS}
+                onChange={value => { if (value) changeModality(value as Modality); }} />
               <label className="team-data__public">
                 <AccentCheckbox checked={draft.publicTeam} onCheckedChange={publicTeam => setDraft({ ...draft, publicTeam })} />
                 PUBLIC TEAM
@@ -342,35 +580,62 @@ function TeamEditor({ teamId, returnTo }: { teamId: LocalTeamId; returnTo?: To }
               <p className="type-analyzer__note" role="status">Could not load move coverage. <button type="button" onClick={retryMoves}>Retry</button></p>
             )}
           </section>
-          <div className="teams-page__actions">
-            <button className="teams-page__action" type="button" disabled={!memberCount} onClick={downloadTeam}>
+          <div className="teams-page__actions" role="group" aria-label="Team actions">
+            <button className="teams-page__action" type="button" aria-label="Save team" title="Save team"
+              disabled={busy || !working} onClick={saveTeam}>
               <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 3v12m-4-4 4 4 4-4M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" />
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h12l4 4v12a2 2 0 0 1-2 2ZM7 3v5h10V3M7 21v-8h10v8" />
               </svg>
-              DOWNLOAD
+            </button>
+            <button className="teams-page__action" type="button" aria-label="Load team" title="Load team"
+              disabled={busy} aria-haspopup="dialog"
+              onClick={event => openDialog({ kind: "load" }, event.currentTarget)}>
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 18V6a2 2 0 0 1 2-2h4l3 3h7a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z" />
+              </svg>
+            </button>
+            <button className="teams-page__action" type="button" aria-label="Export JSON" title="Export JSON"
+              disabled={busy || !working} onClick={downloadTeam}>
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 4v12m-4-4 4 4 4-4M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4" />
+              </svg>
+            </button>
+            <button className="teams-page__action" type="button" aria-label="Clear draft" title="Clear draft"
+              disabled={busy || !working} aria-haspopup="dialog"
+              onClick={event => openDialog({ kind: "clear" }, event.currentTarget)}>
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="m6 6 12 12M18 6 6 18" />
+              </svg>
             </button>
             <button
               className="teams-page__action teams-page__action--erase"
               type="button"
-              disabled={!canErase}
+              aria-label="Delete team"
+              title="Delete team"
+              disabled={busy || savedId === null}
               aria-haspopup="dialog"
-              onClick={event => openDialog({ kind: "erase" }, event.currentTarget)}
+              onClick={event => openDialog({ kind: "delete" }, event.currentTarget)}
             >
               <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <path d="m6 6 12 12M18 6 6 18" />
+                <path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v5m4-5v5" />
               </svg>
-              ERASE
             </button>
           </div>
         </aside>
       </div>
     </main>
     <Footer />
+    <input ref={fileInput} type="file" accept=".json,application/json" hidden onChange={event => {
+      const file = event.currentTarget.files?.[0];
+      event.currentTarget.value = "";
+      if (file) importFile(file);
+    }} />
     <dialog
-      className={isPicker ? "team-dialog team-dialog--picker" : dialog?.kind === "erase" ? "team-dialog team-dialog--erase" : "team-dialog"}
+      className={isPicker ? "team-dialog team-dialog--picker" : isConfirmation ? "team-dialog team-dialog--erase" :
+        dialog?.kind === "load" ? "team-dialog team-dialog--load" : "team-dialog"}
       ref={dialogRef}
       aria-labelledby="team-dialog-title"
-      aria-describedby={dialog?.kind === "erase" ? "team-erase-description" : undefined}
+      aria-describedby={isConfirmation ? "team-erase-description" : undefined}
       onCancel={event => {
         if (!isPicker || !pickerPanel) {
           closeDialog();
@@ -385,7 +650,7 @@ function TeamEditor({ teamId, returnTo }: { teamId: LocalTeamId; returnTo?: To }
     >
       <div className="team-dialog__header">
         <h2 id="team-dialog-title">{dialogTitle}</h2>
-        {dialog?.kind !== "erase" && (
+        {!isConfirmation && (
           <button type="button" className={isPicker ? "team-dialog__picker-close" : undefined} aria-label="Close dialog" onClick={closeDialog}>
             {isPicker ? (
               <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
@@ -395,13 +660,32 @@ function TeamEditor({ teamId, returnTo }: { teamId: LocalTeamId; returnTo?: To }
           </button>
         )}
       </div>
-      {dialog?.kind === "erase" && <>
-        <p id="team-erase-description">This will clear all Pokémon and team settings from your draft.</p>
+      {isConfirmation && <>
+        <p id="team-erase-description">{dialog?.kind === "delete"
+          ? `Delete “${draft.name}” from your profile and clear this draft? This cannot be undone.`
+          : "This will clear all Pokémon and team settings from your draft."}</p>
         <div className="team-dialog__erase-actions">
           <button className="team-dialog__secondary" type="button" autoFocus onClick={closeDialog}>CANCEL</button>
-          <button className="team-dialog__primary" type="button" onClick={eraseTeam}>ERASE TEAM</button>
+          <button className="team-dialog__primary" type="button" onClick={() => {
+            if (dialog?.kind === "delete") { deleteTeam(); return; }
+            replace({ draft: emptyDraft(), origin: { kind: "new" }, dirty: false });
+            setActionError(undefined);
+            closeDialog();
+          }}>{dialog?.kind === "delete" ? "DELETE TEAM" : "CLEAR DRAFT"}</button>
         </div>
       </>}
+      {dialog?.kind === "load" && (dialog.source === "profile" ? <>
+        {profile.status === "loading" && <p role="status">Loading saved teams…</p>}
+        {profile.status === "error" && <p role="alert">Could not load your saved teams.{" "}
+          <button type="button" className="team-dialog__primary" onClick={retryProfile}>Retry</button></p>}
+        {profile.status === "ready" && (profileOptions.length ?
+          <Combobox label="Teams from my profile" placeholder="Choose a team" value="" inputClassName="team-control"
+            options={profileOptions} onChange={loadFromProfile} /> : <p>No saved teams.</p>)}
+        <button className="team-dialog__secondary team-dialog__load-back" type="button"
+          onClick={() => setDialog({ kind: "load" })}>Back</button>
+      </> :
+        <Combobox label="Load source" placeholder="Choose a source" value="" inputClassName="team-control"
+          options={LOAD_OPTIONS} readOnly instantSelection onChange={chooseLoadSource} />)}
       {dialog?.kind === "move" && (
         <>
           <div className="team-dialog__search">
@@ -528,6 +812,7 @@ function TeamEditor({ teamId, returnTo }: { teamId: LocalTeamId; returnTo?: To }
       <PokemonPicker
         active={isPokemonPicker}
         entries={entries}
+        requiredTypes={monotypeTypes}
         status={loadStatus}
         query={query}
         onQueryChange={setQuery}
@@ -539,8 +824,11 @@ function TeamEditor({ teamId, returnTo }: { teamId: LocalTeamId; returnTo?: To }
       {dialog?.kind === "stat-points" && (
         <form onSubmit={saveStatPoints} className="team-dialog__stat-points">
           <div className="team-dialog__stat-budget">
-            <p role="status"><strong>{remainingPoints} SP remaining</strong> <span>{spentPoints} / {STAT_POINT_BUDGET} used</span></p>
-            <progress aria-label="Stat Points used" value={spentPoints} max={STAT_POINT_BUDGET} />
+            <p role="status">
+              <strong>{remainingPoints < 0 ? `${-remainingPoints} SP over budget` : `${remainingPoints} SP remaining`}</strong>
+              {" "}<span>{spentPoints} / {STAT_POINT_BUDGET} used</span>
+            </p>
+            <progress aria-label="Stat Points used" value={Math.min(spentPoints, STAT_POINT_BUDGET)} max={STAT_POINT_BUDGET} />
           </div>
           {POKEDEX_STATS.map(({ stat, label }) => {
             const value = statPoints[stat];
@@ -561,7 +849,7 @@ function TeamEditor({ teamId, returnTo }: { teamId: LocalTeamId; returnTo?: To }
           })}
           <div className="team-dialog__stat-actions">
             <button type="button" disabled={spentPoints === 0} onClick={() => setStatPoints(EMPTY_STAT_POINTS)}>Reset</button>
-            <button className="team-dialog__primary" type="submit">SAVE</button>
+            <button className="team-dialog__primary" type="submit" disabled={!isValidStatPoints(statPoints)}>SAVE</button>
           </div>
         </form>
       )}
