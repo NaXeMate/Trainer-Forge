@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 
 import trainerForgeLogo from "../../../assets/brand/logo/logo_dark_header.png";
 import LoginButton from "../../common/loginButton";
@@ -15,10 +15,11 @@ const navigationItems = [
 
 function Header() {
   const navigate = useNavigate();
+  const { pathname, search, hash } = useLocation();
   const { session, logout } = useAuth();
 
   const handleLogin = () => {
-    navigate("/login");
+    navigate("/login", { state: { from: pathname + search + hash } });
   };
 
   return (

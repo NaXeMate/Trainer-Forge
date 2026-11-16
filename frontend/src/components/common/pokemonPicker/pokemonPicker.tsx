@@ -4,7 +4,7 @@ import sortIcon from "../../../assets/icons/pokedex/sort.svg";
 import type { PokedexEntry } from "../../../types/pokedexTypes";
 import type { PokedexSortCriterion } from "../../../utils/pokedexSort";
 import { EMPTY_POKEMON_FILTERS, getTeamPickerPokemon, TEAM_POKEMON_SORT_GROUPS } from "../../../utils/teamPicker";
-import { getPokemonTypes } from "../../../utils/typeEffectiveness";
+import { getPokemonTypes, type PokemonType } from "../../../utils/typeEffectiveness";
 import Combobox from "../combobox";
 import PokemonTypeBadge from "../pokemonTypeBadge";
 import PokemonTypeCombobox from "../pokemonTypeCombobox";
@@ -18,6 +18,7 @@ export type PickerPanel = "filter" | "sort";
 type PokemonPickerProps = {
   active?: boolean;
   entries: PokedexEntry[];
+  requiredTypes?: PokemonType[] | null;
   status: "loading" | "success" | "error";
   query: string;
   onQueryChange: (query: string) => void;
@@ -28,7 +29,7 @@ type PokemonPickerProps = {
 };
 
 export default function PokemonPicker({
-  active = true, entries, status, query, onQueryChange, panel, onPanelChange, onRetry, onSelect,
+  active = true, entries, requiredTypes, status, query, onQueryChange, panel, onPanelChange, onRetry, onSelect,
 }: PokemonPickerProps) {
   const id = useId();
   const [sort, setSort] = useState<PokedexSortCriterion[]>([]);
@@ -39,7 +40,8 @@ export default function PokemonPicker({
 
   if (!active) return null;
 
-  const matches = getTeamPickerPokemon(entries, query, filters, sort);
+  const eligible = requiredTypes ? entries.filter(pokemon => getPokemonTypes(pokemon).some(type => requiredTypes.includes(type))) : entries;
+  const matches = getTeamPickerPokemon(eligible, query, requiredTypes ? { ...filters, type: "" } : filters, sort);
 
   return (
     <>
@@ -62,6 +64,11 @@ export default function PokemonPicker({
         </div>
       </div>
 
+      {requiredTypes && <p className="team-dialog__picker-note">
+        {requiredTypes.length ? `Monotype: ${requiredTypes.map(type => type[0] + type.slice(1).toLowerCase()).join(" or ")}`
+          : "The remaining Pokémon have no type in common."}
+      </p>}
+
       {panel === "sort" && (
         <div className="team-dialog__picker-panel team-dialog__sort" data-picker="pokemon" id={id + "-sort"} role="region" aria-label="Sort options">
           <SortOptions groups={TEAM_POKEMON_SORT_GROUPS} criteria={sort} onChange={setSort} />
@@ -70,12 +77,12 @@ export default function PokemonPicker({
       {panel === "filter" && (
         <div className="team-dialog__picker-panel" id={id + "-filter"} role="region" aria-label="Filter options">
           <div className="team-dialog__filters">
-            <div className="team-dialog__filter-select">
+            {!requiredTypes && <div className="team-dialog__filter-select">
               <label htmlFor={id + "-type"}>Type</label>
               <PokemonTypeCombobox inputId={id + "-type"} name={id + "-type"} label="Type" value={filters.type}
                 clearLabel="Clear type filter" liveSearch={false}
                 onChange={type => setFilters(previous => ({ ...previous, type }))} />
-            </div>
+            </div>}
             <div className="team-dialog__filter-select">
               <label htmlFor={id + "-ability"}>Ability</label>
               <Combobox inputId={id + "-ability"} label="Ability" value={filters.ability} placeholder="Any ability"

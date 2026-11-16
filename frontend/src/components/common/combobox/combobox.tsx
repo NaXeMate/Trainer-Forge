@@ -17,6 +17,8 @@ type ComboboxProps = {
   inputClassName?: string;
   label: string;
   placeholder?: string;
+  displayValue?: string;
+  maxLength?: number;
   value: string;
   options: readonly ComboboxOption[];
   readOnly?: boolean;
@@ -26,6 +28,8 @@ type ComboboxProps = {
   emptyMessage?: ReactNode;
   invalidMessage?: string;
   excludedMessage?: string;
+  createOption?: { label: string; onSelect: (text: string) => void };
+  instantSelection?: boolean;
   onChange: (value: string) => void;
   onInputChange?: (value: string) => void;
 };
@@ -41,6 +45,8 @@ export default function Combobox({
   inputClassName = "combobox__input--default",
   label,
   placeholder,
+  displayValue,
+  maxLength,
   value,
   options,
   readOnly = false,
@@ -50,6 +56,8 @@ export default function Combobox({
   emptyMessage = "No matching options.",
   invalidMessage = "Choose an option from the list.",
   excludedMessage = invalidMessage,
+  createOption,
+  instantSelection = false,
   onChange,
   onInputChange,
 }: ComboboxProps) {
@@ -63,13 +71,16 @@ export default function Combobox({
   const [error, setError] = useState("");
   const { pendingSelection, selectWithFeedback, cancelSelection, getFeedbackProps } = useSelectionFeedback();
 
-  const inputValue = draftText ?? value;
+  const inputValue = draftText ?? displayValue ?? value;
   const normalizedInput = normalize(inputValue);
   const query = draftText === null ? "" : normalizedInput;
-  const selected = options.find(option => normalize(option.value) === normalizedInput ||
-    normalize(option.label) === normalizedInput);
+  const selectedValue = draftText === null ? normalize(value) : normalizedInput;
+  const selected = options.find(option => normalize(option.value) === selectedValue) ??
+    options.find(option => normalize(option.label) === normalizedInput);
+  const createValue = `${id}-create`;
   const excluded = excludedValue === undefined ? undefined : normalize(excludedValue);
   const visibleOptions = options.filter(option => normalize(option.value) !== excluded && normalize(option.label).includes(query));
+  if (createOption && query) visibleOptions.push({ value: createValue, label: createOption.label });
   const activeIndex = visibleOptions.findIndex(option => option.value === activeValue);
 
   useEffect(() => {
@@ -93,7 +104,15 @@ export default function Combobox({
   function choose(option: ComboboxOption) {
     if (pendingSelection) return;
     setActiveValue(option.value);
-    void selectWithFeedback(option.value, () => select(option.value));
+    const chooseOption = () => {
+      if (option.value === createValue && createOption) {
+        createOption.onSelect(inputValue.trim());
+        setError("");
+        close();
+      } else select(option.value);
+    };
+    if (instantSelection) chooseOption();
+    else void selectWithFeedback(option.value, chooseOption);
   }
 
   function commit() {
@@ -133,10 +152,11 @@ export default function Combobox({
       setActiveValue(visibleOptions[next].value);
     } else if (event.key === "Enter" && open) {
       event.preventDefault();
-      const option = visibleOptions[activeIndex] ?? visibleOptions.find(entry => entry.value === selected?.value);
+      const option = visibleOptions[activeIndex] ?? visibleOptions.find(entry => entry.value === selected?.value) ??
+        visibleOptions.find(entry => entry.value === createValue);
       if (option) choose(option);
       else commit();
-    } else if (event.key === "Escape") {
+    } else if (event.key === "Escape" && open) {
       event.preventDefault();
       commit();
     }
@@ -165,6 +185,7 @@ export default function Combobox({
           aria-activedescendant={open && activeIndex >= 0 ? `${id}-option-${activeIndex}` : undefined}
           aria-describedby={error ? `${id}-error` : undefined}
           placeholder={placeholder}
+          maxLength={maxLength}
           autoComplete="off"
           autoCapitalize="characters"
           spellCheck={false}
