@@ -105,6 +105,18 @@ class TrainerValidatorTest {
         assertDoesNotThrow(() -> TrainerValidator.validatePassword("secret"));
     }
 
+    @Test
+    void shouldValidateTheBcryptLimitInUtf8Bytes() {
+        assertAll(
+            () -> TrainerValidator.validatePassword("a".repeat(72)),
+            () -> TrainerValidator.validatePassword("á".repeat(36)),
+            () -> assertInvalidFilter(
+                "The password must be at most 72 bytes in UTF-8. Some characters use more than one byte.",
+                () -> TrainerValidator.validatePassword("á".repeat(36) + "a")
+            )
+        );
+    }
+
     @ParameterizedTest
     @NullAndEmptySource
     @ValueSource(strings = {" ", "\t"})

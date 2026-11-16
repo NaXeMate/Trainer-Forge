@@ -1,5 +1,6 @@
 package dev.trainerforge.validator;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -9,6 +10,7 @@ import dev.trainerforge.model.enumerated.TrainerClass;
 
 public final class TrainerValidator {
 
+    private static final int BCRYPT_MAX_PASSWORD_BYTES = 72;
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
     private static final Pattern FRIEND_CODE_PATTERN = Pattern.compile("^TF-\\d{4}-\\d{4}$");
 
@@ -45,6 +47,10 @@ public final class TrainerValidator {
     public static void validatePassword(String password) {
         if (password == null || password.isBlank()) {
             throw new InvalidFilterValueException("The password cannot be empty.");
+        }
+        if (password.getBytes(StandardCharsets.UTF_8).length > BCRYPT_MAX_PASSWORD_BYTES) {
+            throw new InvalidFilterValueException(
+                    "The password must be at most " + BCRYPT_MAX_PASSWORD_BYTES + " bytes in UTF-8. Some characters use more than one byte.");
         }
     }
 
