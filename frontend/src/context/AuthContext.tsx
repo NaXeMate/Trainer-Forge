@@ -12,6 +12,7 @@ function expiresAt(token: string): number {
   try {
     const payload = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
     const { exp } = JSON.parse(atob(payload)) as { exp?: unknown };
+
     return typeof exp === "number" && Number.isFinite(exp) ? exp * 1000 : 0;
   } catch {
     return 0;
@@ -27,8 +28,12 @@ function readToken() {
 }
 
 function persistToken(token: string | null) {
+  try {
     if (token) sessionStorage.setItem(TOKEN_KEY, token);
     else sessionStorage.removeItem(TOKEN_KEY);
+  } catch {
+    // Storage is optional. The provider still manages the session in memory.
+  }
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -75,6 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (isCurrent()) setSession({ status: "authenticated", profile });
       }).catch(error => {
         if (!isCurrent()) return;
+
         if (error instanceof ApiError && error.status === 401) logout();
         else setSession({ status: "error" });
       });
