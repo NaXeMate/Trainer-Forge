@@ -1,4 +1,4 @@
-import { useRef, useState, type InputHTMLAttributes, type ReactNode, type SubmitEvent } from "react";
+import { useRef, useState, type InputHTMLAttributes, type ReactEventHandler, type ReactNode, type SubmitEvent } from "react";
 import { Link, Navigate, useLocation } from "react-router";
 
 import logo from "../../../assets/brand/logo/logo_no_background.png";
@@ -12,9 +12,11 @@ import "./authForm.css";
 type AuthFormProps = {
   mode: "login" | "register";
   children: ReactNode;
+  onReset?: ReactEventHandler<HTMLFormElement>;
 };
 
-type AuthFieldProps = Pick<InputHTMLAttributes<HTMLInputElement>, "type" | "autoComplete" | "maxLength"> & {
+type AuthFieldProps = Pick<InputHTMLAttributes<HTMLInputElement>,
+  "type" | "autoComplete" | "maxLength" | "value" | "onChange" | "aria-describedby"> & {
   label: string;
   name: string;
   optional?: boolean;
@@ -34,7 +36,7 @@ export function AuthField({ label, name, optional = false, ...inputProps }: Auth
 }
 
 /** Shared layout for both the login and registration forms */
-export default function AuthForm({ mode, children }: AuthFormProps) {
+export default function AuthForm({ mode, children, onReset }: AuthFormProps) {
   const isRegister = mode === "register";
   const { session, login, register, retry, logout } = useAuth();
   const { state } = useLocation();
@@ -100,7 +102,7 @@ export default function AuthForm({ mode, children }: AuthFormProps) {
           <h1 id="auth-title">{isRegister ? "Sign " : "Log "}<span>{isRegister ? "up" : "in"}</span></h1>
         </header>
 
-        <form method="post" onSubmit={handleSubmit}>
+        <form method="post" onSubmit={handleSubmit} onReset={onReset}>
           <fieldset className="auth-card__fields" disabled={pending || session.status !== "guest"} aria-label="Account details">
             {children}
           </fieldset>
