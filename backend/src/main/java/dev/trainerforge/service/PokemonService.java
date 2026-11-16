@@ -7,6 +7,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import dev.trainerforge.dto.response.PokemonDto;
+import dev.trainerforge.dto.response.PokemonTeamDto.Member;
+import dev.trainerforge.dto.response.PokemonTeamDto.Stats;
+import dev.trainerforge.exception.InvalidFilterValueException;
 import dev.trainerforge.exception.notfound.PokemonNotFoundException;
 import dev.trainerforge.mapper.PokemonMapper;
 import dev.trainerforge.model.entities.Nature;
@@ -78,6 +81,68 @@ public class PokemonService {
         Optional<Pokedex> species = pokedexService.findOptionalById(dto.species());
         PokemonValidator.validatePokemonFromDto(dto, species.isPresent());
         return species.orElseThrow();
+    }
+
+    /** Resolves a team member without persisting it. The simulator uses the same preparation. */
+    Pokemon prepareTeamMember(Member member) {
+        if (member.pokedexId() == null || member.pokedexId() <= 0) {
+            throw new InvalidFilterValueException("Choose a Pokémon from the Pokédex.");
+        }
+        Pokedex species = pokedexService.findById(member.pokedexId());
+        List<String> moves = member.moves();
+        if (moves == null || moves.size() != 4) {
+            throw new InvalidFilterValueException("Supply four move slots.");
+        }
+        Stats stats = member.stats();
+        if (stats == null || stats.hp() == null || stats.attack() == null || stats.defense() == null ||
+                stats.specialAttack() == null || stats.specialDefense() == null || stats.speed() == null) {
+            throw new InvalidFilterValueException("Supply all six EV values.");
+        }
+        int level = member.level() == null ? 50 : member.level();
+        String nature = member.nature() == null || member.nature().isBlank() ? "Hardy" : member.nature();
+
+        PokemonDto dto = new PokemonDto(null, species.getId(), species.getName(), "Team Editor", level, false, null,
+                member.ability(), moves.get(0), moves.get(1), moves.get(2), moves.get(3), member.item(),
+                nature, stats.hp(), stats.attack(), stats.defense(), stats.specialAttack(), stats.specialDefense(), stats.speed());
+        PokemonValidator.validatePokemonFromDto(dto, true);
+        Pokemon pokemon = new Pokemon();
+        pokemon.setNickname(dto.nickname());
+        pokemon.setLocationFound(dto.locationFound());
+        pokemon.setLevel(dto.level());
+        pokemon.setHpEv(dto.hpEv());
+        pokemon.setAttackEv(dto.attackEv());
+        pokemon.setDefenseEv(dto.defenseEv());
+        pokemon.setSpecialAttackEv(dto.specialAttackEv());
+        pokemon.setSpecialDefenseEv(dto.specialDefenseEv());
+        pokemon.setSpeedEv(dto.speedEv());
+        updateRelationsFromDto(dto, pokemon, species);
+        if (pokemon.getEquippedItem() != null) {
+            switch (pokemon.getEquippedItem().getType()) {
+                case HELD_ITEM, MEGASTONE, Z_CRYSTAL -> { }
+                default -> throw new InvalidFilterValueException("The selected item cannot be equipped.");
+            }
+        }
+        return pokemon;
+    }
+
+    Member describeTeamMember(Pokemon pokemon) {
+        PokemonDto dto = pokemonMapper.toDto(pokemon);
+        return new Member(dto.species(), List.of(orEmpty(dto.move1()), orEmpty(dto.move2()), orEmpty(dto.move3()), orEmpty(dto.move4())),
+                dto.ability(), orEmpty(dto.equippedItem()),
+                new Stats(dto.hpEv(), dto.attackEv(), dto.defenseEv(), dto.specialAttackEv(), dto.specialDefenseEv(), dto.speedEv()),
+                dto.level(), dto.nature());
+    }
+
+    private static String orEmpty(String value) {
+        return value == null ? "" : value;
+    }
+
+    Pokemon saveTeamMember(Pokemon pokemon) {
+        return pokemonRepo.save(pokemon);
+    }
+
+    void removeUnreferencedTeamMembers(List<Long> ids) {
+        if (!ids.isEmpty()) pokemonRepo.deleteUnreferenced(ids);
     }
 
     /**

@@ -3,6 +3,7 @@ package dev.trainerforge.repository;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -11,6 +12,10 @@ import dev.trainerforge.model.entities.Pokemon;
 import dev.trainerforge.model.enumerated.Gender;
 
 public interface PokemonRepository extends JpaRepository<Pokemon, Long> {
+    @Modifying
+    @Query("DELETE FROM Pokemon p WHERE p.id IN :ids AND NOT EXISTS "
+            + "(SELECT slot.id FROM PokemonTeam slot WHERE slot.pokemon.id = p.id)")
+    void deleteUnreferenced(@Param("ids") List<Long> ids);
     List<Pokemon> findBySpeciesId(Long speciesId);
     List<Pokemon> findByNickname(String nickname);
     List<Pokemon> findByLocationFound(String locationFound);

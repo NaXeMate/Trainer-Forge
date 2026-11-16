@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import dev.trainerforge.dto.response.TeamDto;
+import dev.trainerforge.dto.response.TeamDto.Complete;
+import dev.trainerforge.dto.response.TeamDto.Lineup;
 import dev.trainerforge.mapper.TeamMapper;
 import dev.trainerforge.model.entities.Team;
 import dev.trainerforge.model.enumerated.TeamModality;
@@ -92,6 +94,16 @@ public class TeamController {
     public ResponseEntity<TeamDto> updateTeam(@PathVariable Long id, @RequestBody TeamDto dto) {
         Team updated = teamService.updateTeam(id, dto);
         return ResponseEntity.ok(teamMapper.toDto(updated));
+    }
+
+    @PostMapping("/complete")
+    public ResponseEntity<Complete> createCompleteTeam(@RequestBody Lineup lineup) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(teamService.saveCompleteTeam(null, lineup));
+    }
+
+    @PutMapping("/{id}/complete")
+    public ResponseEntity<Complete> updateCompleteTeam(@PathVariable Long id, @RequestBody Lineup lineup) {
+        return ResponseEntity.ok(teamService.saveCompleteTeam(id, lineup));
     }
 
     @DeleteMapping("/{id}")

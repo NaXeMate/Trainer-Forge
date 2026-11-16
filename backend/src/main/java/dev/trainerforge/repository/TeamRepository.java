@@ -5,13 +5,19 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import dev.trainerforge.model.entities.Team;
 import dev.trainerforge.model.enumerated.TeamModality;
+import jakarta.persistence.LockModeType;
 
 public interface TeamRepository extends JpaRepository<Team, Long> {
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT team FROM Team team WHERE team.id = :id AND team.trainer.username = :username")
+    Optional<Team> lockOwnedTeam(@Param("id") Long id, @Param("username") String username);
 
     @Override
     @EntityGraph(attributePaths = {"trainer", "videogame"})

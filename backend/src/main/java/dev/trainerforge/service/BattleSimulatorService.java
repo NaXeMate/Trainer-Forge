@@ -3,11 +3,16 @@ package dev.trainerforge.service;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import dev.trainerforge.dto.response.TeamDto.BattleInput;
+import dev.trainerforge.dto.response.TeamDto.BattleResult;
+import dev.trainerforge.dto.response.TeamDto.BattleResult.Outcome;
+import dev.trainerforge.exception.InvalidFilterValueException;
 import dev.trainerforge.model.entities.Pokedex;
 import dev.trainerforge.model.entities.Pokemon;
 import dev.trainerforge.model.entities.PokemonType;
@@ -29,6 +34,8 @@ public class BattleSimulatorService {
     private static final int    EV_STATS_COUNT    = 6;
     private static final double DRAW_EPSILON      = 0.01;
     private static final double TYPE_ADVANTAGE_BONUS = 0.2;
+    // The IDs and owners are the demo pairs inserted by migration V4.
+    private static final Map<Long, String> DEMO_OPPONENTS = Map.of(1L, "red", 2L, "leaf", 3L, "liko", 4L, "may", 5L, "rod");
 
     public BattleSimulatorService(TeamService teamService, TypeEffectivenessRepository typeEffectivenessRepo) {
         this.teamService = teamService;
@@ -54,18 +61,69 @@ public class BattleSimulatorService {
         Team teamOne = teamService.findById(teamId1);
         Team teamTwo = teamService.findById(teamId2);
 
-        List<Pokemon> teamOnePokemons = extractTeamPokemons(teamOne);
-        List<Pokemon> teamTwoPokemons = extractTeamPokemons(teamTwo);
+        return score(savedLineup(teamOne), savedLineup(teamTwo)).summary();
+    }
 
-        BattleSimulatorValidator.validateTeamStructure(teamOnePokemons, teamTwoPokemons);
+    public BattleResult simulateBattle(BattleInput input) {
+        if (input == null) throw new InvalidFilterValueException("Choose two teams.");
+        validateSelection(input.one());
+        validateSelection(input.two());
+        if (input.one().draft() != null && input.two().draft() != null) {
+            throw new InvalidFilterValueException("Only one session draft can enter a battle.");
+        }
+        if (input.one().teamId() != null && input.one().teamId().equals(input.two().teamId())) {
+            throw new InvalidFilterValueException("Choose two different teams.");
+        }
 
-        int teamSize = teamOnePokemons.size();
-        String battleMode = teamSize + " vs. " + teamSize;
+        String owner = teamService.getCurrentUsername();
+        return score(resolveSelection(input.one(), owner, false), resolveSelection(input.two(), owner, true));
+    }
 
-        double teamOneScore = calculateSideScore(teamOnePokemons, teamTwoPokemons);
-        double teamTwoScore = calculateSideScore(teamTwoPokemons, teamOnePokemons);
+    private record Lineup(String name, List<Pokemon> members) {}
 
-        return buildResultMessage(battleMode, teamOne.getName(), teamOneScore, teamTwo.getName(), teamTwoScore);
+    private void validateSelection(BattleInput.Side side) {
+        if (side == null || (side.teamId() == null) == (side.draft() == null)
+                || (side.teamId() != null && side.teamId() <= 0)) {
+            throw new InvalidFilterValueException("Each side must select a saved team or the session draft.");
+        }
+    }
+
+    private Lineup resolveSelection(BattleInput.Side side, String owner, boolean opponent) {
+        if (side.draft() != null) {
+            String name = side.draft().name();
+            if (name != null && name.strip().length() > 100) throw new InvalidFilterValueException("The draft name is too long.");
+            var members = teamService.prepareLineup(side.draft()).stream().filter(Objects::nonNull).toList();
+            return new Lineup(name == null || name.isBlank() ? "Session draft" : name.strip(), members);
+        }
+        Team team = teamService.findById(side.teamId());
+        String teamOwner = team.getTrainer().getUsername();
+        boolean demoOpponent = opponent && !team.isHidden() && teamOwner.equals(DEMO_OPPONENTS.get(team.getId()));
+        if (!owner.equals(teamOwner) && !demoOpponent) {
+            throw new InvalidFilterValueException(opponent ? "Choose one of your own teams or a demo team for P2."
+                    : "Choose one of your own teams for P1.");
+        }
+        Lineup lineup = savedLineup(team);
+        TeamService.validateMonotype(team.getModality(), lineup.members());
+        return lineup;
+    }
+
+    private Lineup savedLineup(Team team) {
+        return new Lineup(team.getName(), extractTeamPokemons(team));
+    }
+
+    private BattleResult score(Lineup first, Lineup second) {
+        BattleSimulatorValidator.validateTeamStructure(first.members(), second.members());
+        int count = first.members().size();
+        double firstScore = calculateSideScore(first.members(), second.members());
+        double secondScore = calculateSideScore(second.members(), first.members());
+        Outcome outcome = Math.abs(firstScore - secondScore) < DRAW_EPSILON ? Outcome.DRAW
+                : firstScore > secondScore ? Outcome.TEAM_ONE : Outcome.TEAM_TWO;
+        double confidence = roundTwo(calculateConfidence(firstScore, secondScore) * 100);
+        double roundedFirst = roundTwo(firstScore);
+        double roundedSecond = roundTwo(secondScore);
+        String summary = buildResultMessage(count + " vs. " + count, first.name(), second.name(),
+                outcome, roundedFirst, roundedSecond, confidence);
+        return new BattleResult(outcome, roundedFirst, roundedSecond, confidence, summary);
     }
 
     // SCORING
@@ -236,26 +294,19 @@ public class BattleSimulatorService {
 
     // RESULT CONSTRUCTION
 
-    private String buildResultMessage(String mode, String sideOneName, double sideOneScore, String sideTwoName, double sideTwoScore) {
-        String winner = resolveWinnerName(sideOneName, sideTwoName, sideOneScore, sideTwoScore);
-        double confidence = calculateConfidence(sideOneScore, sideTwoScore);
-        double sideOneRoundedScore = roundTwo(sideOneScore);
-        double sideTwoRoundedScore = roundTwo(sideTwoScore);
-        double confidencePercentage = roundTwo(confidence * 100);
-
+    private String buildResultMessage(String mode, String sideOneName, String sideTwoName, Outcome outcome,
+            double sideOneScore, double sideTwoScore, double confidence) {
+        String winner = switch (outcome) {
+            case TEAM_ONE -> sideOneName;
+            case TEAM_TWO -> sideTwoName;
+            case DRAW -> "Draw";
+        };
         return "[Team Battle " + mode + "] "
-            + sideOneName + " (score: " + sideOneRoundedScore + ")"
+            + sideOneName + " (score: " + sideOneScore + ")"
             + " vs "
-            + sideTwoName + " (score: " + sideTwoRoundedScore + ")"
+            + sideTwoName + " (score: " + sideTwoScore + ")"
             + " — Winner: " + winner
-            + " (confidence: " + confidencePercentage + "%).";
-    }
-
-    private String resolveWinnerName(String sideOneName, String sideTwoName, double sideOneScore, double sideTwoScore) {
-        if (Math.abs(sideOneScore - sideTwoScore) < DRAW_EPSILON) {
-            return "Draw";
-        }
-        return sideOneScore > sideTwoScore ? sideOneName : sideTwoName;
+            + " (confidence: " + confidence + "%).";
     }
 
     private double calculateConfidence(double sideOneScore, double sideTwoScore) {

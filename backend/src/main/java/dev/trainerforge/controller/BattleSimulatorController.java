@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,6 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 import dev.trainerforge.dto.response.MoveDto;
 import dev.trainerforge.dto.response.PokemonItemDto;
 import dev.trainerforge.dto.response.TeamDto;
+import dev.trainerforge.dto.response.TeamDto.BattleInput;
+import dev.trainerforge.dto.response.TeamDto.BattleResult;
 import dev.trainerforge.mapper.MoveMapper;
 import dev.trainerforge.mapper.PokemonItemMapper;
 import dev.trainerforge.mapper.TeamMapper;
@@ -76,6 +80,11 @@ public class BattleSimulatorController {
             @RequestParam Long teamId2) {
         String result = battleSimulatorService.simulateBattle(teamId1, teamId2);
         return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/battle")
+    public ResponseEntity<BattleResult> simulateBattle(@RequestBody BattleInput input) {
+        return ResponseEntity.ok(battleSimulatorService.simulateBattle(input));
     }
 
 }

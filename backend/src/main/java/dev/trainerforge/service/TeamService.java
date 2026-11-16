@@ -1,19 +1,33 @@
 package dev.trainerforge.service;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import dev.trainerforge.dto.response.PokemonTeamDto.Member;
 import dev.trainerforge.dto.response.TeamDto;
+import dev.trainerforge.dto.response.TeamDto.Complete;
+import dev.trainerforge.dto.response.TeamDto.Lineup;
+import dev.trainerforge.exception.InvalidFilterValueException;
+import dev.trainerforge.exception.ResourceNotFoundException;
 import dev.trainerforge.exception.notfound.TeamNotFoundException;
 import dev.trainerforge.mapper.TeamMapper;
+import dev.trainerforge.model.entities.Pokemon;
+import dev.trainerforge.model.entities.PokemonTeam;
 import dev.trainerforge.model.entities.Team;
 import dev.trainerforge.model.enumerated.TeamModality;
 import dev.trainerforge.repository.TeamRepository;
 import dev.trainerforge.validator.TeamValidator;
+import dev.trainerforge.validator.ValidationLimits;
 
 @Transactional(readOnly = true)
 @Service
@@ -22,14 +36,115 @@ public class TeamService {
     private final TeamRepository teamRepo;
     private final VideogameService videogameService;
     private final TrainerService trainerService;
+    private final PokemonService pokemonService;
 
     private final TeamMapper teamMapper;
 
-    public TeamService(TeamRepository teamRepo, VideogameService videogameService, TrainerService trainerService, TeamMapper teamMapper) {
+    public TeamService(TeamRepository teamRepo, VideogameService videogameService, TrainerService trainerService,
+            TeamMapper teamMapper, PokemonService pokemonService) {
         this.teamRepo = teamRepo;
         this.videogameService = videogameService;
         this.trainerService = trainerService;
         this.teamMapper = teamMapper;
+        this.pokemonService = pokemonService;
+    }
+
+    @Transactional
+    public Complete saveCompleteTeam(Long id, Lineup lineup) {
+        String username = getCurrentUsername();
+        Team team = id == null ? new Team()
+                : teamRepo.lockOwnedTeam(id, username).orElseThrow(() -> new TeamNotFoundException(id));
+
+        if (lineup == null || lineup.name() == null || lineup.name().isBlank() || lineup.name().strip().length() > 100) {
+            throw new InvalidFilterValueException("Enter a team name of up to 100 characters.");
+        }
+        if (lineup.gameId() == null || lineup.gameId() <= 0) {
+            throw new InvalidFilterValueException("Choose a game before saving the team.");
+        }
+        var game = videogameService.findById(lineup.gameId());
+        List<Pokemon> replacements = prepareLineup(lineup);
+        Map<Integer, PokemonTeam> previous = team.getPokemonTeams().stream()
+                .collect(Collectors.toMap(slot -> slot.getPosition(), slot -> slot));
+
+        if (id == null) team.setTrainer(trainerService.findByUsername(username));
+        team.setName(lineup.name().strip());
+        team.setVideogame(game);
+        team.setModality(lineup.modality());
+        if (id == null || lineup.publicTeam() != null) team.setHidden(!Boolean.TRUE.equals(lineup.publicTeam()));
+        if (id == null) team = teamRepo.save(team);
+
+        List<Long> removedPokemonIds = new ArrayList<>();
+        for (int index = 0; index < replacements.size(); index++) {
+            int position = index + 1;
+            Pokemon replacement = replacements.get(index);
+            PokemonTeam slot = previous.get(position);
+            if (slot == null) {
+                if (replacement != null) {
+                    team.getPokemonTeams().add(new PokemonTeam(team, pokemonService.saveTeamMember(replacement), position));
+                }
+                continue;
+            }
+            Pokemon original = slot.getPokemon();
+            if (replacement == null) {
+                team.getPokemonTeams().remove(slot);
+            } else {
+                if (pokemonService.describeTeamMember(original).equals(pokemonService.describeTeamMember(replacement))) continue;
+                if (original.getSpecies().getId().equals(replacement.getSpecies().getId())) {
+                    replacement.setNickname(original.getNickname());
+                    replacement.setLocationFound(original.getLocationFound());
+                    replacement.setGender(original.getGender());
+                    replacement.setShiny(original.isShiny());
+                }
+                slot.setPokemon(pokemonService.saveTeamMember(replacement));
+            }
+            removedPokemonIds.add(original.getId());
+        }
+
+        teamRepo.flush();
+        pokemonService.removeUnreferencedTeamMembers(removedPokemonIds);
+        return describeCompleteTeam(team);
+    }
+
+    List<Pokemon> prepareLineup(Lineup lineup) {
+        int capacity = ValidationLimits.IntegerRange.TEAM_SIZE.max();
+        if (lineup == null || lineup.modality() == null || lineup.members() == null || lineup.members().size() != capacity) {
+            throw new InvalidFilterValueException("Choose a valid modality and supply exactly " + capacity + " slots.");
+        }
+        List<Pokemon> slots = new ArrayList<>(capacity);
+        for (int index = 0; index < capacity; index++) {
+            var member = lineup.members().get(index);
+            try {
+                slots.add(member == null ? null : pokemonService.prepareTeamMember(member));
+            } catch (InvalidFilterValueException | ResourceNotFoundException error) {
+                throw new InvalidFilterValueException("Slot " + (index + 1) + ": " + error.getMessage());
+            }
+        }
+        validateMonotype(lineup.modality(), slots);
+        return slots;
+    }
+
+    static void validateMonotype(TeamModality modality, List<Pokemon> roster) {
+        if (modality != TeamModality.MONOTYPE) return;
+        Set<String> common = null;
+        for (Pokemon pokemon : roster) {
+            if (pokemon == null) continue;
+            var species = pokemon.getSpecies();
+            Set<String> types = new HashSet<>();
+            if (species.getType1() != null) types.add(species.getType1().getName());
+            if (species.getType2() != null) types.add(species.getType2().getName());
+            if (common == null) common = types;
+            else common.retainAll(types);
+            if (common.isEmpty()) throw new InvalidFilterValueException("All Pokémon in a Monotype team must share a type.");
+        }
+    }
+
+    private Complete describeCompleteTeam(Team team) {
+        Map<Integer, Member> roster = team.getPokemonTeams().stream()
+                .collect(Collectors.toMap(slot -> slot.getPosition(), slot -> pokemonService.describeTeamMember(slot.getPokemon())));
+        var members = IntStream.rangeClosed(1, ValidationLimits.IntegerRange.TEAM_SIZE.max())
+                .mapToObj(roster::get).toList();
+        return new Complete(team.getId(), team.getTrainer().getUsername(),
+                new Lineup(team.getName(), team.getModality(), team.getVideogame().getId(), !team.isHidden(), members));
     }
 
     /**
