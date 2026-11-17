@@ -68,9 +68,6 @@ public class BattleSimulatorService {
         if (input == null) throw new InvalidFilterValueException("Choose two teams.");
         validateSelection(input.one());
         validateSelection(input.two());
-        if (input.one().draft() != null && input.two().draft() != null) {
-            throw new InvalidFilterValueException("Only one session draft can enter a battle.");
-        }
         if (input.one().teamId() != null && input.one().teamId().equals(input.two().teamId())) {
             throw new InvalidFilterValueException("Choose two different teams.");
         }

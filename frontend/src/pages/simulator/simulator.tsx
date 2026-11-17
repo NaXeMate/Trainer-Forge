@@ -12,15 +12,17 @@ import type { BattleResult, BattleSelection, CompleteTeam, SavedTeam } from "../
 import type { PokedexEntry } from "../../types/pokedexTypes";
 import { commonMonotypeTypes, incompleteSlot, TEAM_SIZE } from "../../utils/teamDraft";
 import type { Draft } from "../../utils/teamDraft";
+import { loadPresetTeams, type PresetTeam } from "./presetTeams";
 import "./simulator.css";
 
 type Side = "one" | "two";
 type PanelOutcome = "win" | "loss" | "draw";
-type Choice = { key: "draft"; name: string } | { key: string; team: SavedTeam; name: string };
+type Choice = { key: "draft"; name: string } | { key: string; team: SavedTeam; name: string } | PresetTeam;
 type Detail = { team: CompleteTeam } | { error: string };
 type Catalogue = {
   own: SavedTeam[];
   demo: SavedTeam[];
+  presets: PresetTeam[];
   pokedex: Map<number, PokedexEntry>;
 };
 type BattleState = { key: string; result: BattleResult } | { key: string; error: string };
@@ -93,7 +95,9 @@ function SavedArena({ token, username }: { token: string; username: string }) {
     const started = performance.now();
     Promise.all([getEligibleTeams(username, token, signal), getPokedexEntries(signal)])
       .then(([teams, entries]) => {
-        if (!signal.aborted) setLoaded({ started, catalogue: { ...teams, pokedex: new Map(entries.map(entry => [entry.id, entry])) } });
+        if (signal.aborted) return;
+        const pokedex = new Map(entries.map(entry => [entry.id, entry]));
+        setLoaded({ started, catalogue: { ...teams, pokedex, presets: loadPresetTeams(pokedex) } });
       })
       .catch(failure => {
         if (signal.aborted) return;
@@ -119,7 +123,8 @@ function choices(teams: SavedTeam[]): Choice[] {
 
 function requestedChoice(params: URLSearchParams, side: Side) {
   const value = params.get(side);
-  return value === "draft" || value === "none" || (value && /^[1-9]\d*$/.test(value)) ? value : null;
+  return value === "draft" || value === "none" || value?.startsWith("preset:") || (value && /^[1-9]\d*$/.test(value))
+    ? value : null;
 }
 
 function panelOutcome(result: BattleResult | undefined, side: Side): PanelOutcome | undefined {
@@ -150,9 +155,9 @@ function Matchup({ token, catalogue, initialStart }: { token: string; catalogue:
   const uptime = useRef<MatchupMeasurement | null>(null);
 
   const own = choices(catalogue.own);
-  const demo = choices(catalogue.demo);
+  const opponents = [...choices(catalogue.demo), ...catalogue.presets];
   const local: Choice[] = working ? [{ key: "draft", name: working.draft.name.trim() || "Unnamed team" }] : [];
-  const options = { one: [...own, ...local], two: [...own, ...local, ...demo] };
+  const options = { one: [...own, ...local], two: [...own, ...local, ...opponents] };
   const requestedOne = requestedChoice(params, "one");
   const requestedTwo = requestedChoice(params, "two");
   const one = requestedOne ? options.one.find(team => team.key === requestedOne)
@@ -205,9 +210,10 @@ function Matchup({ token, catalogue, initialStart }: { token: string; catalogue:
   const match = sides.map(side => {
     const choice = selected[side];
     const detail = choice && "team" in choice ? details.get(choice.team.id) : undefined;
+    const preset = choice && "draft" in choice ? choice.draft : undefined;
     return {
       side, choice, detail,
-      draft: choice?.key === "draft" ? working?.draft : detail && "team" in detail ? detail.team.draft : undefined,
+      draft: choice?.key === "draft" ? working?.draft : preset ?? (detail && "team" in detail ? detail.team.draft : undefined),
     };
   });
   const [left, right] = match;
@@ -291,7 +297,7 @@ function Matchup({ token, catalogue, initialStart }: { token: string; catalogue:
   const groups = [
     { title: "My saved teams", choices: own },
     { title: "Session draft", choices: local },
-    ...(pickerSide === "two" ? [{ title: "Demo teams", choices: demo }] : []),
+    ...(pickerSide === "two" ? [{ title: "Preloaded opponents", choices: opponents }] : []),
   ];
 
   return <>

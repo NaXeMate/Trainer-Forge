@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "name": "Lance",
+  "modality": "NORMAL",
+  "gameId": 15,
+  "publicTeam": true,
+  "members": [
+    {
+      "pokedexId": 33,
+      "moves": [
+        "Waterfall",
+        "Iron Tail",
+        "Crunch",
+        "Hyper Beam"
+      ],
+      "ability": "Intimidate",
+      "item": "Sitrus Berry",
+      "statPoints": {
+        "hp": 0,
+        "attack": 32,
+        "defense": 2,
+        "special-attack": 0,
+        "special-defense": 0,
+        "speed": 32
+      },
+      "name": "Gyarados"
+    },
+    {
+      "pokedexId": 192,
+      "moves": [
+        "Rock Slide",
+        "Earthquake",
+        "Crunch",
+        "Hyper Beam"
+      ],
+      "ability": "Rock-Head",
+      "item": "Rockium Z",
+      "statPoints": {
+        "hp": 0,
+        "attack": 32,
+        "defense": 0,
+        "special-attack": 0,
+        "special-defense": 2,
+        "speed": 32
+      },
+      "name": "Aerodactyl"
+    },
+    {
+      "pokedexId": 153,
+      "moves": [
+        "Fire Punch",
+        "Acrobatics",
+        "Thunder Punch",
+        "Double-Edge"
+      ],
+      "ability": "Blaze",
+      "item": "Charcoal",
+      "statPoints": {
+        "hp": 0,
+        "attack": 32,
+        "defense": 32,
+        "special-attack": 0,
+        "special-defense": 0,
+        "speed": 2
+      },
+      "name": "Charizard"
+    },
+    {
+      "pokedexId": 147,
+      "moves": [
+        "Outrage",
+        "Sky Attack",
+        "Extreme Speed",
+        "Heat Wave"
+      ],
+      "ability": "Multiscale",
+      "item": "Dragoninite",
+      "statPoints": {
+        "hp": 0,
+        "attack": 32,
+        "defense": 0,
+        "special-attack": 16,
+        "special-defense": 0,
+        "speed": 18
+      },
+      "name": "Dragonite"
+    },
+    {
+      "pokedexId": 194,
+      "moves": [
+        "Rock Slide",
+        "Outrage",
+        "Iron Tail",
+        "Double-Edge"
+      ],
+      "ability": "Strong-Jaw",
+      "item": "Dragon Fang",
+      "statPoints": {
+        "hp": 2,
+        "attack": 32,
+        "defense": 16,
+        "special-attack": 0,
+        "special-defense": 16,
+        "speed": 0
+      },
+      "name": "Tyrantrum"
+    },
+    {
+      "pokedexId": 162,
+      "moves": [
+        "Sludge Bomb",
+        "Outrage",
+        "Toxic",
+        "Hydro Pump"
+      ],
+      "ability": "Poison-Point",
+      "item": "Poison Barb",
+      "statPoints": {
+        "hp": 2,
+        "attack": 32,
+        "defense": 0,
+        "special-attack": 0,
+        "special-defense": 0,
+        "speed": 32
+      },
+      "name": "Dragalge"
+    }
+  ]
+}

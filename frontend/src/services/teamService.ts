@@ -29,8 +29,8 @@ export type BattleResult = {
 
 type EligibleTeams = { own: SavedTeam[]; demo: SavedTeam[] };
 
-// The same team/owner pairs that the battle API accepts from migration V4.
-const demoOwners = new Map([[1, "red"], [2, "leaf"], [3, "liko"], [4, "may"], [5, "rod"]]);
+// Public seeded teams shown as P2 opponents.
+const demoOwners = new Map([[1, "red"], [3, "liko"], [5, "rod"]]);
 
 function toLineup(draft: Draft): ApiLineup {
   return {

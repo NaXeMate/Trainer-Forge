@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "name": "Korrina",
+  "modality": "NORMAL",
+  "gameId": 38,
+  "publicTeam": true,
+  "members": [
+    {
+      "pokedexId": 90,
+      "moves": [
+        "Close Combat",
+        "Swords Dance",
+        "Psycho Cut",
+        "Poison Fang"
+      ],
+      "ability": "Steadfast",
+      "item": "Galladite",
+      "statPoints": {
+        "hp": 0,
+        "attack": 32,
+        "defense": 32,
+        "special-attack": 0,
+        "special-defense": 0,
+        "speed": 2
+      },
+      "name": "Gallade"
+    },
+    {
+      "pokedexId": 181,
+      "moves": [
+        "Fly",
+        "Swords Dance",
+        "Feather Dance",
+        "Brick Break"
+      ],
+      "ability": "Unburden",
+      "item": "Haluchanite",
+      "statPoints": {
+        "hp": 2,
+        "attack": 32,
+        "defense": 0,
+        "special-attack": 0,
+        "special-defense": 0,
+        "speed": 32
+      },
+      "name": "Hawlucha"
+    },
+    {
+      "pokedexId": 84,
+      "moves": [
+        "Psycho Cut",
+        "Dynamic Punch",
+        "Ice Punch",
+        "Recover"
+      ],
+      "ability": "Pure-Power",
+      "item": "Medichamite",
+      "statPoints": {
+        "hp": 8,
+        "attack": 32,
+        "defense": 16,
+        "special-attack": 0,
+        "special-defense": 8,
+        "speed": 2
+      },
+      "name": "Medicham"
+    },
+    {
+      "pokedexId": 215,
+      "moves": [
+        "Body Slam",
+        "Close Combat",
+        "Leech Seed",
+        "Synthesis"
+      ],
+      "ability": "Bulletproof",
+      "item": "Chesnaughtite",
+      "statPoints": {
+        "hp": 2,
+        "attack": 32,
+        "defense": 32,
+        "special-attack": 0,
+        "special-defense": 0,
+        "speed": 0
+      },
+      "name": "Chesnaught"
+    },
+    {
+      "pokedexId": 179,
+      "moves": [
+        "Pin Missile",
+        "Close Combat",
+        "Focus Energy",
+        "Fake Out"
+      ],
+      "ability": "Swarm",
+      "item": "Heracronite",
+      "statPoints": {
+        "hp": 0,
+        "attack": 32,
+        "defense": 2,
+        "special-attack": 0,
+        "special-defense": 0,
+        "speed": 32
+      },
+      "name": "Heracross"
+    },
+    {
+      "pokedexId": 136,
+      "moves": [
+        "Flash Cannon",
+        "Hyper Beam",
+        "Detect",
+        "Close Combat"
+      ],
+      "ability": "Justified",
+      "item": "Lucarionite Z",
+      "statPoints": {
+        "hp": 0,
+        "attack": 8,
+        "defense": 0,
+        "special-attack": 32,
+        "special-defense": 0,
+        "speed": 26
+      },
+      "name": "Lucario"
+    }
+  ]
+}

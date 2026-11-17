@@ -61,8 +61,8 @@ export function incompleteSlot(draft: Draft) {
 
 type ImportCatalogue = {
   pokedex: Map<number, PokedexEntry>;
-  moves: Set<string>;
-  items: Set<string>;
+  moves?: ReadonlySet<string>;
+  items?: ReadonlySet<string>;
   games: readonly Game[];
   natures: string[];
 };
@@ -99,6 +99,7 @@ export function readTeamFile(source: unknown, catalogue: ImportCatalogue): { dra
   }
 
   if (!Array.isArray(data.members) || data.members.length !== TEAM_SIZE) throw new Error("The file must contain exactly six slots.");
+  const { moves: knownMoves, items: knownItems } = catalogue;
   const members = data.members.map((value: unknown, index): Member | null => {
     if (value === null) return null;
     const prefix = `Slot ${index + 1}: `;
@@ -111,14 +112,16 @@ export function readTeamFile(source: unknown, catalogue: ImportCatalogue): { dra
     }
     const moves = member.moves as Member["moves"];
     const selectedMoves = moves.filter(Boolean);
-    const unknownMove = selectedMoves.find(move => !catalogue.moves.has(move));
+    const unknownMove = knownMoves && selectedMoves.find(move => !knownMoves.has(move));
     if (unknownMove) throw new Error(prefix + `move not found: ${unknownMove}.`);
     if (new Set(selectedMoves).size !== selectedMoves.length) throw new Error(prefix + "moves must be different.");
     const { ability, item, level, nature } = member;
     if (typeof ability !== "string" || (ability && ![pokemon.ability1, pokemon.ability2, pokemon.hiddenAbility].includes(ability))) {
       throw new Error(prefix + "ability unavailable for this Pokémon.");
     }
-    if (typeof item !== "string" || (item && !catalogue.items.has(item))) throw new Error(prefix + "item not found in the catalogue.");
+    if (typeof item !== "string" || (item && knownItems && !knownItems.has(item))) {
+      throw new Error(prefix + "item not found in the catalogue.");
+    }
     if (level !== undefined && (typeof level !== "number" || !Number.isInteger(level) || level < 1 || level > 100)) {
       throw new Error(prefix + "level must be between 1 and 100.");
     }
