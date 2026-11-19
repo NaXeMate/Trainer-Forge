@@ -88,7 +88,7 @@ function getProfileChanges(draft: EditableTrainerProfile, profile: TrainerProfil
   return changes;
 }
 
-function trimSprite(image: HTMLImageElement) {
+function trimArtwork(image: HTMLImageElement, trimTopOnly = false) {
   const { naturalWidth: width, naturalHeight: height } = image;
 
   if (!width || !height) return;
@@ -117,12 +117,15 @@ function trimSprite(image: HTMLImageElement) {
     }
   }
 
-  if (right < left || bottom < top) return;
+  if (right < left || bottom < top || (trimTopOnly && top === 0)) return;
 
-  canvas.width = right - left + 1;
-  canvas.height = bottom - top + 1;
-  context.drawImage(image, left, top, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
-  return canvas.toDataURL();
+  const cropLeft = trimTopOnly ? 0 : left;
+  const cropWidth = trimTopOnly ? width : right - left + 1;
+  const cropHeight = trimTopOnly ? height - top : bottom - top + 1;
+  canvas.width = cropWidth;
+  canvas.height = cropHeight;
+  context.drawImage(image, cropLeft, top, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight);
+  return { src: canvas.toDataURL(), heightRatio: cropHeight / height };
 }
 
 function TrainerSprite({ image, name }: { image: string; name?: string }) {
@@ -139,12 +142,31 @@ function TrainerSprite({ image, name }: { image: string; name?: string }) {
           const sprite = event.currentTarget;
 
           if (!trimmed && new URL(sprite.currentSrc).origin === window.location.origin) {
-            setTrimmed(trimSprite(sprite));
+            setTrimmed(trimArtwork(sprite)?.src);
           }
         }}
       />
     </picture>
   );
+}
+
+function FavoritePokemonImage({ image, alt }: { image: string; alt: string }) {
+  const [trimmed, setTrimmed] = useState<ReturnType<typeof trimArtwork>>();
+
+  useEffect(() => {
+    const artwork = new Image();
+    artwork.crossOrigin = "anonymous";
+    artwork.onload = () => setTrimmed(trimArtwork(artwork, true));
+    artwork.src = image;
+    return () => { artwork.onload = null; };
+  }, [image]);
+
+  return <img
+    className="trainer-card__artwork-image"
+    src={trimmed?.src ?? image}
+    alt={alt}
+    style={trimmed && { height: `calc(var(--trainer-pokemon-artwork-height) * ${trimmed.heightRatio})` }}
+  />;
 }
 
 function ProfileArtwork({ kind, image, name, onChoose }: {
@@ -155,9 +177,11 @@ function ProfileArtwork({ kind, image, name, onChoose }: {
 }) {
   const className = `trainer-card__choice trainer-card__choice--${kind}`;
   const favoriteLabel = kind === "sprite" ? null : FAVORITE_LABELS[kind];
+  const artworkAlt = onChoose ? "" : name ?? "";
   const artwork = image && (favoriteLabel ? (
     <span className="trainer-card__favorite-artwork">
-      <img className="trainer-card__artwork-image" src={image} alt={onChoose ? "" : name ?? ""} />
+      {kind === "pokemon" ? <FavoritePokemonImage key={image} image={image} alt={artworkAlt} />
+        : <img className="trainer-card__artwork-image" src={image} alt={artworkAlt} />}
       <img
         className="trainer-card__favorite-label"
         src={favoriteLabel.image}

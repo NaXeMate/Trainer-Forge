@@ -166,6 +166,10 @@
   gap: var(--space-2);
 }
 
+.trainer-card__favorites {
+  align-content: space-between;
+}
+
 .trainer-card__fields label,
 .trainer-card__title-field {
   display: grid;
@@ -265,15 +269,18 @@ button.trainer-card__choice:hover span {
 }
 
 .trainer-card__choice--pokemon {
-  min-height: 10.25rem;
+  --trainer-pokemon-artwork-height: 10.25rem;
+  min-height: var(--trainer-pokemon-artwork-height);
 }
 
 .trainer-card__choice--pokemon .trainer-card__favorite-artwork {
+  align-self: start;
   width: min(100%, 11rem);
 }
 
 .trainer-card__choice--pokemon .trainer-card__artwork-image {
-  height: 10.25rem;
+  height: var(--trainer-pokemon-artwork-height);
+  object-position: center top;
 }
 
 .trainer-card__choice--sprite img,
@@ -291,6 +298,7 @@ button.trainer-card__choice:hover span {
 
 .trainer-card__choice--game .trainer-card__favorite-artwork {
   width: min(100%, 12rem);
+  padding-block-end: min(0.575rem, 7.65%);
 }
 
 .trainer-card__choice--game .trainer-card__artwork-image {
@@ -315,6 +323,11 @@ button.trainer-card__choice:hover span {
   margin-inline: auto;
   translate: 0 40%;
   pointer-events: none;
+}
+
+.trainer-card__choice--game .trainer-card__favorite-label {
+  /* Offset the transparent bottom edge of the SVG. */
+  translate: 0 8.75%;
 }
 
 .trainer-achievements {
