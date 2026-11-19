@@ -16,13 +16,15 @@ export default function AccessButton({ className, ...props }: AccessButtonProps)
         fill="none"
         focusable="false"
         stroke="currentColor"
-        viewBox="0 0 24 24">
+        viewBox="0 0 24 24"
+      >
         <circle cx="12" cy="12" r="9.75" strokeWidth="1.5" />
         <path
           d="m12.75 15 3-3m0 0-3-3m3 3h-7.5"
           strokeLinecap="round"
           strokeLinejoin="round"
-          strokeWidth="1.5" />
+          strokeWidth="1.5"
+        />
       </svg>
     </button>
   );

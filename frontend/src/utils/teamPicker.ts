@@ -1,10 +1,9 @@
 import type { MoveOption } from "../types/moveTypes";
 import type { PokedexEntry } from "../types/pokedexTypes";
 import type { SliderFilter } from "../types/sliderTypes";
-import { sortByCriteria } from "./multiSort";
-import type { SortCriterion } from "./multiSort";
-import { POKEDEX_SORT_GROUPS, sortPokedexEntries } from "./pokedexSort";
-import type { PokedexSortCriterion } from "./pokedexSort";
+
+import { sortByCriteria, type SortCriterion } from "./multiSort";
+import { POKEDEX_SORT_GROUPS, sortPokedexEntries, type PokedexSortCriterion } from "./pokedexSort";
 
 const excludedPokemonSortKeys = new Set(["pokemonClass", "category", "region", "height", "weight"]);
 export const TEAM_POKEMON_SORT_GROUPS = [{
@@ -31,7 +30,11 @@ export const TEAM_MOVE_SORT_GROUPS = [{
 
 export type MoveSortCriterion = SortCriterion<typeof TEAM_MOVE_SORT_GROUPS[0]["options"][number]["key"]>;
 type MoveRangeKey = typeof MOVE_RANGES[number]["key"];
-export type MoveFilters = { type: string; moveClass: string; ranges: Record<MoveRangeKey, SliderFilter> };
+export type MoveFilters = {
+  type: string;
+  moveClass: string;
+  ranges: Record<MoveRangeKey, SliderFilter>
+};
 export type PokemonFilters = { type: string; ability: string };
 
 export const EMPTY_MOVE_FILTERS: MoveFilters = {

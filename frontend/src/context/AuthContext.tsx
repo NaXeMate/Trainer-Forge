@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+
 import { ApiError } from "../services/api";
 import { login, register } from "../services/authService";
 import { clearSessionTeamDraft } from "../services/sessionTeamDraft";
 import { getCurrentTrainer, updateCurrentTrainer } from "../services/trainerService";
 import type { AuthResponse, AuthSession, LoginInput, RegisterInput } from "../types/authTypes";
 import type { TrainerProfileChanges } from "../types/trainerTypes";
+
 import { AuthContext } from "./useAuth";
 
 const TOKEN_KEY = "trainerforge:auth-token";
@@ -80,10 +82,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     function checkExpiration() {
       if (!isCurrent()) return;
-      
+
       window.clearTimeout(timer);
       const remaining = expiration - Date.now();
-      
+
       if (remaining <= 0) logout();
       else timer = window.setTimeout(checkExpiration, Math.min(remaining, 2_147_483_647));
     }
@@ -113,7 +115,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function authenticate(request: () => Promise<AuthResponse>) {
     const currentGeneration = ++generation.current;
     const response = await request();
-    
+
     if (generation.current !== currentGeneration) return;
     clearSessionTeamDraft();
     persistToken(response.token);
@@ -125,7 +127,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function updateProfile(changes: TrainerProfileChanges) {
     if (!token || session.status !== "authenticated") throw new Error("Please log in to update your profile.");
     const currentGeneration = generation.current;
-    
+
     try {
       const profile = await updateCurrentTrainer(token, changes);
       if (generation.current === currentGeneration) setSession({ status: "authenticated", profile });

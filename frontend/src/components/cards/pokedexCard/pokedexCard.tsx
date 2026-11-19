@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef } from "react";
 import { Link } from "react-router";
+
 import cardRing from "../../../assets/icons/pokedex/card-ring.svg";
 import type { PokedexEntry } from "../../../types/pokedexTypes";
 import { getPokedexCardPresentation } from "../../../utils/pokemonPresentation";
@@ -55,7 +56,11 @@ export default function PokedexCard({ pokemon }: { pokemon: PokedexEntry }) {
   }, [pokemon.name]);
 
   return (
-    <Link className="pokedex-card-link" to={`/pokedex/${pokemon.id}`} aria-label={`View ${pokemon.name} details`}>
+    <Link
+      className="pokedex-card-link"
+      to={`/pokedex/${pokemon.id}`}
+      aria-label={`View ${pokemon.name} details`}
+    >
       <article className={presentation.className} style={presentation.style}>
         <img className="pokedex-card__decoration" src={cardRing} alt="" />
         <span className="pokedex-card__regional-number">

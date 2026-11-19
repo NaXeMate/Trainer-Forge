@@ -1,5 +1,6 @@
 import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router";
+
 import pokedexIcon from "../../assets/brand/sections/pokedex_icon.png";
 import cleanIcon from "../../assets/icons/pokedex/clean.svg";
 import searchIcon from "../../assets/icons/pokedex/search.svg";
@@ -15,12 +16,17 @@ import { searchPokedexEntries } from "../../services/pokedexService";
 import { BASE_STAT_DEFAULT, BASE_STAT_MIN, BASE_STAT_MAX, POKEDEX_STATS } from "../../constants/pokedex";
 import type { PokedexEntry, PokedexStatFilter, PokedexTextFilters } from "../../types/pokedexTypes";
 import { uppercaseInput } from "../../utils/uppercaseInput";
+
 import "./pokedex-colors.css";
 import "./pokedex.css";
+
 import PokemonTypeCombobox from "../../components/common/pokemonTypeCombobox";
 import PokedexCard from "../../components/cards/pokedexCard";
-import { POKEDEX_SORT_GROUPS, sortPokedexEntries } from "../../utils/pokedexSort";
-import type { PokedexSortCriterion } from "../../utils/pokedexSort";
+import {
+  POKEDEX_SORT_GROUPS,
+  sortPokedexEntries,
+  type PokedexSortCriterion,
+} from "../../utils/pokedexSort";
 
 const POKEMON_PER_PAGE = 16;
 const EMPTY_POKEDEX_ENTRIES: PokedexEntry[] = [];
@@ -257,7 +263,7 @@ export default function Pokedex() {
     setCurrentPage(nextPage);
 
     const isLargeScreen = window.matchMedia("(min-width: 75rem)").matches;
-    
+
     if (!isLargeScreen || source === "keyboard") {
       resultsRef.current?.focus({ preventScroll: true });
     }
@@ -275,7 +281,8 @@ export default function Pokedex() {
               type="reset"
               form="pokedex-filters"
               aria-label="Reset Pokedex search"
-              title="Reset Pokedex search">
+              title="Reset Pokedex search"
+            >
               <img className="pokedex-page__logo" src={pokedexIcon} alt="" />
               Poke<span>Dex</span>
             </button>
@@ -288,7 +295,11 @@ export default function Pokedex() {
             className="pokedex-filters"
             aria-label="Pokedex search filters"
             onReset={clean}
-            onSubmit={event => { event.preventDefault(); search(); }}>
+            onSubmit={event => {
+              event.preventDefault();
+              search();
+            }}
+          >
             <div className="pokedex-filters__text">
               {textFilters.map(({ name, label, placeholder, ...filter }) => (
                 name === "type1" || name === "type2" ? (
@@ -303,7 +314,8 @@ export default function Pokedex() {
                 ) : (
                   <label
                     key={name}
-                    className={"wide" in filter ? "pokedex-filters__field--wide" : undefined}>
+                    className={"wide" in filter ? "pokedex-filters__field--wide" : undefined}
+                  >
                     <span className="visually-hidden">{label}</span>
                     <input
                       name={name}
@@ -322,7 +334,11 @@ export default function Pokedex() {
               ))}
             </div>
 
-            <div className="pokedex-filters__statistics" role="group" aria-label="Statistic filters">
+            <div
+              className="pokedex-filters__statistics"
+              role="group"
+              aria-label="Statistic filters"
+            >
               {draftFilters.map(filter => (
                 <StatisticSlider
                   key={filter.stat}
@@ -345,7 +361,8 @@ export default function Pokedex() {
               <button
                 className="pokedex-button pokedex-button--search"
                 type="submit"
-                disabled={loadState.status === "loading"}>
+                disabled={loadState.status === "loading"}
+              >
                 <span>SEARCH</span>
                 <img src={searchIcon} alt="" />
               </button>
@@ -358,7 +375,8 @@ export default function Pokedex() {
             className="pokedex-results"
             tabIndex={-1}
             aria-label="Pokémon species"
-            aria-busy={loadState.status === "loading"}>
+            aria-busy={loadState.status === "loading"}
+          >
             <div className="pokedex-results__toolbar">
               <div className="pokedex-sort" ref={sortContainerRef}>
                 <button
@@ -367,13 +385,19 @@ export default function Pokedex() {
                   type="button"
                   aria-expanded={sortOpen}
                   aria-controls="pokedex-sort-panel"
-                  onClick={() => setSortOpen(previous => !previous)}>
+                  onClick={() => setSortOpen(previous => !previous)}
+                >
                   <span>SORT</span>
                   <img src={sortIcon} alt="" />
                 </button>
 
                 {sortOpen && (
-                  <div className="pokedex-sort__panel" id="pokedex-sort-panel" role="region" aria-label="Sort Pokémon">
+                  <div
+                    className="pokedex-sort__panel"
+                    id="pokedex-sort-panel"
+                    role="region"
+                    aria-label="Sort Pokémon"
+                  >
                     <SortOptions
                       groups={POKEDEX_SORT_GROUPS}
                       criteria={sortCriteria}
@@ -394,7 +418,11 @@ export default function Pokedex() {
             {loadState.status === "error" && (
               <div className="pokedex-results__message">
                 <p role="alert">Could not load the Pokémon. Please try again.</p>
-                <button className="pokedex-button pokedex-button--retry" type="button" onClick={retry}>
+                <button
+                  className="pokedex-button pokedex-button--retry"
+                  type="button"
+                  onClick={retry}
+                >
                   RETRY
                 </button>
               </div>

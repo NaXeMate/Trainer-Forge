@@ -24,8 +24,15 @@ export default function PasswordStrength({ id, password }: { id: string; passwor
 
   return (
     <div className="password-strength">
-      <div className="password-strength__segments" role="meter" aria-label="Password strength"
-        aria-valuemin={0} aria-valuemax={4} aria-valuenow={strength} aria-valuetext={STRENGTH_LABELS[strength]}>
+      <div
+        className="password-strength__segments"
+        role="meter"
+        aria-label="Password strength"
+        aria-valuemin={0}
+        aria-valuemax={4}
+        aria-valuenow={strength}
+        aria-valuetext={STRENGTH_LABELS[strength]}
+      >
         {SEGMENTS.map(segment => (
           <span key={segment} data-filled={segment <= strength} aria-hidden="true" />
         ))}

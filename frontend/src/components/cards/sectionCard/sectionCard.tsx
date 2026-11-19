@@ -31,14 +31,16 @@ export default function SectionCard({
 
       <div
         aria-hidden={image ? undefined : true}
-        className="section-card__image-frame">
+        className="section-card__image-frame"
+      >
         {image && <img className="section-card__image" src={image} alt={imageAlt} />}
       </div>
 
       <AccessButton
         aria-label={`Enter ${title}`}
         className="section-card__access-button"
-        onClick={onAccess}/>
+        onClick={onAccess}
+      />
     </article>
   );
 }

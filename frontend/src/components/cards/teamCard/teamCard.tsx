@@ -1,5 +1,5 @@
-import { useId } from "react";
-import type { CSSProperties, ReactNode } from "react";
+import { useId, type CSSProperties, type ReactNode } from "react";
+
 import megaEvolutionIcon from "../../../assets/icons/specialGimmicks/megaevolution.svg";
 import zPowerIcon from "../../../assets/icons/specialGimmicks/z-power.svg";
 import { POKEDEX_STATS } from "../../../constants/pokedex";
@@ -7,8 +7,8 @@ import type { EquippableItemType } from "../../../types/itemTypes";
 import type { PokedexEntry } from "../../../types/pokedexTypes";
 import type { StatPoints } from "../../../utils/championsStatPoints";
 import { getTypeColor } from "../../../utils/pokemonPresentation";
-import Combobox from "../../common/combobox";
-import type { ComboboxOption } from "../../common/combobox";
+import Combobox, { type ComboboxOption } from "../../common/combobox";
+
 import "../../../styles/pokemonTypeColors.css";
 import "../../../styles/teamControl.css";
 import "./teamCard.css";
@@ -48,7 +48,16 @@ const STAT_ABBREVIATIONS = {
 
 function CloseIcon() {
   return (
-    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+    <svg
+      aria-hidden="true"
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+    >
       <path d="m4 4 8 8M12 4l-8 8" />
     </svg>
   );
@@ -111,10 +120,20 @@ export default function TeamCard({
 
   return (
     <article className="team-pokemon" style={style} aria-label={`Slot ${slotNumber}: ${name}`}>
-      <button className="team-pokemon__remove" type="button" aria-label={`Remove ${name} from slot ${slotNumber}`} onClick={onRemove}>
+      <button
+        className="team-pokemon__remove"
+        type="button"
+        aria-label={`Remove ${name} from slot ${slotNumber}`}
+        onClick={onRemove}
+      >
         <CloseIcon />
       </button>
-      <button className="team-pokemon__species" type="button" aria-label={`Replace ${name} in slot ${slotNumber}`} onClick={event => onReplace(event.currentTarget)}>
+      <button
+        className="team-pokemon__species"
+        type="button"
+        aria-label={`Replace ${name} in slot ${slotNumber}`}
+        onClick={event => onReplace(event.currentTarget)}
+      >
         <img src={imageUrl} alt="" />
         <span>{name}</span>
       </button>
@@ -133,7 +152,10 @@ export default function TeamCard({
               >
                 {move || "—"}
               </button>
-              {move && <ClearFieldButton label={`Clear move ${index + 1} for ${name}`} onClear={() => onClearMove(index)} />}
+              {move && <ClearFieldButton
+                label={`Clear move ${index + 1} for ${name}`}
+                onClear={() => onClearMove(index)}
+              />}
             </div>
           </div>
         ))}
@@ -148,7 +170,10 @@ export default function TeamCard({
             onChange={onAbilityChange}
           />
         </div>
-        <div className="team-pokemon__field team-pokemon__field--item" data-item-type={selectedItemType}>
+        <div
+          className="team-pokemon__field team-pokemon__field--item"
+          data-item-type={selectedItemType}
+        >
           <label className="team-pokemon__field-label" htmlFor={itemInputId}>EQUIPPED ITEM</label>
           <Combobox
             inputId={itemInputId}

@@ -7,8 +7,7 @@ import favoritePokemon from "../../assets/icons/favorite-pokemon.svg";
 import pokeBallSeparator from "../../assets/icons/poke-ball-separator.svg";
 import { trainerSpriteCredits } from "../../utils/trainerSpriteCredits";
 import Combobox from "../../components/common/combobox";
-import PokemonPicker from "../../components/common/pokemonPicker";
-import type { PickerPanel } from "../../components/common/pokemonPicker";
+import PokemonPicker, { type PickerPanel } from "../../components/common/pokemonPicker";
 import Footer from "../../components/layout/footer";
 import Header from "../../components/layout/header";
 import { gameCatalogue } from "../../constants/teamCatalogue";
@@ -16,9 +15,15 @@ import { useAuth } from "../../context/useAuth";
 import { ApiError } from "../../services/api";
 import { getPokedexEntries } from "../../services/pokedexService";
 import type { PokedexEntry } from "../../types/pokedexTypes";
+import {
+  TRAINER_CLASSES,
+  type EditableTrainerProfile,
+  type TrainerClass,
+  type TrainerProfile,
+  type TrainerProfileChanges,
+} from "../../types/trainerTypes";
 
-import { TRAINER_CLASSES } from "../../types/trainerTypes";
-import type { EditableTrainerProfile, TrainerClass, TrainerProfile, TrainerProfileChanges } from "../../types/trainerTypes";
+
 import TrainerAchievements from "./trainerAchievements";
 import trainerSpriteIds from "./trainerSprites.json";
 
@@ -74,7 +79,7 @@ function searchKey(name: string) {
 function getProfileChanges(draft: EditableTrainerProfile, profile: TrainerProfile): TrainerProfileChanges {
   const changes: TrainerProfileChanges = {};
   const realName = draft.realName?.trim() || null;
-  
+
   if (draft.realName !== profile.realName && realName !== profile.realName) changes.realName = realName;
   if (draft.trainerClass !== profile.trainerClass) changes.trainerClass = draft.trainerClass;
   if (draft.profilePictureUrl !== profile.profilePictureUrl) changes.profilePictureUrl = draft.profilePictureUrl;
@@ -85,17 +90,17 @@ function getProfileChanges(draft: EditableTrainerProfile, profile: TrainerProfil
 
 function trimSprite(image: HTMLImageElement) {
   const { naturalWidth: width, naturalHeight: height } = image;
-  
+
   if (!width || !height) return;
 
   const canvas = document.createElement("canvas");
   canvas.width = width;
   canvas.height = height;
   const context = canvas.getContext("2d");
-  
+
   if (!context) return;
   context.drawImage(image, 0, 0);
-  
+
   const { data } = context.getImageData(0, 0, width, height);
   let left = width;
   let top = height;
@@ -126,15 +131,18 @@ function TrainerSprite({ image, name }: { image: string; name?: string }) {
   return (
     <picture>
       {trimmed && <source media="(width > 40rem)" srcSet={trimmed} />}
-      <img src={image} alt={name ?? ""}
+      <img
+        src={image}
+        alt={name ?? ""}
         className={trimmed ? "trainer-card__fitted-sprite" : undefined}
         onLoad={event => {
           const sprite = event.currentTarget;
-          
+
           if (!trimmed && new URL(sprite.currentSrc).origin === window.location.origin) {
             setTrimmed(trimSprite(sprite));
           }
-        }} />
+        }}
+      />
     </picture>
   );
 }
@@ -150,8 +158,13 @@ function ProfileArtwork({ kind, image, name, onChoose }: {
   const artwork = image && (favoriteLabel ? (
     <span className="trainer-card__favorite-artwork">
       <img className="trainer-card__artwork-image" src={image} alt={onChoose ? "" : name ?? ""} />
-      <img className="trainer-card__favorite-label" src={favoriteLabel.image}
-        alt={onChoose ? "" : favoriteLabel.text} width={196} height={48} />
+      <img
+        className="trainer-card__favorite-label"
+        src={favoriteLabel.image}
+        alt={onChoose ? "" : favoriteLabel.text}
+        width={196}
+        height={48}
+      />
     </span>
   ) : (
     onChoose ? <img src={image} alt="" /> : <TrainerSprite key={image} image={image} name={name} />
@@ -163,9 +176,13 @@ function ProfileArtwork({ kind, image, name, onChoose }: {
 
   const label = PICKER_TITLES[kind];
   return (
-    <button className={className} type="button" aria-haspopup="dialog"
+    <button
+      className={className}
+      type="button"
+      aria-haspopup="dialog"
       aria-label={name ? `${label}: ${name}` : undefined}
-      onClick={event => onChoose(kind, event.currentTarget)}>
+      onClick={event => onChoose(kind, event.currentTarget)}
+    >
       {artwork || <span>{name || label}</span>}
     </button>
   );
@@ -217,12 +234,15 @@ function TrainerCard({ profile, token, updateProfile }: {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
   const savingRequest = useRef(false);
+
   const [picker, setPicker] = useState<Picker | null>(null);
   const [query, setQuery] = useState("");
   const [panel, setPanel] = useState<PickerPanel | null>(null);
+
   const [entries, setEntries] = useState<PokedexEntry[]>([]);
   const [pokemonStatus, setPokemonStatus] = useState<"loading" | "success" | "error">("loading");
   const [pokemonAttempt, setPokemonAttempt] = useState(profile.favoritePokemonId === null ? 0 : 1);
+
   const dialogRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const editButtonRef = useRef<HTMLButtonElement>(null);
@@ -272,7 +292,7 @@ function TrainerCard({ profile, token, updateProfile }: {
     if (pokemonAttempt === 0) return;
 
     const controller = new AbortController();
-    
+
     getPokedexEntries(controller.signal).then(pokemon => {
       if (!controller.signal.aborted) {
         setEntries(pokemon);
@@ -286,7 +306,7 @@ function TrainerCard({ profile, token, updateProfile }: {
 
   useEffect(() => {
     const dialog = dialogRef.current;
-    
+
     if (picker && dialog && !dialog.open) {
       dialog.showModal();
       dialog.querySelector("input")?.focus();
@@ -318,11 +338,11 @@ function TrainerCard({ profile, token, updateProfile }: {
 
   async function saveProfile() {
     if (!hasChanges || savingRequest.current) return;
-    
+
     savingRequest.current = true;
     setSaving(true);
     setSaveError("");
-    
+
     try {
       await updateProfile(changes);
       finishEditing();
@@ -346,16 +366,33 @@ function TrainerCard({ profile, token, updateProfile }: {
 
         <section className="trainer-card" aria-label="Trainer profile">
           {!draft && (
-            <button ref={editButtonRef} className="trainer-card__edit" type="button"
-              aria-label="Edit trainer profile" onClick={() => setDraft(profile)}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-                strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <button
+              ref={editButtonRef}
+              className="trainer-card__edit"
+              type="button"
+              aria-label="Edit trainer profile"
+              onClick={() => setDraft(profile)}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
                 <path d="m15 5 4 4M4 20l4.5-1 11-11a2.8 2.8 0 0 0-4-4l-11 11L4 20Z" />
               </svg>
             </button>
           )}
           <div ref={identityRef} className="trainer-card__identity">
-            <ProfileArtwork kind="sprite" name={selectedSprite?.name} image={selectedSprite?.image ?? displayedProfile.profilePictureUrl ?? undefined} onChoose={chooseArtwork} />
+            <ProfileArtwork
+              kind="sprite"
+              name={selectedSprite?.name}
+              image={selectedSprite?.image ?? displayedProfile.profilePictureUrl ?? undefined}
+              onChoose={chooseArtwork}
+            />
 
             <div className="trainer-card__summary" aria-hidden={draft ? true : undefined}>
               <div ref={summaryRef} className="trainer-card__summary-content">
@@ -375,8 +412,14 @@ function TrainerCard({ profile, token, updateProfile }: {
                 <p className="trainer-card__username">{profile.username}</p>
                 <label>
                   Real name
-                  <input value={draft.realName ?? ""} maxLength={50} placeholder="Real name" autoFocus disabled={saving}
-                    onChange={event => updateDraft({ realName: event.target.value })} />
+                  <input
+                    value={draft.realName ?? ""}
+                    maxLength={50}
+                    placeholder="Real name"
+                    autoFocus
+                    disabled={saving}
+                    onChange={event => updateDraft({ realName: event.target.value })}
+                  />
                 </label>
                 <div className="trainer-card__title-field">
                   <label htmlFor="trainer-class">Trainer title</label>
@@ -396,9 +439,18 @@ function TrainerCard({ profile, token, updateProfile }: {
 
           <div className="trainer-card__details">
             <div className="trainer-card__favorites">
-              <ProfileArtwork kind="pokemon" name={pokemonName ?? undefined}
-                image={selectedPokemon?.imageUrl} onChoose={chooseArtwork} />
-              <ProfileArtwork kind="game" name={selectedGame?.name ?? displayedProfile.favoriteGameName ?? undefined} image={selectedGame?.image} onChoose={chooseArtwork} />
+              <ProfileArtwork
+                kind="pokemon"
+                name={pokemonName ?? undefined}
+                image={selectedPokemon?.imageUrl}
+                onChoose={chooseArtwork}
+              />
+              <ProfileArtwork
+                kind="game"
+                name={selectedGame?.name ?? displayedProfile.favoriteGameName ?? undefined}
+                image={selectedGame?.image}
+                onChoose={chooseArtwork}
+              />
             </div>
 
             <TrainerAchievements token={token} />
@@ -406,7 +458,12 @@ function TrainerCard({ profile, token, updateProfile }: {
           {draft && (
             <div className="trainer-card__actions">
               <button type="button" onClick={finishEditing} disabled={saving}>CANCEL</button>
-              <button className="trainer-card__save" type="button" disabled={!hasChanges || saving} onClick={saveProfile}>
+              <button
+                className="trainer-card__save"
+                type="button"
+                disabled={!hasChanges || saving}
+                onClick={saveProfile}
+              >
                 {saving ? "SAVING…" : "SAVE"}
               </button>
             </div>
@@ -416,7 +473,10 @@ function TrainerCard({ profile, token, updateProfile }: {
       </main>
       <Footer />
 
-      <dialog ref={dialogRef} className="team-dialog team-dialog--picker trainer-picker" aria-labelledby="trainer-picker-title"
+      <dialog
+        ref={dialogRef}
+        className="team-dialog team-dialog--picker trainer-picker"
+        aria-labelledby="trainer-picker-title"
         onClose={() => {
           setPicker(null);
           triggerRef.current?.focus();
@@ -431,29 +491,54 @@ function TrainerCard({ profile, token, updateProfile }: {
           if (event.target !== event.currentTarget) return;
           const { top, right, bottom, left } = event.currentTarget.getBoundingClientRect();
           if (event.clientX < left || event.clientX > right || event.clientY < top || event.clientY > bottom) closePicker();
-        }}>
+        }}
+      >
         <div className="team-dialog__header">
           <h2 id="trainer-picker-title">{picker && PICKER_TITLES[picker]}</h2>
-          <button type="button" className="team-dialog__picker-close" aria-label="Close dialog" onClick={closePicker}>
-            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+          <button
+            type="button"
+            className="team-dialog__picker-close"
+            aria-label="Close dialog"
+            onClick={closePicker}
+          >
+            <svg
+              aria-hidden="true"
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+            >
               <path d="m4 4 8 8M12 4l-8 8" />
             </svg>
           </button>
         </div>
 
         {picker && (picker === "pokemon" ? displayedProfile.favoritePokemonId !== null : pickerValue !== null) && (
-          <button className="trainer-picker__clear" type="button" onClick={() => {
-            if (picker === "pokemon") updateDraft({ favoritePokemonId: null });
-            else if (picker === "game") updateDraft({ favoriteGameName: null });
-            else updateDraft({ profilePictureUrl: null });
-            closePicker();
-          }}>
+          <button
+            className="trainer-picker__clear"
+            type="button"
+            onClick={() => {
+              if (picker === "pokemon") updateDraft({ favoritePokemonId: null });
+              else if (picker === "game") updateDraft({ favoriteGameName: null });
+              else updateDraft({ profilePictureUrl: null });
+              closePicker();
+            }}
+          >
             {picker === "sprite" ? "Remove sprite" : "Clear favorite"}
           </button>
         )}
 
-        <PokemonPicker active={picker === "pokemon"} entries={entries} status={pokemonStatus}
-          query={query} onQueryChange={setQuery} panel={panel} onPanelChange={setPanel}
+        <PokemonPicker
+          active={picker === "pokemon"}
+          entries={entries}
+          status={pokemonStatus}
+          query={query}
+          onQueryChange={setQuery}
+          panel={panel}
+          onPanelChange={setPanel}
           onRetry={() => {
             setPokemonStatus("loading");
             setPokemonAttempt(previous => previous + 1);
@@ -461,24 +546,36 @@ function TrainerCard({ profile, token, updateProfile }: {
           onSelect={({ id }) => {
             updateDraft({ favoritePokemonId: id });
             closePicker();
-          }} />
+          }}
+        />
 
         {(picker === "game" || picker === "sprite") && (
           <>
             <div className="team-dialog__search">
               <label htmlFor="trainer-image-search">{picker === "game" ? "Search games by name" : "Search trainer sprites by name"}</label>
-              <input id="trainer-image-search" value={query} onChange={event => setQuery(event.target.value)}
-                placeholder={picker === "game" ? "Search games…" : "Search trainer sprites…"} />
+              <input
+                id="trainer-image-search"
+                value={query}
+                onChange={event => setQuery(event.target.value)}
+                placeholder={picker === "game" ? "Search games…" : "Search trainer sprites…"}
+              />
             </div>
             <p className="team-dialog__count" role="status">{imageMatches.length} {picker === "game" ? "games" : "sprites"} found</p>
-            <div className="team-dialog__results team-dialog__pokemon trainer-picker__images" data-picker={picker}>
+            <div
+              className="team-dialog__results team-dialog__pokemon trainer-picker__images"
+              data-picker={picker}
+            >
               {imageMatches.map(option => (
-                <button type="button" key={option.value} aria-pressed={pickerValue === option.value}
+                <button
+                  type="button"
+                  key={option.value}
+                  aria-pressed={pickerValue === option.value}
                   onClick={() => {
                     if (picker === "game") updateDraft({ favoriteGameName: option.value });
                     else updateDraft({ profilePictureUrl: option.value });
                     closePicker();
-                  }}>
+                  }}
+                >
                   <img className="team-dialog__artwork" src={option.image} alt="" loading="lazy" />
                   <strong>{option.name}</strong>
                   {picker === "sprite" && "artist" in option && typeof option.artist === "string" && option.artist && (

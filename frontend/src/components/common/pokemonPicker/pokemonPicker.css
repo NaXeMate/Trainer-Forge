@@ -1,9 +1,46 @@
-.team-dialog { position: fixed; inset: 0; width: min(calc(100% - 2rem), 48rem); max-height: calc(100dvh - 3rem); margin: auto; padding: 1.5rem; overflow: auto; border: 1px solid var(--color-border); border-radius: var(--radius-card); background: var(--color-background); color: var(--color-body-text); box-shadow: var(--shadow-card); }
+.team-dialog {
+  position: fixed;
+  inset: 0;
+  width: min(calc(100% - 2rem), 48rem);
+  max-height: calc(100dvh - 3rem);
+  margin: auto;
+  padding: 1.5rem;
+  overflow: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-background);
+  color: var(--color-body-text);
+  box-shadow: var(--shadow-card);
+}
 .team-dialog::backdrop { background: rgb(23 29 46 / 65%); }
-.team-dialog__header { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1rem; }
-.team-dialog__header button { width: 2.75rem; height: 2.75rem; font-size: 2rem; }
-.team-dialog__search { display: grid; gap: 0.5rem; }
-.team-dialog__search input { min-height: 2.75rem; padding: 0.5rem 0.75rem; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-glass-tint); width: 100%; }
+
+.team-dialog__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.team-dialog__header button {
+  width: 2.75rem;
+  height: 2.75rem;
+  font-size: 2rem;
+}
+
+.team-dialog__search {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.team-dialog__search input {
+  min-height: 2.75rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-glass-tint);
+  width: 100%;
+}
 .team-dialog--picker .team-dialog__header {
   min-height: 2.75rem;
   padding-inline-end: 2rem;
@@ -45,7 +82,12 @@
 
 .team-dialog__tool:hover,
 .team-dialog__tool[aria-expanded="true"] { background: var(--color-accent-hover); }
-.team-dialog__tool :is(img, svg) { width: 1.25rem; height: 1.25rem; object-fit: contain; }
+
+.team-dialog__tool :is(img, svg) {
+  width: 1.25rem;
+  height: 1.25rem;
+  object-fit: contain;
+}
 
 .team-dialog__picker-panel {
   margin-block-start: 0.75rem;
@@ -112,11 +154,34 @@
   font-weight: var(--font-weight-bold);
 }
 
-.team-dialog__count { margin-block: 1rem; color: var(--color-secondary-text); }
-.team-dialog__results { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.75rem; }
-.team-dialog__results button { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; padding: 0.75rem; border-radius: var(--radius-md); background: var(--color-glass-tint); min-width: 0; }
+.team-dialog__count {
+  margin-block: 1rem;
+  color: var(--color-secondary-text);
+}
+
+.team-dialog__results {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.team-dialog__results button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border-radius: var(--radius-md);
+  background: var(--color-glass-tint);
+  min-width: 0;
+}
 .team-dialog__results button:hover { outline: 2px solid var(--color-accent); }
-.team-dialog__artwork { height: 6rem; width: 6rem; object-fit: contain; }
+
+.team-dialog__artwork {
+  height: 6rem;
+  width: 6rem;
+  object-fit: contain;
+}
 .team-dialog__results.team-dialog__pokemon {
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr));
 }
@@ -153,7 +218,14 @@
 }
 .team-dialog__results strong, .team-dialog__results small { overflow-wrap: anywhere; }
 .team-dialog__results small { color: var(--color-secondary-text); }
-.team-dialog__primary { background: var(--color-accent); color: var(--color-accent-contrast); border-radius: var(--radius-md); padding: 0.75rem 1rem; margin-top: 1rem; }
+
+.team-dialog__primary {
+  background: var(--color-accent);
+  color: var(--color-accent-contrast);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+  margin-top: 1rem;
+}
 
 @media (max-width: 35rem) {
   .team-dialog__results { grid-template-columns: repeat(2, minmax(0, 1fr)); }

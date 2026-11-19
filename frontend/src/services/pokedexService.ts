@@ -1,4 +1,5 @@
 import { ApiError, apiRequest } from "./api";
+
 import { BASE_STAT_MIN, BASE_STAT_MAX, findPokemonType } from "../constants/pokedex";
 import type { PokedexEntry, PokedexStatFilter, PokedexTextFilters } from "../types/pokedexTypes";
 

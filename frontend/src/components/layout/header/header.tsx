@@ -51,7 +51,8 @@ function Header() {
         <LoginButton
           aria-label="Log in"
           className="site-header__login"
-          onClick={handleLogin}/>
+          onClick={handleLogin}
+        />
       )}
     </header>
   );

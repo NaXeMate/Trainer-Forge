@@ -67,7 +67,8 @@ export default function Home() {
 
         <section
           className="home-page__sections"
-          aria-label="TrainerForge sections">
+          aria-label="TrainerForge sections"
+        >
           {sections.map(({ href, ...section }) => (
             <SectionCard
               key={href}

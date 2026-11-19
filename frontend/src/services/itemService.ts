@@ -1,4 +1,5 @@
 import { apiRequest } from "./api";
+
 import type { EquippableItem } from "../types/itemTypes";
 
 export async function getEquippableItems(signal?: AbortSignal): Promise<EquippableItem[]> {

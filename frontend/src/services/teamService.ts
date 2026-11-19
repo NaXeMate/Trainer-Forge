@@ -1,4 +1,5 @@
 import type { Draft, Member, Modality } from "../utils/teamDraft";
+
 import { apiRequest } from "./api";
 
 export type SavedTeam = {
@@ -11,7 +12,14 @@ export type SavedTeam = {
 };
 
 type ApiMember = Omit<Member, "statPoints"> & {
-  stats: { hp: number; attack: number; defense: number; specialAttack: number; specialDefense: number; speed: number };
+  stats: {
+    hp: number;
+    attack: number;
+    defense: number;
+    specialAttack: number;
+    specialDefense: number;
+    speed: number
+  };
 };
 type ApiLineup = Omit<Draft, "members"> & { members: (ApiMember | null)[] };
 type ApiTeam = { id: number; trainerUsername: string; lineup: ApiLineup };

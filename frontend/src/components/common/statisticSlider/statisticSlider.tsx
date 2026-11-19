@@ -1,11 +1,12 @@
-import { useId, useRef } from "react";
-import type { CSSProperties, PointerEvent } from "react";
+import { useId, useRef, type CSSProperties, type PointerEvent } from "react";
+
 import selectorCircle from "../../../assets/icons/pokedex/selector-circle.svg";
 import selectorRight from "../../../assets/icons/pokedex/selector-right.svg";
 import selectorLeft from "../../../assets/icons/pokedex/selector-left.svg";
 import statHelp from "../../../assets/icons/pokedex/stat-help.svg";
 import type { SliderFilter, SliderMode } from "../../../types/sliderTypes";
 import AccentCheckbox from "../accentCheckbox";
+
 import "./statisticSlider.css";
 
 export interface StatisticSliderProps<Filter extends SliderFilter> {
@@ -22,9 +23,18 @@ const modes = {
   equal: { next: "minimum", icon: selectorCircle, rotation: "0deg", text: "exactly" },
   minimum: { next: "maximum", icon: selectorRight, rotation: "90deg", text: "at least" },
   maximum: { next: "equal", icon: selectorLeft, rotation: "-90deg", text: "at most" },
-} as const satisfies Record<SliderMode, { next: SliderMode; icon: string; rotation: string; text: string }>;
+} as const satisfies Record<SliderMode, {
+  next: SliderMode;
+  icon: string;
+  rotation: string;
+  text: string
+}>;
 
-type SliderStyle = CSSProperties & { "--stat-thumb": string; "--stat-rotation": string; "--stat-track": string };
+type SliderStyle = CSSProperties & {
+  "--stat-thumb": string;
+  "--stat-rotation": string;
+  "--stat-track": string
+};
 
 export default function StatisticSlider<Filter extends SliderFilter>({
   label, min, max, filter, showHelp = false, applyHint = "Check to apply this filter.", onChange,
@@ -59,7 +69,10 @@ export default function StatisticSlider<Filter extends SliderFilter>({
   }
 
   return (
-    <div className={`statistic-slider${filter.enabled ? "" : " statistic-slider--inactive"}`} style={style}>
+    <div
+      className={`statistic-slider${filter.enabled ? "" : " statistic-slider--inactive"}`}
+      style={style}
+    >
       <label className="statistic-slider__label">
         <AccentCheckbox
           className="statistic-slider__enabled"
@@ -70,7 +83,12 @@ export default function StatisticSlider<Filter extends SliderFilter>({
         <span>{label}</span>
       </label>
       {showHelp && (
-        <img className="statistic-slider__help" src={statHelp} alt="" title="Check a statistic to include it in SEARCH. Click its slider icon to switch between exactly, at least and at most." />
+        <img
+          className="statistic-slider__help"
+          src={statHelp}
+          alt=""
+          title="Check a statistic to include it in SEARCH. Click its slider icon to switch between exactly, at least and at most."
+        />
       )}
       <span id={instructionsId} className="visually-hidden">
         {applyHint} Drag or use arrow keys to change the value.
@@ -105,7 +123,11 @@ export default function StatisticSlider<Filter extends SliderFilter>({
               }
             }}
           />
-          <output className="statistic-slider__value" style={{ left: `${position}%` }} aria-hidden="true">
+          <output
+            className="statistic-slider__value"
+            style={{ left: `${position}%` }}
+            aria-hidden="true"
+          >
             {filter.value}
           </output>
         </div>

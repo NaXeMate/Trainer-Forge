@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useSyncExternalStore } from "react";
+
 import { useAuth } from "../context/useAuth";
 import {
   getSessionTeamDraftRevision,
@@ -6,8 +7,8 @@ import {
   readSessionTeamDraft,
   subscribeToSessionTeamDraft,
   writeSessionTeamDraft,
+  type WorkingTeam,
 } from "../services/sessionTeamDraft";
-import type { WorkingTeam } from "../services/sessionTeamDraft";
 import type { Draft } from "../utils/teamDraft";
 
 export function useSessionTeamDraftRevision() {

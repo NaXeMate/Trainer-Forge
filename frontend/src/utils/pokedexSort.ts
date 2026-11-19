@@ -1,6 +1,6 @@
 import type { PokedexEntry } from "../types/pokedexTypes";
-import { sortByCriteria } from "./multiSort";
-import type { SortCriterion } from "./multiSort";
+
+import { sortByCriteria, type SortCriterion } from "./multiSort";
 
 export const POKEDEX_SORT_GROUPS = [
   {

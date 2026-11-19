@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import type { CSSProperties } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { Link, useNavigate, useParams } from "react-router";
+
 import ArrowButton from "../../components/common/arrowButton";
 import Footer from "../../components/layout/footer";
 import Header from "../../components/layout/header";
@@ -9,6 +9,7 @@ import { getTypeColor } from "../../utils/pokemonPresentation";
 import { ApiError } from "../../services/api";
 import { getPokedexEntryById } from "../../services/pokedexService";
 import type { PokedexEntry } from "../../types/pokedexTypes";
+
 import "./pokedexDetail.css";
 
 const GENERATION_NUMERALS = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"];
@@ -117,7 +118,8 @@ function BaseStatsChart({ pokemon }: { pokemon: PokedexEntry }) {
                   aria-label={label}
                   aria-valuemin={0}
                   aria-valuemax={255}
-                  aria-valuenow={animatedValue}/>
+                  aria-valuenow={animatedValue}
+                />
                 <span className="pokedex-detail__stat-value">{animatedValue}</span>
               </div>
             </li>
@@ -258,7 +260,10 @@ export default function PokedexDetail() {
       </div>
 
       <article className="pokedex-detail__layout" aria-labelledby="pokedex-detail-title">
-        <section className="pokedex-detail__visual" aria-label={`${detailLoadState.pokemon.name} artwork`}>
+        <section
+          className="pokedex-detail__visual"
+          aria-label={`${detailLoadState.pokemon.name} artwork`}
+        >
           <div className="pokedex-detail__image-frame" style={imageFrameStyle}>
             <img src={detailLoadState.pokemon.imageUrl} alt={detailLoadState.pokemon.name} />
           </div>
@@ -266,7 +271,8 @@ export default function PokedexDetail() {
             className={pokemonTypes.length === 1
               ? "pokedex-detail__types pokedex-detail__types--single"
               : "pokedex-detail__types"}
-            aria-label="Pokémon types">
+            aria-label="Pokémon types"
+          >
             {pokemonTypes.map(type => <TypeBadge key={type} type={type} />)}
           </ul>
         </section>
@@ -314,7 +320,8 @@ export default function PokedexDetail() {
                     .map(({ name, hidden }) => (
                       <li
                         className={hidden ? "pokedex-detail__ability--hidden" : undefined}
-                        key={name}>
+                        key={name}
+                      >
                         {name}
                       </li>
                     ))}
@@ -332,7 +339,8 @@ export default function PokedexDetail() {
             className="pokedex-detail__pokemon-link pokedex-detail__pokemon-link--previous"
             to={`/pokedex/${adjacentPokemon.previous.id}`}
             replace
-            aria-label={`Previous Pokémon: ${adjacentPokemon.previous.name} #${String(adjacentPokemon.previous.id).padStart(3, "0")}`}>
+            aria-label={`Previous Pokémon: ${adjacentPokemon.previous.name} #${String(adjacentPokemon.previous.id).padStart(3, "0")}`}
+          >
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M19 12H5m0 0 7-7m-7 7 7 7" />
             </svg>
@@ -346,7 +354,8 @@ export default function PokedexDetail() {
             className="pokedex-detail__pokemon-link pokedex-detail__pokemon-link--previous"
             type="button"
             disabled
-            aria-label={adjacentPokemon ? "No previous Pokémon" : "Loading previous Pokémon"}>
+            aria-label={adjacentPokemon ? "No previous Pokémon" : "Loading previous Pokémon"}
+          >
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M19 12H5m0 0 7-7m-7 7 7 7" />
             </svg>
@@ -361,7 +370,8 @@ export default function PokedexDetail() {
             className="pokedex-detail__pokemon-link pokedex-detail__pokemon-link--next"
             to={`/pokedex/${adjacentPokemon.next.id}`}
             replace
-            aria-label={`Next Pokémon: ${adjacentPokemon.next.name} #${String(adjacentPokemon.next.id).padStart(3, "0")}`}>
+            aria-label={`Next Pokémon: ${adjacentPokemon.next.name} #${String(adjacentPokemon.next.id).padStart(3, "0")}`}
+          >
             <span className="pokedex-detail__pokemon-link-label">
               <span className="pokedex-detail__pokemon-link-name">{adjacentPokemon.next.name}</span>
               <span>#{String(adjacentPokemon.next.id).padStart(3, "0")}</span>
@@ -375,7 +385,8 @@ export default function PokedexDetail() {
             className="pokedex-detail__pokemon-link pokedex-detail__pokemon-link--next"
             type="button"
             disabled
-            aria-label={adjacentPokemon ? "No next Pokémon" : "Loading next Pokémon"}>
+            aria-label={adjacentPokemon ? "No next Pokémon" : "Loading next Pokémon"}
+          >
             <span className="pokedex-detail__pokemon-link-label">
               {adjacentPokemon ? "Last Pokémon" : "Loading…"}
             </span>

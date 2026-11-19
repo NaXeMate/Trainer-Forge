@@ -1,10 +1,14 @@
 import { POKEDEX_STATS } from "../constants/pokedex";
 import type { Game } from "../constants/teamCatalogue";
 import type { PokedexEntry } from "../types/pokedexTypes";
-import type { StatPoints } from "./championsStatPoints";
-import { EMPTY_STAT_POINTS, hasValidStatPointValues, MAX_STAT_POINTS } from "./championsStatPoints";
-import { getPokemonTypes } from "./typeEffectiveness";
-import type { PokemonType } from "./typeEffectiveness";
+
+import {
+  EMPTY_STAT_POINTS,
+  hasValidStatPointValues,
+  MAX_STAT_POINTS,
+  type StatPoints,
+} from "./championsStatPoints";
+import { getPokemonTypes, type PokemonType } from "./typeEffectiveness";
 
 export const TEAM_SIZE = 6;
 export const TEAM_SCHEMA_VERSION = 1;
@@ -31,27 +35,41 @@ export type Draft = {
 
 export function emptyDraft(): Draft {
   return {
-    name: "", modality: "NORMAL", gameId: null, publicTeam: false,
+    name: "",
+    modality: "NORMAL",
+    gameId: null,
+    publicTeam: false,
     members: Array.from({ length: TEAM_SIZE }, () => null),
   };
 }
 
 export function newMember(pokemon: PokedexEntry): Member {
   return {
-    pokedexId: pokemon.id, moves: ["", "", "", ""], ability: pokemon.ability1, item: "",
+    pokedexId: pokemon.id,
+    moves: ["", "", "", ""],
+    ability: pokemon.ability1,
+    item: "",
     statPoints: { ...EMPTY_STAT_POINTS },
   };
 }
 
-export function commonMonotypeTypes(members: Draft["members"], pokedex: Map<number, PokedexEntry>, skip?: number): PokemonType[] | null {
+export function commonMonotypeTypes(
+  members: Draft["members"],
+  pokedex: Map<number, PokedexEntry>,
+  skip?: number,
+): PokemonType[] | null {
   let shared: PokemonType[] | null = null;
+
   for (const [index, member] of members.entries()) {
     if (!member || index === skip) continue;
+
     const entry = pokedex.get(member.pokedexId);
     if (!entry) return [];
+
     const types = getPokemonTypes(entry);
     shared = shared === null ? types : shared.filter(type => types.includes(type));
   }
+
   return shared;
 }
 
@@ -72,14 +90,26 @@ function requireRecord(value: unknown, message: string): Record<string, unknown>
   return value as Record<string, unknown>;
 }
 
-export function readTeamFile(source: unknown, catalogue: ImportCatalogue): { draft: Draft; modalityChanged: boolean } {
+export function readTeamFile(source: unknown, catalogue: ImportCatalogue): {
+  draft: Draft;
+  modalityChanged: boolean
+} {
   const data = requireRecord(source, "The file must contain a team object.");
   const legacy = data.schemaVersion === undefined;
-  if (!legacy && data.schemaVersion !== TEAM_SCHEMA_VERSION) throw new Error("This team file version is not supported.");
-  if (typeof data.name !== "string" || data.name.length > 100) throw new Error("The team name must have up to 100 characters.");
-  if (typeof data.publicTeam !== "boolean") throw new Error("The public team field must be true or false.");
 
-  const modalityChanged = legacy && typeof data.modality === "string" && ["SINGLES", "DOUBLES", ""].includes(data.modality);
+  if (!legacy && data.schemaVersion !== TEAM_SCHEMA_VERSION) {
+    throw new Error("This team file version is not supported.");
+  }
+  if (typeof data.name !== "string" || data.name.length > 100) {
+    throw new Error("The team name must have up to 100 characters.");
+  }
+  if (typeof data.publicTeam !== "boolean") {
+    throw new Error("The public team field must be true or false.");
+  }
+
+  const modalityChanged = legacy
+    && typeof data.modality === "string"
+    && ["SINGLES", "DOUBLES", ""].includes(data.modality);
   const modality = modalityChanged ? "NORMAL" : MODALITIES.find(value => value === data.modality);
   if (!modality) throw new Error("Choose a valid team modality.");
 
@@ -98,10 +128,14 @@ export function readTeamFile(source: unknown, catalogue: ImportCatalogue): { dra
     gameId = game.id;
   }
 
-  if (!Array.isArray(data.members) || data.members.length !== TEAM_SIZE) throw new Error("The file must contain exactly six slots.");
+  if (!Array.isArray(data.members) || data.members.length !== TEAM_SIZE) {
+    throw new Error("The file must contain exactly six slots.");
+  }
+
   const { moves: knownMoves, items: knownItems } = catalogue;
   const members = data.members.map((value: unknown, index): Member | null => {
     if (value === null) return null;
+
     const prefix = `Slot ${index + 1}: `;
     const member = requireRecord(value, prefix + "expected a Pokémon object.");
     const pokemon = typeof member.pokedexId === "number" ? catalogue.pokedex.get(member.pokedexId) : undefined;
@@ -134,12 +168,19 @@ export function readTeamFile(source: unknown, catalogue: ImportCatalogue): { dra
       const evs = member.evs;
       stats = Object.fromEntries(POKEDEX_STATS.map(({ stat }, index) => [stat, evs[index]]));
     }
-    if (!hasValidStatPointValues(stats)) throw new Error(prefix + `each of the six EV values must be an integer between 0 and ${MAX_STAT_POINTS}.`);
+    if (!hasValidStatPointValues(stats)) {
+      throw new Error(prefix + `each of the six EV values must be an integer between 0 and ${MAX_STAT_POINTS}.`);
+    }
 
     return { pokedexId: pokemon.id, moves, ability, item, statPoints: stats, level, nature };
   });
+
   if (modality === "MONOTYPE" && commonMonotypeTypes(members, catalogue.pokedex)?.length === 0) {
     throw new Error("All Pokémon in a Monotype team must share a type.");
   }
-  return { draft: { name: data.name, modality, gameId, publicTeam: data.publicTeam, members }, modalityChanged };
+
+  return {
+    draft: { name: data.name, modality, gameId, publicTeam: data.publicTeam, members },
+    modalityChanged,
+  };
 }

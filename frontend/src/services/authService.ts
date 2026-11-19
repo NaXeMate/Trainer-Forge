@@ -1,4 +1,5 @@
 import type { AuthResponse, LoginInput, RegisterInput } from "../types/authTypes";
+
 import { apiRequest } from "./api";
 
 export function login(input: LoginInput) {

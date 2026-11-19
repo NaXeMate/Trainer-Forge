@@ -1,4 +1,11 @@
-import { useRef, useState, type InputHTMLAttributes, type ReactEventHandler, type ReactNode, type SubmitEvent } from "react";
+import {
+  useRef,
+  useState,
+  type InputHTMLAttributes,
+  type ReactEventHandler,
+  type ReactNode,
+  type SubmitEvent,
+} from "react";
 import { Link, Navigate, useLocation } from "react-router";
 
 import logo from "../../../assets/brand/logo/logo_no_background.png";
@@ -103,7 +110,11 @@ export default function AuthForm({ mode, children, onReset }: AuthFormProps) {
         </header>
 
         <form method="post" onSubmit={handleSubmit} onReset={onReset}>
-          <fieldset className="auth-card__fields" disabled={pending || session.status !== "guest"} aria-label="Account details">
+          <fieldset
+            className="auth-card__fields"
+            disabled={pending || session.status !== "guest"}
+            aria-label="Account details"
+          >
             {children}
           </fieldset>
 
@@ -112,8 +123,11 @@ export default function AuthForm({ mode, children, onReset }: AuthFormProps) {
               <img src={backArrow} width="18" height="16" alt="" />
               Back
             </Link>
-            <button className="auth-card__action auth-card__action--continue" type="submit"
-              disabled={pending || session.status !== "guest"}>
+            <button
+              className="auth-card__action auth-card__action--continue"
+              type="submit"
+              disabled={pending || session.status !== "guest"}
+            >
               Continue
               <img src={continueArrow} width="18" height="16" alt="" />
             </button>

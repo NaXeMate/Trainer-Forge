@@ -1,7 +1,16 @@
-import { useEffect, useId, useRef, useState } from "react";
-import type { CSSProperties, KeyboardEvent, ReactNode } from "react";
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type CSSProperties,
+  type KeyboardEvent,
+  type ReactNode,
+} from "react";
+
 import { useSelectionFeedback } from "../../../hooks/useSelectionFeedback";
 import { uppercaseInput } from "../../../utils/uppercaseInput";
+
 import "./combobox.css";
 
 export type ComboboxOption = {
@@ -216,7 +225,16 @@ export default function Combobox({
               select("");
             }}
           >
-            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+            <svg
+              aria-hidden="true"
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+            >
               <path d="m4 4 8 8M12 4l-8 8" />
             </svg>
           </button>

@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+
 import type { PokedexEntry } from "../types/pokedexTypes";
 
 const typeColors = new Map<string, string>([

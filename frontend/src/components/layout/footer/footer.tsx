@@ -15,7 +15,8 @@ function WarningIcon() {
       className="site-footer__warning-icon"
       fill="none"
       focusable="false"
-      viewBox="0 0 24 24">
+      viewBox="0 0 24 24"
+    >
       <path
         d="m10.29 3.86-8.82 14a2 2 0 0 0 1.7 3.04h17.66a2 2 0 0 0 1.7-3.04l-8.82-14a2 2 0 0 0-3.42 0Z"
         stroke="currentColor"
@@ -40,7 +41,8 @@ function ModeIcon() {
       className="site-footer__mode-icon"
       fill="none"
       focusable="false"
-      viewBox="0 0 24 24">
+      viewBox="0 0 24 24"
+    >
       <path
         d="M20.7 15.3A8.5 8.5 0 0 1 8.7 3.3 8.5 8.5 0 1 0 20.7 15.3Z"
         fill="currentColor"
@@ -103,7 +105,8 @@ function Footer() {
           <button
             className="site-footer__mode"
             type="button"
-            aria-label="Change color mode">
+            aria-label="Change color mode"
+          >
             <ModeIcon />
             <span>MODE</span>
           </button>

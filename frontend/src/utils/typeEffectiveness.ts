@@ -5,7 +5,11 @@ import type { PokedexEntry } from "../types/pokedexTypes";
 import type { Draft } from "./teamDraft";
 
 export type PokemonType = typeof POKEMON_TYPES[number]["name"];
-type TypeProfile = { strong: readonly PokemonType[]; resisted: readonly PokemonType[]; immune?: readonly PokemonType[] };
+type TypeProfile = {
+  strong: readonly PokemonType[];
+  resisted: readonly PokemonType[];
+  immune?: readonly PokemonType[]
+};
 
 const TYPE_CHART: Record<PokemonType, TypeProfile> = {
   NORMAL: { strong: [], resisted: ["ROCK", "STEEL"], immune: ["GHOST"] },

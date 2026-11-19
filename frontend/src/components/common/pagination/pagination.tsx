@@ -1,5 +1,5 @@
-import { useId, useState } from "react";
-import type { MouseEvent, SubmitEvent } from "react";
+import { useId, useState, type MouseEvent, type SubmitEvent } from "react";
+
 import "./pagination.css";
 
 export type PaginationChangeSource = "pointer" | "keyboard";
@@ -73,10 +73,16 @@ function PageIndicator({
         title={`Enter a page from 1 to ${totalPages} and press Enter`}
         style={{ width: `${Math.max(2, String(totalPages).length) + 1}ch` }}
         value={value}
-        onChange={event => { setValue(event.target.value); setInvalid(false); }}
+        onChange={event => {
+          setValue(event.target.value);
+          setInvalid(false);
+        }}
         onBlur={reset}
         onKeyDown={event => {
-          if (event.key === "Escape") { event.preventDefault(); reset(); }
+          if (event.key === "Escape") {
+            event.preventDefault();
+            reset();
+          }
         }}
       />
       {invalid && (
@@ -118,12 +124,26 @@ export default function Pagination({
     <nav className="pagination" aria-label={ariaLabel} onMouseDown={focusButtonWithoutScrolling}>
       <ul className="pagination__list">
         <li>
-          <button className="pagination__button" type="button" aria-label="First page" aria-controls={controlsId} disabled={page === 1} onClick={event => selectPage(1, event.detail === 0 ? "keyboard" : "pointer")}>
+          <button
+            className="pagination__button"
+            type="button"
+            aria-label="First page"
+            aria-controls={controlsId}
+            disabled={page === 1}
+            onClick={event => selectPage(1, event.detail === 0 ? "keyboard" : "pointer")}
+          >
             <PageArrow double />
           </button>
         </li>
         <li>
-          <button className="pagination__button" type="button" aria-label="Previous page" aria-controls={controlsId} disabled={page === 1} onClick={event => selectPage(page - 1, event.detail === 0 ? "keyboard" : "pointer")}>
+          <button
+            className="pagination__button"
+            type="button"
+            aria-label="Previous page"
+            aria-controls={controlsId}
+            disabled={page === 1}
+            onClick={event => selectPage(page - 1, event.detail === 0 ? "keyboard" : "pointer")}
+          >
             <PageArrow />
           </button>
         </li>
@@ -153,12 +173,26 @@ export default function Pagination({
         ))}
         {page < totalPages - 1 && <li className="pagination__ellipsis" aria-hidden="true">…</li>}
         <li>
-          <button className="pagination__button" type="button" aria-label="Next page" aria-controls={controlsId} disabled={page === totalPages} onClick={event => selectPage(page + 1, event.detail === 0 ? "keyboard" : "pointer")}>
+          <button
+            className="pagination__button"
+            type="button"
+            aria-label="Next page"
+            aria-controls={controlsId}
+            disabled={page === totalPages}
+            onClick={event => selectPage(page + 1, event.detail === 0 ? "keyboard" : "pointer")}
+          >
             <PageArrow forward />
           </button>
         </li>
         <li>
-          <button className="pagination__button" type="button" aria-label="Last page" aria-controls={controlsId} disabled={page === totalPages} onClick={event => selectPage(totalPages, event.detail === 0 ? "keyboard" : "pointer")}>
+          <button
+            className="pagination__button"
+            type="button"
+            aria-label="Last page"
+            aria-controls={controlsId}
+            disabled={page === totalPages}
+            onClick={event => selectPage(totalPages, event.detail === 0 ? "keyboard" : "pointer")}
+          >
             <PageArrow forward double />
           </button>
         </li>

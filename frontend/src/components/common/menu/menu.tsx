@@ -8,8 +8,8 @@ import {
   useState,
 } from "react";
 import { Link, useNavigate } from "react-router";
-import { useSelectionFeedback } from "../../../hooks/useSelectionFeedback";
-import type { SelectionFeedbackProps } from "../../../hooks/useSelectionFeedback";
+
+import { useSelectionFeedback, type SelectionFeedbackProps } from "../../../hooks/useSelectionFeedback";
 
 import "./menu.css";
 
@@ -79,20 +79,23 @@ function MenuLevel({
                 className={controlClassName}
                 disabled={item.disabled}
                 onClick={() => onToggle(itemKey)}
-                type="button">
+                type="button"
+              >
                 <span>{item.label}</span>
                 <svg
                   aria-hidden="true"
                   className="recursive-menu__chevron"
                   fill="none"
                   focusable="false"
-                  viewBox="0 0 20 20">
+                  viewBox="0 0 20 20"
+                >
                   <path
                     d="m7.5 5 5 5-5 5"
                     stroke="currentColor"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    strokeWidth="1.5" />
+                    strokeWidth="1.5"
+                  />
                 </svg>
               </button>
             ) : item.href ? (
@@ -102,7 +105,8 @@ function MenuLevel({
                 className={controlClassName}
                 onClick={(event) => onSelect(item, itemKey, event)}
                 tabIndex={item.disabled ? -1 : undefined}
-                to={item.href}>
+                to={item.href}
+              >
                 {item.label}
               </Link>
             ) : (
@@ -111,7 +115,8 @@ function MenuLevel({
                 className={controlClassName}
                 disabled={item.disabled}
                 onClick={() => onSelect(item, itemKey)}
-                type="button">
+                type="button"
+              >
                 {item.label}
               </button>
             )}
@@ -271,7 +276,8 @@ export default function Menu({
       className={rootClassName}
       data-orientation={orientation}
       onKeyDown={handleKeyDown}
-      ref={rootRef}>
+      ref={rootRef}
+    >
       <MenuLevel
         items={items}
         level={0}

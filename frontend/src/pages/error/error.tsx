@@ -26,20 +26,23 @@ export default function ErrorPage() {
           <button
             className="error-page__action error-page__action--primary"
             type="button"
-            onClick={handleRetry}>
+            onClick={handleRetry}
+          >
             <span>Try again</span>
             <svg
               aria-hidden="true"
               className="error-page__action-icon"
               focusable="false"
-              viewBox="0 0 24 24">
+              viewBox="0 0 24 24"
+            >
               <path
                 d="M20 11a8 8 0 0 0-14.65-4L3 9m0 0V4m0 5h5M4 13a8 8 0 0 0 14.65 4L21 15m0 0v5m0-5h-5"
                 fill="none"
                 stroke="currentColor"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                strokeWidth="2"/>
+                strokeWidth="2"
+              />
             </svg>
           </button>
 

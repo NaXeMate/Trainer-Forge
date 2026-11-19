@@ -138,10 +138,22 @@
   border-radius: var(--radius-pill);
 }
 
-.simulator-arena__start img { width: 100%; height: 100%; object-fit: contain; }
-.simulator-arena__status { color: var(--color-secondary-text); overflow-wrap: anywhere; }
+.simulator-arena__start img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.simulator-arena__status {
+  color: var(--color-secondary-text);
+  overflow-wrap: anywhere;
+}
 .simulator-arena__error { color: var(--color-body-text); }
-.simulator-arena__error button { color: var(--color-accent); text-decoration: underline; }
+
+.simulator-arena__error button {
+  color: var(--color-accent);
+  text-decoration: underline;
+}
 
 .simulator-picker {
   width: min(27rem, calc(100% - (2 * var(--content-gutter))));
@@ -157,7 +169,12 @@
 
 .simulator-picker::backdrop { background: rgb(0 0 0 / 45%); }
 .simulator-picker h2 { margin-bottom: var(--space-4); }
-.simulator-picker ul { display: grid; gap: var(--space-2); list-style: none; }
+
+.simulator-picker ul {
+  display: grid;
+  gap: var(--space-2);
+  list-style: none;
+}
 .simulator-picker__group + .simulator-picker__group { margin-top: var(--space-5); }
 .simulator-picker__group h3 {
   color: var(--color-secondary-text);
@@ -179,8 +196,15 @@
   background: color-mix(in srgb, var(--color-glass-tint-base) 30%, transparent);
 }
 
-.simulator-picker li button span { color: var(--color-secondary-text); font-size: var(--font-size-sm); }
-.simulator-picker__cancel { margin-top: var(--space-4); color: var(--color-accent); }
+.simulator-picker li button span {
+  color: var(--color-secondary-text);
+  font-size: var(--font-size-sm);
+}
+
+.simulator-picker__cancel {
+  margin-top: var(--space-4);
+  color: var(--color-accent);
+}
 
 @media (max-width: 64rem) {
   .simulator-arena {
@@ -190,7 +214,10 @@
 }
 
 @media (max-width: 48rem) {
-  .simulator-page__main { min-height: auto; padding-block: var(--space-12); }
+  .simulator-page__main {
+    min-height: auto;
+    padding-block: var(--space-12);
+  }
 
   .simulator-arena {
     grid-template:

@@ -1,6 +1,7 @@
 import Combobox from "../combobox";
 import { POKEMON_TYPES } from "../../../constants/pokedex";
 import { getTypeColor } from "../../../utils/pokemonPresentation";
+
 import "./pokemonTypeCombobox.css";
 
 interface PokemonTypeComboboxProps {

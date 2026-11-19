@@ -6,7 +6,12 @@ export default function Login() {
     <AuthForm mode="login">
       <AuthField label="Username" name="username" autoComplete="username" maxLength={30} />
       <div>
-        <AuthField label="Password" name="password" type="password" autoComplete="current-password" />
+        <AuthField
+          label="Password"
+          name="password"
+          type="password"
+          autoComplete="current-password"
+        />
         <button className="auth-card__recovery" type="button" disabled>Forgot your password?</button>
       </div>
     </AuthForm>

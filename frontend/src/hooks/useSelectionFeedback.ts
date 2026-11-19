@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import type { CSSProperties } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
+
 import "../styles/selectionFeedback.css";
 
 const BLINK_STEP_DURATION_MS = 90;

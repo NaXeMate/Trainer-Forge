@@ -1,4 +1,5 @@
 import type { TrainerProfile, TrainerProfileChanges } from "../types/trainerTypes";
+
 import { apiRequest } from "./api";
 
 export function getCurrentTrainer(token: string, signal: AbortSignal) {
