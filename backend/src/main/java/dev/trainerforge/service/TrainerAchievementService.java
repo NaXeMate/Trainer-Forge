@@ -1,11 +1,18 @@
 package dev.trainerforge.service;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import dev.trainerforge.dto.response.AchievementDto.Progress;
 import dev.trainerforge.dto.response.TrainerAchievementDto;
 import dev.trainerforge.exception.notfound.TrainerAchievementNotFoundException;
 import dev.trainerforge.model.entities.Achievement;
@@ -13,6 +20,8 @@ import dev.trainerforge.model.entities.Trainer;
 import dev.trainerforge.model.entities.TrainerAchievement;
 import dev.trainerforge.repository.TrainerAchievementRepository;
 import dev.trainerforge.validator.TrainerAchievementValidator;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
 
 @Transactional(readOnly = true)
 @Service
@@ -21,11 +30,78 @@ public class TrainerAchievementService {
     private final TrainerAchievementRepository trainerAchievementRepo;
     private final TrainerService trainerService;
     private final AchievementService achievementService;
+    private final EntityManager entityManager;
 
-    public TrainerAchievementService(TrainerAchievementRepository trainerAchievementRepo, TrainerService trainerService, AchievementService achievementService) {
+    public TrainerAchievementService(TrainerAchievementRepository trainerAchievementRepo, TrainerService trainerService,
+            AchievementService achievementService, EntityManager entityManager) {
         this.trainerAchievementRepo = trainerAchievementRepo;
         this.trainerService = trainerService;
         this.achievementService = achievementService;
+        this.entityManager = entityManager;
+    }
+
+    /**
+     * Retrieves the full catalogue with the trainer's unlock status.
+     * Hidden achievements display {@code ???} as their name and requirement until unlocked.
+     *
+     * @param username the trainer whose progress is requested.
+     * @return the catalogue ordered by achievement ID.
+     * @throws dev.trainerforge.exception.notfound.TrainerNotFoundException when the trainer does not exist.
+     */
+    public List<Progress> getProgress(String username) {
+        Trainer trainer = trainerService.findByUsername(username);
+        Set<Long> unlockedIds = findUnlockedIds(trainer.getId());
+        return achievementService.findAll().stream()
+                .sorted(Comparator.comparing(achievement -> achievement.getId()))
+                .map(achievement -> toProgress(achievement, unlockedIds.contains(achievement.getId())))
+                .toList();
+    }
+
+    /**
+     * Records a batch of achievement unlocks and skips achievements already unlocked by the trainer.
+     *
+     * @param username the trainer receiving the unlocks.
+     * @param achievementIds the achievements to unlock.
+     * @return the newly unlocked achievements ordered by ID, or an empty list if there are no new unlocks.
+     * @throws dev.trainerforge.exception.notfound.AchievementNotFoundException when any requested ID is missing.
+     * @throws dev.trainerforge.exception.notfound.TrainerNotFoundException when the trainer does not exist.
+     */
+    @Transactional
+    public List<Progress> completeAchievements(String username, @NonNull Set<Long> achievementIds) {
+        List<Achievement> requested = achievementService.findAllByIds(achievementIds);
+        Trainer trainer = lockTrainer(username);
+        Set<Long> unlockedIds = findUnlockedIds(trainer.getId());
+        LocalDateTime date = LocalDateTime.now().truncatedTo(ChronoUnit.MICROS);
+        var newCompletions = new ArrayList<@NonNull TrainerAchievement>();
+        for (Achievement achievement : requested) {
+            if (!unlockedIds.contains(achievement.getId())) {
+                newCompletions.add(new TrainerAchievement(trainer, achievement, date));
+            }
+        }
+        return trainerAchievementRepo.saveAll(newCompletions).stream()
+                .map(completion -> toProgress(completion.getAchievement(), true))
+                .sorted(Comparator.comparing(progress -> progress.id()))
+                .toList();
+    }
+
+    private Trainer lockTrainer(String username) {
+        Trainer trainer = trainerService.findByUsername(username);
+        // Concurrent awards for one trainer must observe each other's writes.
+        entityManager.lock(trainer, LockModeType.PESSIMISTIC_WRITE);
+        return trainer;
+    }
+
+    private Set<Long> findUnlockedIds(Long trainerId) {
+        return trainerAchievementRepo.findByTrainerId(trainerId).stream()
+                .map(completion -> completion.getAchievement().getId())
+                .collect(Collectors.toSet());
+    }
+
+    private static Progress toProgress(Achievement achievement, boolean unlocked) {
+        if (achievement.isHidden() && !unlocked) {
+            return new Progress(achievement.getId(), "???", "???", false);
+        }
+        return new Progress(achievement.getId(), achievement.getName(), achievement.getDescription(), unlocked);
     }
 
     /**
@@ -40,7 +116,7 @@ public class TrainerAchievementService {
      */
     @Transactional
     public TrainerAchievement unlockAchievement(TrainerAchievementDto dto) {
-        Trainer trainer = trainerService.findByUsername(dto.trainerUsername());
+        Trainer trainer = lockTrainer(dto.trainerUsername());
 
         Long achievementId = TrainerAchievementValidator.parseAchievementId(dto.achievement());
         Achievement achievement = achievementService.findById(achievementId);
@@ -50,12 +126,8 @@ public class TrainerAchievementService {
             trainer.getId(),
             achievementId);
 
-        TrainerAchievement trainerAchievement = new TrainerAchievement();
-        trainerAchievement.setTrainer(trainer);
-        trainerAchievement.setAchievement(achievement);
-        trainerAchievement.setDateObtained(dto.dateObtained() != null ? dto.dateObtained() : LocalDateTime.now());
-
-        return trainerAchievementRepo.save(trainerAchievement);
+        LocalDateTime date = dto.dateObtained() != null ? dto.dateObtained() : LocalDateTime.now();
+        return trainerAchievementRepo.save(new TrainerAchievement(trainer, achievement, date));
     }
 
     public List<TrainerAchievement> findAll() {

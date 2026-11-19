@@ -1,7 +1,9 @@
 package dev.trainerforge.service;
 
 import java.util.List;
+import java.util.Set;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +20,21 @@ public class AchievementService {
 
     public AchievementService(AchievementRepository achievementRepo) {
         this.achievementRepo = achievementRepo;
+    }
+
+    /**
+     * Retrieves a batch of achievements and requires every requested ID to exist.
+     *
+     * @param achievementIds the IDs to look up.
+     * @return the matching achievements, or an empty list if no IDs were supplied.
+     * @throws AchievementNotFoundException if any requested ID is missing.
+     */
+    public List<Achievement> findAllByIds(@NonNull Set<Long> achievementIds) {
+        List<Achievement> requested = achievementRepo.findAllById(achievementIds);
+        if (requested.size() != achievementIds.size()) {
+            throw new AchievementNotFoundException("One or more achievements were not found.");
+        }
+        return requested;
     }
 
     public List<Achievement> findAll() {
