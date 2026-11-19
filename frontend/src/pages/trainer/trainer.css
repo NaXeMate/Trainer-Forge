@@ -348,20 +348,99 @@ button.trainer-card__choice:hover span {
   height: 1.125rem;
 }
 
-.trainer-achievements__grid {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: clamp(0.25rem, 1vw, var(--space-2));
+.trainer-achievements__viewport {
+  --achievement-gap: clamp(0.25rem, 1vw, var(--space-2));
   width: min(100%, 20rem);
   margin-inline: auto;
-  list-style: none;
+  overflow: clip visible;
+  container-type: inline-size;
 }
 
-.trainer-achievements__grid li {
+.trainer-achievements__grid {
+  display: grid;
+  grid-auto-columns: calc((100% + var(--achievement-gap)) / var(--achievement-columns) - var(--achievement-gap));
+  gap: var(--achievement-gap);
+  list-style: none;
+  translate: calc(-1 * var(--achievement-offset) * (100% + var(--achievement-gap)) / var(--achievement-columns));
+  transition: translate 220ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trainer-achievements__grid {
+    transition: none;
+  }
+}
+
+.trainer-achievements__slot {
+  position: relative;
+  min-width: 0;
+}
+
+.trainer-achievements__badge {
+  display: grid;
+  place-items: center;
+  width: 100%;
   aspect-ratio: 1;
+  color: inherit;
+  font: inherit;
+  cursor: help;
   border: var(--border-width-thin) solid var(--color-border);
   border-radius: var(--radius-sm);
   background: var(--color-glass-tint);
+}
+
+.trainer-achievements__badge[data-unlocked="true"] {
+  color: var(--color-status-success);
+}
+
+.trainer-achievements__badge:is(:hover, :focus-visible) {
+  border-color: currentColor;
+}
+
+.trainer-achievements__badge:focus-visible {
+  outline-offset: -2px;
+}
+
+.trainer-achievements__tooltip {
+  position: absolute;
+  inset-block-end: 100%;
+  inset-inline-start: 0;
+  display: grid;
+  gap: var(--space-2);
+  width: min(14rem, 58vw, calc(80cqw - var(--achievement-gap)));
+  padding: var(--space-3);
+  visibility: var(--achievement-tooltip-visibility, hidden);
+  border: var(--border-width-thin) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: linear-gradient(var(--color-surface-elevated), var(--color-surface-elevated)), var(--color-page-background);
+  box-shadow: var(--shadow-card);
+  font-size: var(--font-size-sm);
+  line-height: 1.4;
+  text-align: start;
+  overflow-wrap: anywhere;
+}
+
+.trainer-achievements__slot[data-tooltip-align="center"] > .trainer-achievements__tooltip {
+  inset-inline-start: 50%;
+  translate: -50% 0;
+  width: min(14rem, 58vw, 100cqw);
+}
+
+.trainer-achievements__slot[data-tooltip-align="end"] > .trainer-achievements__tooltip {
+  inset-inline: auto 0;
+}
+
+.trainer-achievements__grid:not(:has(.trainer-achievements__badge:focus-visible)) > .trainer-achievements__slot:not([inert]):hover,
+.trainer-achievements__slot:has(> .trainer-achievements__badge:focus-visible) {
+  --achievement-tooltip-visibility: visible;
+  z-index: 1;
+}
+
+@media (hover: none) {
+  .trainer-achievements__slot:focus-within {
+    --achievement-tooltip-visibility: visible;
+    z-index: 1;
+  }
 }
 
 .trainer-card__actions {
@@ -423,7 +502,7 @@ button.trainer-card__choice:hover span {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .trainer-achievements__grid {
+  .trainer-achievements__viewport {
     width: min(100%, 27rem);
   }
 }

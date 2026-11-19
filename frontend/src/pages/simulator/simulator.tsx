@@ -5,6 +5,7 @@ import Header from "../../components/layout/header";
 import Footer from "../../components/layout/footer";
 import { useAuth } from "../../context/useAuth";
 import { useSessionTeamDraft, useSessionTeamDraftRevision } from "../../hooks/useSessionTeamDraft";
+import { achievementNotice, checkAchievements } from "../../services/achievementService";
 import { ApiError } from "../../services/api";
 import { getPokedexEntries } from "../../services/pokedexService";
 import { getCompleteTeam, getEligibleTeams, simulateBattle } from "../../services/teamService";
@@ -25,7 +26,7 @@ type Catalogue = {
   presets: PresetTeam[];
   pokedex: Map<number, PokedexEntry>;
 };
-type BattleState = { key: string; result: BattleResult } | { key: string; error: string };
+type BattleState = { key: string; result: BattleResult; achievementStatus?: string } | { key: string; error: string };
 
 const sideLabels: Record<Side, string> = { one: "P1 (Player)", two: "P2 (AI)" };
 const otherSide: Record<Side, Side> = { one: "two", two: "one" };
@@ -281,7 +282,23 @@ function Matchup({ token, catalogue, initialStart }: { token: string; catalogue:
     setBattle(undefined);
     try {
       const result = await simulateBattle(toSelection(one, left.draft), toSelection(two, right.draft), token, signal);
-      if (!signal.aborted) setBattle({ key: battleKey, result });
+      if (signal.aborted) return;
+      setBattle({ key: battleKey, result });
+      let status: string;
+      try {
+        const unlocked = await checkAchievements({
+          type: "battleFinished",
+          result,
+          player: left.draft,
+          opponent: right.draft,
+          opponentKey: two.key,
+          pokedex: catalogue.pokedex,
+        }, token, signal);
+        status = achievementNotice(unlocked);
+      } catch {
+        status = "Could not check achievements. Simulate the battle again to retry.";
+      }
+      if (!signal.aborted) setBattle({ key: battleKey, result, achievementStatus: status });
     } catch (error) {
       if (signal.aborted) return;
       if (error instanceof ApiError && error.status === 401) logout();
@@ -330,8 +347,10 @@ function Matchup({ token, catalogue, initialStart }: { token: string; catalogue:
         }}>Retry</button>
       </p>}
       {one && two && !ready && !hint && !loadError && <p role="status">Loading Pokémon…</p>}
-      {pending && <p role="status">Simulating battle…</p>}
+      {pending && !result && <p role="status">Simulating battle…</p>}
       {result && <p className="simulator-arena__status" role="status">{result.summary}</p>}
+      {activeBattle && "result" in activeBattle && activeBattle.achievementStatus &&
+        <p className="simulator-arena__status" role="status">{activeBattle.achievementStatus}</p>}
       {activeBattle && "error" in activeBattle && <p className="simulator-arena__error" role="alert">{activeBattle.error}</p>}
     </div>
     <dialog ref={picker} className="simulator-picker" aria-labelledby="simulator-picker-title">

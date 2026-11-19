@@ -1,4 +1,8 @@
-import { POKEMON_TYPES } from "../constants/pokedex";
+import { findPokemonType, POKEMON_TYPES } from "../constants/pokedex";
+import type { MoveOption } from "../types/moveTypes";
+import type { PokedexEntry } from "../types/pokedexTypes";
+
+import type { Draft } from "./teamDraft";
 
 export type PokemonType = typeof POKEMON_TYPES[number]["name"];
 type TypeProfile = { strong: readonly PokemonType[]; resisted: readonly PokemonType[]; immune?: readonly PokemonType[] };
@@ -39,11 +43,43 @@ export function getPokemonTypes(pokemon: { type1: string; type2: string | null }
 }
 
 export function analyzePokemonTypes(pokemon: { type1: string; type2: string | null }, target: PokemonType) {
-  const types = getPokemonTypes(pokemon);
   return {
-    superEffective: types.some(type => getTypeEffectiveness(type, target) > 1),
-    weak: types.reduce((multiplier, type) => multiplier * getTypeEffectiveness(target, type), 1) > 1,
+    superEffective: getPokemonTypes(pokemon).some(type => getTypeEffectiveness(type, target) > 1),
+    weak: getDefensiveMultiplier(target, pokemon) > 1,
   };
+}
+
+export function getDefensiveMultiplier(attacker: PokemonType, pokemon: {
+  type1: string;
+  type2: string | null
+}) {
+  return getPokemonTypes(pokemon).reduce((multiplier, type) => multiplier * getTypeEffectiveness(attacker, type), 1);
+}
+
+export function getAttackingTypesByMove(moves: readonly MoveOption[]) {
+  const types = new Map<string, PokemonType>();
+  for (const move of moves) {
+    if ((move.moveClass !== "PHYSICAL" && move.moveClass !== "SPECIAL") || (move.power ?? 0) <= 0) continue;
+    const type = findPokemonType(move.type);
+    if (type) types.set(move.name.trim().toLowerCase(), type.name);
+  }
+  return types;
+}
+
+export function getTeamTypeProfiles(
+  members: Draft["members"],
+  pokedex: ReadonlyMap<number, PokedexEntry>,
+  attackingTypes: ReadonlyMap<string, PokemonType>,
+) {
+  return members.map(member => {
+    const pokemon = member && pokedex.get(member.pokedexId);
+    if (!member || !pokemon) return undefined;
+    const attackTypes = member.moves.flatMap(name => {
+      const type = attackingTypes.get(name.trim().toLowerCase());
+      return type ? [type] : [];
+    });
+    return { type1: pokemon.type1, type2: pokemon.type2, attackTypes };
+  });
 }
 
 export function analyzeTeamTypes(

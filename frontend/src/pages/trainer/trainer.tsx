@@ -6,7 +6,6 @@ import favoriteGame from "../../assets/icons/favorite-game.svg";
 import favoritePokemon from "../../assets/icons/favorite-pokemon.svg";
 import pokeBallSeparator from "../../assets/icons/poke-ball-separator.svg";
 import { trainerSpriteCredits } from "../../utils/trainerSpriteCredits";
-import ArrowButton from "../../components/common/arrowButton";
 import Combobox from "../../components/common/combobox";
 import PokemonPicker from "../../components/common/pokemonPicker";
 import type { PickerPanel } from "../../components/common/pokemonPicker";
@@ -20,6 +19,7 @@ import type { PokedexEntry } from "../../types/pokedexTypes";
 
 import { TRAINER_CLASSES } from "../../types/trainerTypes";
 import type { EditableTrainerProfile, TrainerClass, TrainerProfile, TrainerProfileChanges } from "../../types/trainerTypes";
+import TrainerAchievements from "./trainerAchievements";
 import trainerSpriteIds from "./trainerSprites.json";
 
 import "./trainer.css";
@@ -36,10 +36,6 @@ const FAVORITE_LABELS = {
   pokemon: { image: favoritePokemon, text: "Favorite Pokémon" },
   game: { image: favoriteGame, text: "Favorite Game" },
 };
-
-const ACHIEVEMENT_SLOTS = 30;
-const ACHIEVEMENTS_PER_PAGE = 15;
-const LAST_ACHIEVEMENT_PAGE = Math.ceil(ACHIEVEMENT_SLOTS / ACHIEVEMENTS_PER_PAGE) - 1;
 
 function titleCase(name: string) {
   return name.replace(/([a-z])([A-Z0-9])/g, "$1 $2").replace(/[-_]/g, " ")
@@ -176,7 +172,7 @@ function ProfileArtwork({ kind, image, name, onChoose }: {
 }
 
 export default function Trainer() {
-  const { session, retry, updateProfile } = useAuth();
+  const { session, accessToken, retry, updateProfile } = useAuth();
   const { pathname, search, hash } = useLocation();
   const returnState = { from: pathname + search + hash };
 
@@ -184,8 +180,15 @@ export default function Trainer() {
     return <Navigate to="/login" state={returnState} replace />;
   }
 
-  if (session.status === "authenticated") {
-    return <TrainerCard key={session.profile.id} profile={session.profile} updateProfile={updateProfile} />;
+  if (session.status === "authenticated" && accessToken) {
+    return (
+      <TrainerCard
+        key={session.profile.id}
+        profile={session.profile}
+        token={accessToken}
+        updateProfile={updateProfile}
+      />
+    );
   }
 
   return (
@@ -205,8 +208,9 @@ export default function Trainer() {
   );
 }
 
-function TrainerCard({ profile, updateProfile }: {
+function TrainerCard({ profile, token, updateProfile }: {
   profile: TrainerProfile;
+  token: string;
   updateProfile: (changes: TrainerProfileChanges) => Promise<void>;
 }) {
   const [draft, setDraft] = useState<EditableTrainerProfile | null>(null);
@@ -219,7 +223,6 @@ function TrainerCard({ profile, updateProfile }: {
   const [entries, setEntries] = useState<PokedexEntry[]>([]);
   const [pokemonStatus, setPokemonStatus] = useState<"loading" | "success" | "error">("loading");
   const [pokemonAttempt, setPokemonAttempt] = useState(profile.favoritePokemonId === null ? 0 : 1);
-  const [achievementPage, setAchievementPage] = useState(0);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const editButtonRef = useRef<HTMLButtonElement>(null);
@@ -398,21 +401,7 @@ function TrainerCard({ profile, updateProfile }: {
               <ProfileArtwork kind="game" name={selectedGame?.name ?? displayedProfile.favoriteGameName ?? undefined} image={selectedGame?.image} onChoose={chooseArtwork} />
             </div>
 
-            <section className="trainer-achievements" aria-labelledby="trainer-achievements-title">
-              <h2 id="trainer-achievements-title">Achievements</h2>
-              <div className="trainer-achievements__body">
-                <ArrowButton aria-label="Previous achievements" aria-controls="trainer-achievements-grid" disabled={achievementPage === 0}
-                  onClick={() => setAchievementPage(page => Math.max(0, page - 1))} />
-                <ul className="trainer-achievements__grid" id="trainer-achievements-grid" aria-hidden="true">
-                  {Array.from({ length: ACHIEVEMENTS_PER_PAGE }, (_, index) => (
-                    <li key={achievementPage * ACHIEVEMENTS_PER_PAGE + index} />
-                  ))}
-                </ul>
-                <ArrowButton direction="right" aria-label="Next achievements" aria-controls="trainer-achievements-grid"
-                  disabled={achievementPage === LAST_ACHIEVEMENT_PAGE}
-                  onClick={() => setAchievementPage(page => Math.min(LAST_ACHIEVEMENT_PAGE, page + 1))} />
-              </div>
-            </section>
+            <TrainerAchievements token={token} />
           </div>
           {draft && (
             <div className="trainer-card__actions">

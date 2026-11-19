@@ -18,10 +18,11 @@ import PokemonTypeBadge from "../../components/common/pokemonTypeBadge";
 import PokemonTypeCombobox from "../../components/common/pokemonTypeCombobox";
 import SortOptions from "../../components/common/sortOptions";
 import StatisticSlider from "../../components/common/statisticSlider";
-import { findPokemonType, POKEDEX_STATS } from "../../constants/pokedex";
+import { POKEDEX_STATS } from "../../constants/pokedex";
 import { gameCatalogue, teamNatures } from "../../constants/teamCatalogue";
 import { useAuth } from "../../context/useAuth";
 import { useSessionTeamDraft, useSessionTeamDraftRevision } from "../../hooks/useSessionTeamDraft";
+import { achievementNotice, checkAchievements } from "../../services/achievementService";
 import { ApiError } from "../../services/api";
 import { getEquippableItems } from "../../services/itemService";
 import { getPokedexEntries } from "../../services/pokedexService";
@@ -48,7 +49,7 @@ import {
   TEAM_MOVE_SORT_GROUPS,
 } from "../../utils/teamPicker";
 import type { MoveSortCriterion } from "../../utils/teamPicker";
-import { analyzeTeamTypes, getPokemonTypes } from "../../utils/typeEffectiveness";
+import { analyzeTeamTypes, getAttackingTypesByMove, getPokemonTypes, getTeamTypeProfiles } from "../../utils/typeEffectiveness";
 import type { PokemonType } from "../../utils/typeEffectiveness";
 import "../../styles/pokemonTypeColors.css";
 import "../../styles/teamControl.css";
@@ -172,6 +173,7 @@ function TeamEditor({ token, username }: { token: string; username: string }) {
   const { logout } = useAuth();
   const draft = working?.draft ?? blankTeam;
   const [actionError, setActionError] = useState<string>();
+  const [achievementStatus, setAchievementStatus] = useState("");
   const [busy, setBusy] = useState(false);
   const operation = useRef<AbortController | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
@@ -341,10 +343,22 @@ function TeamEditor({ token, username }: { token: string; username: string }) {
     }
     const id = working.origin.kind === "saved" ? working.origin.id : null;
     void runOperation(async signal => {
+      setAchievementStatus("");
       const team = await saveCompleteTeam(draft, id, token, signal);
       if (signal.aborted) return;
       if (!replace({ draft: team.draft, origin: { kind: "saved", id: team.id }, dirty: false })) return;
       setProfileAttempt(previous => previous + 1);
+      try {
+        const unlocked = await checkAchievements({
+          type: "teamSaved",
+          draft: team.draft,
+          pokedex: pokemonById,
+          moves: moveState.status === "success" ? moveState.moves : undefined,
+        }, token, signal);
+        if (!signal.aborted) setAchievementStatus(achievementNotice(unlocked));
+      } catch {
+        if (!signal.aborted) setAchievementStatus("Team saved. Could not check achievements. Save again to retry.");
+      }
     });
   }
 
@@ -428,26 +442,11 @@ function TeamEditor({ token, username }: { token: string; username: string }) {
   }
 
   const availableMoves = moveState.status === "success" ? moveState.moves : [];
-  const attackTypesByName = useMemo(() => {
-    const types = new Map<string, PokemonType>();
-    if (moveState.status === "success") {
-      for (const move of moveState.moves) {
-        if ((move.moveClass !== "PHYSICAL" && move.moveClass !== "SPECIAL") || (move.power ?? 0) <= 0) continue;
-        const type = findPokemonType(move.type);
-        if (type) types.set(move.name.trim().toLowerCase(), type.name);
-      }
-    }
-    return types;
-  }, [moveState]);
-  const analyzedTeam = draft.members.map((member, slot) => {
-    const pokemon = selected[slot];
-    if (!member || !pokemon) return undefined;
-    const attackTypes = member.moves.flatMap(name => {
-      const type = attackTypesByName.get(name.trim().toLowerCase());
-      return type ? [type] : [];
-    });
-    return { type1: pokemon.type1, type2: pokemon.type2, attackTypes };
-  });
+  const attackTypesByName = useMemo(
+    () => getAttackingTypesByMove(moveState.status === "success" ? moveState.moves : []),
+    [moveState],
+  );
+  const analyzedTeam = getTeamTypeProfiles(draft.members, pokemonById, attackTypesByName);
   const matchingMoves = dialog?.kind === "move" ? getTeamPickerMoves(availableMoves, query, moveFilters, moveSort) : [];
   function updateMove(slot: number, index: number, name: string) {
     const member = draft.members[slot];
@@ -623,6 +622,7 @@ function TeamEditor({ token, username }: { token: string; username: string }) {
             </button>
           </div>
           {actionError && <p className="teams-page__action-error" role="alert">{actionError}</p>}
+          {achievementStatus && <p role="status">{achievementStatus}</p>}
         </aside>
       </div>
     </main>
